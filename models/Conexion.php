@@ -2,7 +2,7 @@
 use \PDO, \PDOException;
 class Conexion{
 
- private $servidor="mysql:dbname=arriendos; host=127.0.0.1";
+ private $servidor="mysql:dbname=sicoco; host=127.0.0.1";
  private $usuario= "root";
  private $password="";
  private $pdo;

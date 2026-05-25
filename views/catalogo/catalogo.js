@@ -6,7 +6,6 @@ function Insert_Catalogo(){
 function LimpiarCamposCatalogo(){
 // pone en blanco todos los campos de ingreso de datos de Tienda/almacen
 $('#SelBuscarArea').val('0').trigger('change');
-document.getElementsByName("txt_tipo")[0].value = "";
 document.getElementsByName("txt_descripcion")[0].value = "";
 document.getElementsByName("txt_alquiler")[0].value = "0";
 }
@@ -55,7 +54,6 @@ function ListarCatalogo(){
         }
       },
       {"data": "DISTRIBUCION"},
-      {"data": "TIPO"},
       {"data": "DESCRIPCION"},
       {"data": "ALQUILER"},
       {"data": "ESTADO"},
@@ -116,9 +114,8 @@ $(document).ready(function(){
 
     document.getElementsByName("txt_idcatalogo")[0].value=$(this).parents("tr").find(".id-row").text();
     $('#SelBuscarArea').val($(this).parents("tr").find(".id-area").text()).trigger('change');
-    document.getElementsByName("txt_tipo")[0].value=$(this).parents("tr").find("td").eq(2).html();
-    document.getElementsByName("txt_descripcion")[0].value=$(this).parents("tr").find("td").eq(3).html(); 
-    document.getElementsByName("txt_alquiler")[0].value=$(this).parents("tr").find("td").eq(4).html(); 
+    document.getElementsByName("txt_descripcion")[0].value=$(this).parents("tr").find("td").eq(2).html(); 
+    document.getElementsByName("txt_alquiler")[0].value=$(this).parents("tr").find("td").eq(3).html(); 
   });
 
   // Evento: Clic en Eliminar en la tabla

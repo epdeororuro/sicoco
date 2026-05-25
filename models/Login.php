@@ -4,7 +4,6 @@
 
 		private $idusuario;
 		private $nombreusr;
-		private $rol;
 		private $clave;
 		private $token;
 		private $ip_acceso;
@@ -24,13 +23,11 @@
 		}
 
 		public function lst_login(){
-			$sql="SELECT u.*, r.SIGLA as ROL
-			      FROM usuarios u
-			      LEFT JOIN roles r ON u.IDROL = r.IDROL
-			      WHERE u.ACTIVO='SI' AND u.USR = '{$this->nombreusr}' LIMIT 1";
-			$datos=$this->con->consultaRetorno($sql);
+			$sql = "CALL SP_LOGIN('{$this->nombreusr}')";
+			$datos = $this->con->ConsultaRetorno($sql);
 			return $datos;
 		}
+
 
 		// Genera y guarda el código con expiración de 5 minutos
 		public function insertar_otp()

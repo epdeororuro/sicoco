@@ -37,19 +37,17 @@
                   <tr>
                     <th>Nro</th>
                     <th>Ubicación</th>
-                    <th>Tipo</th>
                     <th>Descripción</th>
                     <th>Alquiler[BS]</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
-                 
+                  
                   <tfoot class=" table-success">
                   <tr>
                     <th>Nro</th>
                     <th>Ubicación</th>
-                    <th>Tipo</th>
                     <th>Descripción</th>
                     <th>Alquiler[BS]</th>
                     <th>Estado</th>
@@ -104,24 +102,6 @@
                              </select>                              
                         </div>
                     
-                     <div class="col-sm-4">
-                        <label for="txt_tipo">Tipo de Espacio</label>
-                        <select id="txt_tipo" 
-                          name="txt_tipo" class="form-control" style="width:100%">
-                           <option value="0">Seleccionar..</option>
-                           <option value="KIOSCO">KIOSCO</option>
-                           <option value="ESPACIO">ESPACIO</option>
-                           <option value="BODEGA">BODEGA</option>
-                           <option value="OFICINA DEPTAL">
-                           OFICINA DEPTAL</option>
-                           <option value="OFICINA PROV">
-                           OFICINA PROV</option>
-                           <option value="CARRIL DEPTAL">
-                           CARRIL DEPTAL</option>
-                           <option value="CARRIL PROV">
-                           CARRIL PROV</option>
-                        </select>                        
-                     </div>   
                     </div>                        
                     
                          

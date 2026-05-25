@@ -45,16 +45,14 @@ public function add()
 		if($_POST){
 			//echo "el valor enviado por post es-->".$_POST['SelBuscarArea']."->".$_POST['txt_descripcion'];
 			if (($_POST['SelBuscarArea']=='0')||
-				($_POST['txt_tipo']=='0')||
 				empty($_POST['txt_descripcion'])||
-				empty($_POST['txt_alquiler']))				
+				empty($_POST['txt_alquiler']))			
 			{
-				$respuesta="Debe Completar los Datos, Todos los Campos son Obligatorios".$_POST['txt_tipo']."-".$_POST['SelBuscarArea'];			
+				$respuesta="Debe Completar los Datos, Todos los Campos son Obligatorios".$_POST['SelBuscarArea'];			
 			}
 			else 
 			{
 			 $this->catalogo->set("idarea", $_POST['SelBuscarArea']);
-			 $this->catalogo->set("tipo", $_POST['txt_tipo']);
 		$this->catalogo->set("descripcion", $_POST['txt_descripcion']);
 			 $this->catalogo->set("alquiler", $_POST['txt_alquiler']);
 								
@@ -79,7 +77,6 @@ public function edit()
 			
 			if (empty($_POST['txt_idcatalogo'])||
 				($_POST['SelBuscarArea']=='0')||
-				($_POST['txt_tipo']=='0')||
 				empty($_POST['txt_descripcion'])||
 				empty($_POST['txt_alquiler']))
 			{
@@ -89,7 +86,6 @@ public function edit()
 			{
 			 $this->catalogo->set("idcatalogo", $_POST['txt_idcatalogo']);
 			 $this->catalogo->set("idarea", $_POST['SelBuscarArea']);
-			 $this->catalogo->set("tipo", $_POST['txt_tipo']);
 		$this->catalogo->set("descripcion", $_POST['txt_descripcion']);
 			 $this->catalogo->set("alquiler", $_POST['txt_alquiler']);
 				

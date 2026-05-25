@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 19-05-2026 a las 17:05:36
+-- Tiempo de generación: 25-05-2026 a las 21:48:12
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `arriendos`
+-- Base de datos: `sicoco`
 --
 
 DELIMITER $$
@@ -285,10 +285,16 @@ end if;
 select OP;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_LOGIN` (IN `_USR` VARCHAR(20))   BEGIN
-    SELECT IDUSUARIO, USR, PASS, CEL, IDROL as ROL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_LOGIN` (IN `p_usr` VARCHAR(20))   BEGIN
+    SELECT 
+        IDUSUARIO, 
+        USR, 
+        PASS, 
+        CEL, 
+        IDROL AS ROL
     FROM usuarios 
-    WHERE ACTIVO='SI' AND USR = _USR 
+    WHERE ACTIVO = 'SI' 
+      AND USR = p_usr 
     LIMIT 1;
 END$$
 
@@ -561,7 +567,10 @@ INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FEC
 (13, 7, '780886', '2026-05-18 14:53:02', '2026-05-18 14:58:02', 'USADO', '::1'),
 (14, 7, '741551', '2026-05-18 15:50:05', '2026-05-18 15:55:05', 'USADO', '::1'),
 (15, 7, '145180', '2026-05-18 17:02:40', '2026-05-18 17:07:40', 'USADO', '::1'),
-(16, 7, '662838', '2026-05-19 09:49:16', '2026-05-19 09:54:16', 'USADO', '::1');
+(16, 7, '662838', '2026-05-19 09:49:16', '2026-05-19 09:54:16', 'USADO', '::1'),
+(17, 7, '717510', '2026-05-25 14:34:23', '2026-05-25 14:39:23', 'USADO', '::1'),
+(18, 7, '321748', '2026-05-25 15:10:53', '2026-05-25 15:15:53', 'USADO', '::1'),
+(19, 7, '267684', '2026-05-25 15:11:29', '2026-05-25 15:16:29', 'USADO', '::1');
 
 -- --------------------------------------------------------
 
@@ -746,9 +755,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`IDUSUARIO`, `NOMBRE`, `CEL`, `USR`, `PASS`, `FECHA_ALTA`, `FECHA_BAJA`, `ACTIVO`, `IDROL`) VALUES
-(4, 'ERIKA ALEJANDRA JORGE SOTO', '', 'erika.jorge', '123', '2023-11-27 17:42:16', NULL, 'SI', 4),
+(4, 'ERIKA ALEJANDRA JORGE SOTO', '', 'erika.jorge', '123', '2023-11-27 17:42:16', '2026-05-25 15:11:09', 'NO', 4),
 (6, 'WILFREDO ARROYO ALEJANDRO', '', 'wili.arroyo', '123', '2023-11-27 23:02:42', '2023-11-27 23:54:17', 'NO', 2),
-(7, 'WILFREDO ARROYO ALEJANDRO', '60408150', 'wil.arroyo', '$2y$10$VkFrhOQXEp8EyudE70cOOO0Ec8gmVcURV4OwcbUBdkgLK6Fa8GH1S', '2023-11-28 20:55:46', '2026-05-18 08:38:23', 'SI', 1),
+(7, 'WILFREDO ARROYO ALEJANDRO', '60408150', 'wil.arroyo', '$2y$10$faCDW1RQFp0YRARRP375HOynlk/EHh6ZW9KHQDQWiaHAjLiP/3fCC', '2023-11-28 20:55:46', '2026-05-18 08:38:23', 'SI', 1),
 (8, 'ALBERTO VARGAS CONDORI', '', 'alberto.vargas', '123', '2023-11-28 20:56:50', '2023-12-05 04:22:16', 'NO', 3),
 (9, 'ALEJANDRA SANDY LAURA', '', 'ale.sandy', '$2y$10$LLhIErX2M1N1yVfgUp/1K.qn9mYn4IRmOkHUqadsa1ms/bXBaarlm', '2024-03-23 17:02:03', '2026-05-18 13:57:19', 'NO', 4);
 
@@ -771,6 +780,11 @@ CREATE TABLE `v_areas` (
 --
 CREATE TABLE `v_catalogo` (
 `IDCATALOGO` int(11)
+,`IDAREA` int(11)
+,`DISTRIBUCION` varchar(103)
+,`DESCRIPCION` varchar(100)
+,`ALQUILER` decimal(10,0)
+,`ESTADO` varchar(15)
 );
 
 -- --------------------------------------------------------
@@ -803,6 +817,11 @@ CREATE TABLE `v_contratos` (
 --
 CREATE TABLE `v_detalle` (
 `IDDETALLE` int(11)
+,`IDARRIENDO` int(11)
+,`IDCATALOGO` int(11)
+,`DISTRIBUCION` varchar(103)
+,`DESCRIPCION` varchar(100)
+,`ALQUILER` decimal(10,0)
 );
 
 -- --------------------------------------------------------
@@ -964,7 +983,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `areaubicacion`
 --
 ALTER TABLE `areaubicacion`
-  MODIFY `IDAREA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `IDAREA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `arriendos`
@@ -994,7 +1013,7 @@ ALTER TABLE `detalle`
 -- AUTO_INCREMENT de la tabla `log_accesos`
 --
 ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`

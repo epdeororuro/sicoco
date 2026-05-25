@@ -38,9 +38,8 @@
 
 		public function add(){
 			$sql="CALL SP_INSERT_CATALOGO ('{$this->idarea}',
-			'{$this->tipo}', '{$this->descripcion}', 
-			'{$this->alquiler}')";
-			$datos=$this->con->consultaRetorno($sql);
+			'{$this->descripcion}', '{$this->alquiler}')";
+			$datos=$this->con->ConsultaRetorno($sql);
 			return $datos;			
 		}
 
@@ -54,7 +53,7 @@
 		public function edit(){
 			$sql="CALL SP_MOD_CATALOGO
 			      ({$this->idcatalogo},'{$this->idarea}',
-			      '{$this->tipo}', '{$this->descripcion}',
+			      '{$this->descripcion}',
 			      '{$this->alquiler}')";
 			$datos = $this->con->ConsultaRetorno($sql);
 			return $datos;
