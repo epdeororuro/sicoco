@@ -23,9 +23,11 @@
 		}
 
 		public function lst_login(){
-			$sql = "CALL SP_LOGIN('{$this->nombreusr}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			// Protección contra SQL Injection usando sentencias preparadas con PDO
+			$sql = "CALL SP_LOGIN(?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->nombreusr]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 
@@ -33,21 +35,24 @@
 		public function insertar_otp()
 		{
 			$sql = "INSERT INTO log_accesos (IDUSUARIO, TOKEN, FECHA_EXPIRACION, IP_ACCESO) 
-					VALUES ('{$this->idusuario}', '{$this->token}', DATE_ADD(NOW(), INTERVAL 5 MINUTE), '{$this->ip_acceso}')";
-			$this->con->consultaSimple($sql);
+					VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 5 MINUTE), ?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idusuario, $this->token, $this->ip_acceso]);
 		}
 
 		// Verifica si el código es válido, pertenece al usuario, no expiró y está pendiente
 		public function verificar_otp()
 		{
 			$sql = "SELECT * FROM log_accesos 
-					WHERE IDUSUARIO = '{$this->idusuario}' 
-					AND TOKEN = '{$this->token}' 
+					WHERE IDUSUARIO = ? 
+					AND TOKEN = ? 
 					AND ESTADO = 'PENDIENTE' 
 					AND FECHA_EXPIRACION > NOW() 
 					ORDER BY IDLOG DESC LIMIT 1";
 			
-			$datos = $this->con->consultaRetorno($sql);
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idusuario, $this->token]);
+			$datos = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 			$filas = is_array($datos) ? count($datos) : 0;
 			return $filas > 0;
 		}
@@ -56,9 +61,9 @@
 		public function marcar_otp_usado()
 		{
 			$sql = "UPDATE log_accesos SET ESTADO = 'USADO' 
-					WHERE IDUSUARIO = '{$this->idusuario}' 
-					AND TOKEN = '{$this->token}'";
-			$this->con->consultaSimple($sql);
+					WHERE IDUSUARIO = ? AND TOKEN = ?";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idusuario, $this->token]);
 		}
 
 	}

@@ -1,3 +1,22 @@
+// ********* FUNCION UTILITARIA PARA DATATABLES *********
+function initDataTable(selector, url, columns, extraOptions = {}) {
+  var defaultOptions = {
+    responsive: true,
+    destroy: true,
+    order: [],
+    autoWidth: false,
+    ajax: {
+      url: url,
+      dataSrc: ""
+    },
+    columns: columns,
+    dom: 'Bfrtip',
+    buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+  };
+  var finalOptions = $.extend(true, {}, defaultOptions, extraOptions);
+  return $(selector).DataTable(finalOptions);
+}
+
 //********* Categorias de productos************
 function CrudCategoria(operacion)
 { const ruta=base_url+operacion;
@@ -57,42 +76,18 @@ function ListarCategoria(){
   var boton_retiro="<button type='button' class='BajaCategoria btn btn-info btn-lm'><i class='fas fa-thumbs-down '></i>Retirar</button>";      
   var boton_habilitar="<button type='button' class='HabilitaCategoria btn btn-success btn-lm'><i class='fas fa-thumbs-up  '></i>Habilitar</button>";      
   
-  $("#TablaCategoria").DataTable({     
-    "responsive":true,
-   "destroy":true, 
-   "order": [],
-   "autoWidth": false,
-      "ajax":{
-        "url": base_url+'categoria/listar',
-        "dataSrc":""       
-      },
-      "columns":[
-      {"data": "IDCATEGORIA"},
-      {"data": "DESCRIPCION"},
-      {"data": "FECHA_CREACION"},
-      {"data": "FECHA_RETIRO"},
-      {"data": "VIGENTE",
-       "render": function ( data, type, row, meta ) {
-          if (data=='SI')
-            return '<h4><label class= "bg-success">'+data+'</label></h4>';
-          else
-            return '<h4><label class= "bg-danger">'+data+'</label></h4>';
-          }       
-      },
-      {"data":"VIGENTE",
-         "render": function ( data, type, row, meta ) {
-          if (data=='SI')
-            return boton_retiro+" "+boton_editar+" "+boton_eliminar;
-          else
-            return boton_habilitar;
-          }     
-      }     
-      ],
-       dom: 'Bfrtip',
-       buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
-        ]       
-    }); 
+  initDataTable("#TablaCategoria", base_url+'categoria/listar', [
+    {"data": "IDCATEGORIA"},
+    {"data": "DESCRIPCION"},
+    {"data": "FECHA_CREACION"},
+    {"data": "FECHA_RETIRO"},
+    {"data": "VIGENTE", "render": function (data) {
+      return '<h4><label class="bg-' + (data === 'SI' ? 'success' : 'danger') + '">' + data + '</label></h4>';
+    }},
+    {"data":"VIGENTE", "render": function (data) {
+      return data === 'SI' ? boton_retiro + " " + boton_editar + " " + boton_eliminar : boton_habilitar;
+    }}
+  ]);
 } // fin de funcion listarCategoria
 
 
@@ -106,67 +101,31 @@ function ListarCategoriaEnsamble(){
   var boton_habilitar="<button title='Hablitar Categoría' type='button' class='HabilitaCategoria btn btn-success btn-sm'><i class='fas fa-thumbs-up  '></i></button>";
   var boton_componente="<button title='Componentes del Ensamble' type='button' class='ComponenteEnsamble btn btn-warning btn-sm' ><i class='fas fa-cogs'></i></button>";
 
-  $("#TablaCategoria").DataTable({     
-    "responsive":true,
-   "destroy":true, 
-   "order": [],
-   "autoWidth": false,
-      "ajax":{
-        "url": base_url+'catensamble/listar',
-        "dataSrc":""       
-      },
-      "columns":[
-      {"data": "IDCATEGORIA"},
-      {"data": "DESCRIPCION"},      
-      {"data": "FECHA_CREACION"},
-      {"data": "FECHA_RETIRO"},
-      {"data": "VIGENTE",
-       "render": function ( data, type, row, meta ) {
-          if (data=='SI')
-            return '<h4><label class= "bg-success">'+data+'</label></h4>';
-          else
-            return '<h4><label class= "bg-danger">'+data+'</label></h4>';
-          }       
-      },
-      {"data":"VIGENTE",
-         "render": function ( data, type, row, meta ) {
-          if (data=='SI')
-            return boton_retiro+" "+boton_editar+" "+boton_eliminar+" "+ boton_componente;
-          else
-            return boton_habilitar;
-          //'<h4><label class= "bg-danger">--</label></h4>';
-          }     
-      }     
-      ],
-       dom: 'Bfrtip',
-       buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
-        ]       
-    }); 
+  initDataTable("#TablaCategoria", base_url+'catensamble/listar', [
+    {"data": "IDCATEGORIA"},
+    {"data": "DESCRIPCION"},      
+    {"data": "FECHA_CREACION"},
+    {"data": "FECHA_RETIRO"},
+    {"data": "VIGENTE", "render": function (data) {
+      return '<h4><label class="bg-' + (data === 'SI' ? 'success' : 'danger') + '">' + data + '</label></h4>';
+    }},
+    {"data":"VIGENTE", "render": function (data) {
+      return data === 'SI' ? boton_retiro + " " + boton_editar + " " + boton_eliminar + " " + boton_componente : boton_habilitar;
+    }}     
+  ]);
 } // fin de funcion listarCategoriaEnsamble
 
 // *********** funcionies de compenentes de ensambles********+
 function ListarComponenteEnsamble(id){
   var boton_eliminar="<button title='Quitar Componente de Ensamble' type='button' class='QuitarComponente btn btn-danger btn-sm'><i class='fas fa-trash'></i></button>";      
   
-  $("#TablaComponente").DataTable({     
-    
-    "responsive":false,
-   "destroy":true, 
-   "order": [],
-   "autoWidth": false,
-      "ajax":{
-        "url": base_url+'catensamble/listar_componente/'+id,
-        "dataSrc":""       
-      },
-      "columns":[
-      {"data": "ID_DET_PROD"},
-      {"data": "COMPONENTE"},
-      {"data": "PRECIO"},
-      {"data": "CANTIDAD"},
-      {"defaultContent": boton_eliminar }     
-      ]       
-    }); 
+  initDataTable("#TablaComponente", base_url+'catensamble/listar_componente/'+id, [
+    {"data": "ID_DET_PROD"},
+    {"data": "COMPONENTE"},
+    {"data": "PRECIO"},
+    {"data": "CANTIDAD"},
+    {"defaultContent": boton_eliminar }
+  ], { responsive: false, buttons: [] }); // Oculta botones para componente
 } // fin de funcion listarCategoriaEnsamble
 
 // ********funciones roles**********
@@ -211,45 +170,22 @@ function ListarEncargado(){
  // var boton_editar="<button type='button' class='EditarEncargado btn btn-warning btn-lm' data-toggle='modal' data-target='#ModalEncargado' ><i class='fas fa-edit'></i></button>";
   var boton_eliminar="<button type='button' class='EliminarEncargado btn btn-danger btn-lm'><i class='fas fa-trash'></i></button>";      
   var boton_baja="<button type='button' class='BajaEncargado btn btn-info btn-lm'><i class='fas fa-thumbs-down '></i>Baja</button>";      
-  $("#TablaEncargado").DataTable({
-   "responsive":true,
-   "destroy":true, 
-   "order": [],
-   "autoWidth": false,
-      "ajax":{
-        "url": base_url+'rol/listar',
-        "dataSrc":""
-      },
-      "columns":[ 
-      {"data": "NRO"},
-      {"data": "IDENCARGADO"},
-      {"data": "NOMBRE"},
-      {"data": "USUARIO"},
-      {"data": "ROL"},
-      {"data": "ALTA"},
-      {"data": "BAJA"},
-      {"data": "ACTIVO",
-         "render": function ( data, type, row, meta ) {
-          if (data=='SI')
-            return '<h4><label class= "bg-success">'+data+'</label></h4>';
-          else
-            return '<h4><label class= "bg-danger">'+data+'</label></h4>';
-          }       
-      },
-       {"data": "ACTIVO",
-         "render": function ( data, type, row, meta ) {
-          if (data=='SI')
-            return boton_baja+" "+ boton_eliminar;
-          else
-            return '<h4><label class= "bg-danger">--</label></h4>';
-          }       
-      },
-      ],
-       dom: 'Bfrtip',
-       buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
-        ]       
-    }); 
+
+  initDataTable("#TablaEncargado", base_url+'rol/listar', [
+    {"data": "NRO"},
+    {"data": "IDENCARGADO"},
+    {"data": "NOMBRE"},
+    {"data": "USUARIO"},
+    {"data": "ROL"},
+    {"data": "ALTA"},
+    {"data": "BAJA"},
+    {"data": "ACTIVO", "render": function (data) {
+      return '<h4><label class="bg-' + (data === 'SI' ? 'success' : 'danger') + '">' + data + '</label></h4>';
+    }},
+    {"data": "ACTIVO", "render": function (data) {
+      return data === 'SI' ? boton_baja + " " + boton_eliminar : '<h4><label class= "bg-danger">--</label></h4>';
+    }}
+  ]); 
 } // fin de funcion listarRol
 
 
@@ -320,28 +256,15 @@ function ListarArticulo(){
   var boton_editar="<button type='button' class='EditarArticulo btn btn-warning btn-lm' data-toggle='modal' data-target='#ModalArticulo' ><i class='fas fa-edit'></i></button>";
   var boton_eliminar="<button type='button' class='EliminarArticulo btn btn-danger btn-lm'><i class='fas fa-trash'></i></button>";      
   var boton_cambio="<button type='button' class='CambioCategoria btn btn-info btn-lm' data-toggle='modal' data-target='#ModalArticulo' ><i class='fas fa-window-restore'></i>Categoría</button>";
-  $("#TablaArticulo").DataTable({     
-    "responsive":true,
-   "destroy":true, 
-   "order": [],
-   "autoWidth": false,
-      "ajax":{
-        "url": base_url+'articulo/listar',
-        "dataSrc":""       
-      },
-      "columns":[
-      {"data": "IDARTICULO"},
-      {"data": "C_DESCRIPCION"},
-      {"data": "DESCRIPCION"},      
-      {"data": "MINIMO"},
-      {"data": "CODBARRA"},      
-      {"defaultContent": boton_cambio+" "+ boton_editar+" "+boton_eliminar}         
-      ],
-       dom: 'Bfrtip',
-       buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
-        ]       
-    }); 
+  
+  initDataTable("#TablaArticulo", base_url+'articulo/listar', [
+    {"data": "IDARTICULO"},
+    {"data": "C_DESCRIPCION"},
+    {"data": "DESCRIPCION"},      
+    {"data": "MINIMO"},
+    {"data": "CODBARRA"},      
+    {"defaultContent": boton_cambio + " " + boton_editar + " " + boton_eliminar}         
+  ]);
 } // fin de funcion listarArticulo
 
 
@@ -350,28 +273,15 @@ function ListarEnsamble(){
   var boton_editar="<button title='Componentes del Ensamble' type='button' class='ComponenteEnsamble btn btn-warning btn-lm' ><i class='fas fa-cogs'></i></button>";
   var boton_eliminar="<button title='Eliminar Ensamble' type='button' class='EliminarArticulo btn btn-danger btn-lm'><i class='fas fa-trash'></i></button>";      
   var boton_cambio="<button title='Cambiar Categoría de Ensamble' type='button' class='CambioCategoria btn btn-info btn-lm' data-toggle='modal' data-target='#ModalArticulo' ><i class='fas fa-window-restore'></i></button>";
-  $("#TablaArticulo").DataTable({     
-    "responsive":true,
-   "destroy":true, 
-   "order": [],
-   "autoWidth": false,
-      "ajax":{
-        "url": base_url+'ensambles/listar',
-        "dataSrc":""       
-      },
-      "columns":[
-      {"data": "IDARTICULO"},
-      {"data": "C_DESCRIPCION"},
-      {"data": "DESCRIPCION"},      
-      {"data": "MINIMO"},
-      {"data": "CODBARRA"},      
-      {"defaultContent": boton_cambio},
-      {"defaultContent": boton_editar},
-      {"defaultContent": boton_eliminar}         
-      ],
-       dom: 'Bfrtip',
-       buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
-        ]       
-    }); 
+  
+  initDataTable("#TablaArticulo", base_url+'ensambles/listar', [
+    {"data": "IDARTICULO"},
+    {"data": "C_DESCRIPCION"},
+    {"data": "DESCRIPCION"},      
+    {"data": "MINIMO"},
+    {"data": "CODBARRA"},      
+    {"defaultContent": boton_cambio},
+    {"defaultContent": boton_editar},
+    {"defaultContent": boton_eliminar}         
+  ]);
 } // fin de funcion listarArticulo

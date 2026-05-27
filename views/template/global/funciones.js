@@ -5,11 +5,23 @@ function AccionAjax(ruta, datos, callbackExito, mensajeExito) {
         url: ruta,
         data: datos,
         success: function(e) {
-            if ($.trim(e) == "1") {
-                if (typeof callbackExito === "function") callbackExito();
-                Swal.fire(mensajeExito, 'Presione Ok para continuar', 'success');
-            } else {
-                Swal.fire(e, 'Presione Ok para continuar', 'error');
+            try {
+                // Intentamos leer la respuesta como JSON estructurado
+                var response = typeof e === 'object' ? e : JSON.parse($.trim(e));
+                if (response.status === 'success') {
+                    if (typeof callbackExito === "function") callbackExito();
+                    Swal.fire(response.message || mensajeExito, 'Presione Ok para continuar', 'success');
+                } else {
+                    Swal.fire(response.message || 'Error en la operación', 'Presione Ok para continuar', 'error');
+                }
+            } catch (err) {
+                // Fallback de retrocompatibilidad: para controladores que aún devuelven "1" o texto plano
+                if ($.trim(e) == "1") {
+                    if (typeof callbackExito === "function") callbackExito();
+                    Swal.fire(mensajeExito, 'Presione Ok para continuar', 'success');
+                } else {
+                    Swal.fire(e, 'Presione Ok para continuar', 'error');
+                }
             }
         },
         error: function() {

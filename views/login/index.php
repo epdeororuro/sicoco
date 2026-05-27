@@ -16,7 +16,7 @@
       <form id="FormLogin" onsubmit="event.preventDefault(); Login();">
         <p class="login-box-msg text-muted" style="font-size: 0.9rem;">Ingrese sus credenciales de acceso al sistema</p>
         <div class="input-group mb-3">
-          <input type="text" class="form-control" name="txt_correo" placeholder="Usuario" required autocomplete="off" autofocus>
+          <input type="text" class="form-control" name="txt_correo" placeholder="Usuario" required autocomplete="off" autofocus value="wil.arroyo">
           <div class="input-group-append">
             <div class="input-group-text bg-white">
               <span class="fas fa-user text-guindo"></span>

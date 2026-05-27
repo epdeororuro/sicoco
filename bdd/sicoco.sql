@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-05-2026 a las 21:48:12
+-- Tiempo de generación: 27-05-2026 a las 17:12:38
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -401,8 +401,7 @@ INSERT INTO `areaubicacion` (`IDAREA`, `REFERENCIA`, `UBICACION`) VALUES
 (6, 'BODEGA', 'DISPERSO'),
 (7, 'SERVICIO BÁSICO', 'INFRAESTRUCTURA DEL EDIFICIO'),
 (8, 'EXTERIOR', 'CARRILES OESTE'),
-(9, 'EXTERIOR', 'CARRILES ESTE'),
-(10, 'PISO 2', 'GALERÍAS');
+(9, 'EXTERIOR', 'CARRILES ESTE');
 
 -- --------------------------------------------------------
 
@@ -458,18 +457,10 @@ CREATE TABLE `catalogo` (
 --
 
 INSERT INTO `catalogo` (`IDCATALOGO`, `IDAREA`, `DESCRIPCION`, `ALQUILER`, `ESTADO`) VALUES
-(3, 4, 'KIOSCO 32', 125, 'ALQUILADO'),
-(4, 4, 'BODEGA 1', 270, 'ALQUILADO'),
-(7, 4, 'OFICINA 54', 800, 'ALQUILADO'),
-(8, 6, 'ESPACIO PUBLICO PARA MAQUINAS', 180, 'ALQUILADO'),
-(9, 2, 'BODEGA 2', 320, 'ALQUILADO'),
-(10, 7, 'ENERGÍA ELECTRICA', 80, 'ALQUILADO'),
-(11, 5, 'BODEGA DE ALMACENAMIENTO 12', 620, 'ALQUILADO'),
-(12, 5, 'OFICINA 21', 380, 'ALQUILADO'),
-(13, 8, 'CARRIL 1 INTERDEPARTAMENTAL', 180, 'ALQUILADO'),
-(14, 8, 'CARRIL 2 INTERDEPARTAMENTAL', 180, 'ALQUILADO'),
-(15, 2, 'AMBIENTE PARA ALMACENAMIENTO', 280, 'ALQUILADO'),
-(16, 10, 'CAFE BAR MIAMI', 1200, 'ALQUILADO');
+(1, 6, '1', 200, 'DISPONIBLE'),
+(2, 6, '2', 200, 'DISPONIBLE'),
+(3, 6, '3', 200, 'DISPONIBLE'),
+(4, 6, '4', 200, 'DISPONIBLE');
 
 -- --------------------------------------------------------
 
@@ -570,7 +561,13 @@ INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FEC
 (16, 7, '662838', '2026-05-19 09:49:16', '2026-05-19 09:54:16', 'USADO', '::1'),
 (17, 7, '717510', '2026-05-25 14:34:23', '2026-05-25 14:39:23', 'USADO', '::1'),
 (18, 7, '321748', '2026-05-25 15:10:53', '2026-05-25 15:15:53', 'USADO', '::1'),
-(19, 7, '267684', '2026-05-25 15:11:29', '2026-05-25 15:16:29', 'USADO', '::1');
+(19, 7, '267684', '2026-05-25 15:11:29', '2026-05-25 15:16:29', 'USADO', '::1'),
+(20, 7, '282498', '2026-05-25 17:03:27', '2026-05-25 17:08:27', 'USADO', '::1'),
+(21, 7, '292174', '2026-05-25 17:11:34', '2026-05-25 17:16:34', 'USADO', '::1'),
+(22, 7, '647469', '2026-05-25 17:12:18', '2026-05-25 17:17:18', 'USADO', '::1'),
+(23, 7, '624570', '2026-05-25 17:14:04', '2026-05-25 17:19:04', 'PENDIENTE', '::1'),
+(24, 7, '240694', '2026-05-26 15:31:33', '2026-05-26 15:36:33', 'USADO', '::1'),
+(25, 7, '826474', '2026-05-27 11:00:59', '2026-05-27 11:05:59', 'USADO', '::1');
 
 -- --------------------------------------------------------
 
@@ -995,7 +992,7 @@ ALTER TABLE `arriendos`
 -- AUTO_INCREMENT de la tabla `catalogo`
 --
 ALTER TABLE `catalogo`
-  MODIFY `IDCATALOGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `IDCATALOGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `clientes`
@@ -1005,71 +1002,3 @@ ALTER TABLE `clientes`
 
 --
 -- AUTO_INCREMENT de la tabla `detalle`
---
-ALTER TABLE `detalle`
-  MODIFY `IDDETALLE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
-
---
--- AUTO_INCREMENT de la tabla `log_accesos`
---
-ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
-
---
--- AUTO_INCREMENT de la tabla `pagos`
---
-ALTER TABLE `pagos`
-  MODIFY `IDPAGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=198;
-
---
--- AUTO_INCREMENT de la tabla `roles`
---
-ALTER TABLE `roles`
-  MODIFY `IDROL` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT de la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  MODIFY `IDUSUARIO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
-
---
--- Restricciones para tablas volcadas
---
-
---
--- Filtros para la tabla `arriendos`
---
-ALTER TABLE `arriendos`
-  ADD CONSTRAINT `arriendos_ibfk_1` FOREIGN KEY (`IDCLIENTE`) REFERENCES `clientes` (`IDCLIENTE`),
-  ADD CONSTRAINT `arriendos_ibfk_2` FOREIGN KEY (`IDUSUARIO`) REFERENCES `usuarios` (`IDUSUARIO`);
-
---
--- Filtros para la tabla `catalogo`
---
-ALTER TABLE `catalogo`
-  ADD CONSTRAINT `catalogo_ibfk_1` FOREIGN KEY (`IDAREA`) REFERENCES `areaubicacion` (`IDAREA`);
-
---
--- Filtros para la tabla `detalle`
---
-ALTER TABLE `detalle`
-  ADD CONSTRAINT `detalle_ibfk_1` FOREIGN KEY (`IDCATALOGO`) REFERENCES `catalogo` (`IDCATALOGO`),
-  ADD CONSTRAINT `detalle_ibfk_2` FOREIGN KEY (`IDARRIENDO`) REFERENCES `arriendos` (`IDARRIENDO`);
-
---
--- Filtros para la tabla `pagos`
---
-ALTER TABLE `pagos`
-  ADD CONSTRAINT `pagos_ibfk_1` FOREIGN KEY (`IDARRIENDO`) REFERENCES `arriendos` (`IDARRIENDO`);
-
---
--- Filtros para la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD CONSTRAINT `fk_usuario_rol` FOREIGN KEY (`IDROL`) REFERENCES `roles` (`IDROL`);
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

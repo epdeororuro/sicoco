@@ -2,7 +2,8 @@
 
 define('DS', DIRECTORY_SEPARATOR);
 define('ROOT', realpath(dirname(__FILE__)) . DS);
-define('URL', "http://localhost/sicoco/");
+$script_path = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+define('URL', sprintf("%s://%s%s/", isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http', $_SERVER['HTTP_HOST'], $script_path === '/' ? '' : $script_path));
 
 
 
