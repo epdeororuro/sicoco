@@ -100,45 +100,114 @@
                       <input  type="hidden"  id="txt_idcontrato" name="txt_idcontrato">
                     </div>
 
-                    <div class="row bg-info text-dark" >
-                      <div class="col-sm-12">
-                          <label for="SelBuscarCliente">Datos Cliente</label>
-                          <select id="SelBuscarCliente" 
-                            name="SelBuscarCliente" class="form-control" style="width:100%">
-                            <option value="0">Seleccionar..</option>
-                          </select>                              
-                      </div>
+                    <!-- SECCIÓN 1: ÍTEM A ARRENDAR -->
+                    <h5 class="text-guindo border-bottom pb-2 mb-3">1. Detalle del Arrendamiento</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Seleccionar Área</label>
+                                <select class="form-control select2" id="SelArea" name="SelArea" style="width: 100%;" required>
+                                    <option value="0">-- Seleccione un Área --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>Seleccionar Ítem del Catálogo</label>
+                                <select class="form-control select2" id="SelItemCatalogo" name="SelItemCatalogo" style="width: 100%;" required disabled>
+                                    <option value="0">-- Primero seleccione un Área --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Alquiler Ref. (Bs)</label>
+                                <input type="text" class="form-control text-right font-weight-bold" id="txt_alquiler_ref" readonly placeholder="0.00">
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="row">
-                      <div class="col-sm-6">
-                        <label for="txt_actividad">Descripción de la Actividad</label>
-                        <input type="text" class="form-control" id="txt_actividad" name="txt_actividad" required  minlength="5" maxlength="100" 
-                        placeholder="escriba la Actividad" >
-                      </div>
 
-                      <div class="col-sm-6">
-                        <label for="txt_razon_social">Razón Social (SI corresponde)</label>
-                        <input type="text" class=" form-control" id="txt_razon_social" value="Sin Dato" 
-                        name="txt_razon_social" placeholder="Escriba la Razón Social si corresponde" required >
-                      </div>
-                    </div>  
-                         
                     <div class="row">
-                      <div class="col-sm-4">
-                        <label for="txt_contrato">Contrato</label>
-                        <input type="text" class="form-control" id="txt_contrato" name="txt_contrato" required  minlength="2" maxlength="30" placeholder="Nro-Gestión de Fecha:dd/mm/aaaa">
-                      </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Descripción de la Actividad</label>
+                                <input type="text" class="form-control" id="txt_actividad" name="txt_actividad" required minlength="5" maxlength="100" placeholder="Ej. Venta de ropa, Oficina, etc.">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Razón Social (Si corresponde)</label>
+                                <input type="text" class="form-control" id="txt_razon_social" name="txt_razon_social" value="Sin Dato" placeholder="Escriba la Razón Social" required>
+                            </div>
+                        </div>
+                    </div>
 
-                      <div class="col-sm-4">
-                        <label for="txt_fecha_inicio">Fecha de Inicio</label>
-                        <input type="date" class="form-control " 
-                        id="txt_fecha_inicio" name="txt_fecha_inicio" required  minlength="10" maxlength="10" >
-                      </div>
-                      <div class="col-sm-4">
-                        <label for="txt_tiempo">Tiempo de Contrato [Meses]</label>
-                        <input type="number" class="form-control" id="txt_tiempo" name="txt_tiempo" value="1" step="1" required>
-                      </div>
+                    <!-- SECCIÓN 2: DATOS DEL ARRENDATARIO (CLIENTE) -->
+                    <h5 class="text-guindo border-bottom pb-2 mb-3 mt-4">2. Datos del Arrendatario</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Cédula de Identidad</label>
+                                <input type="text" class="form-control" name="txt_cedula" id="txt_cedula" placeholder="Nro de CI" required>
+                                <small class="text-muted" style="font-size: 0.75rem;">Si existe, se autocompletará.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Nombres</label>
+                                <input type="text" class="form-control" name="txt_nombres" id="txt_nombres" placeholder="Nombres" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Apellido Paterno</label>
+                                <input type="text" class="form-control" name="txt_paterno" id="txt_paterno" placeholder="Paterno" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Apellido Materno</label>
+                                <input type="text" class="form-control" name="txt_materno" id="txt_materno" placeholder="Materno">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Celular / Contacto</label>
+                                <input type="text" class="form-control" name="txt_celular" id="txt_celular" placeholder="Nro de Celular" required>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>Dirección Actual</label>
+                                <input type="text" class="form-control" name="txt_direccion" id="txt_direccion" placeholder="Zona, Calle, Nro" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 3: DETALLES DEL CONTRATO -->
+                    <h5 class="text-guindo border-bottom pb-2 mb-3 mt-4">3. Detalles del Contrato</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Número / Cite de Contrato</label>
+                                <input type="text" class="form-control" id="txt_contrato" name="txt_contrato" required minlength="2" maxlength="30" placeholder="Ej. 123/2024">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Fecha de Inicio</label>
+                                <input type="date" class="form-control" id="txt_fecha_inicio" name="txt_fecha_inicio" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Tiempo (Meses)</label>
+                                <input type="number" class="form-control" id="txt_tiempo" name="txt_tiempo" value="1" min="1" step="1" required>
+                            </div>
+                        </div>
                     </div>
 
                 </form>
@@ -221,7 +290,6 @@
                     <th>Id</th>
                     <th>IdCo</th>
                     <th>Ubicación</th>
-                    <th>Tipo</th>
                     <th>Descripción</th>
                     <th>Alquiler</th>
                     <th>Acciones</th>
@@ -233,7 +301,6 @@
                     <th>Id</th>
                     <th>IdCo</th>
                     <th>Ubicación</th>
-                    <th>Tipo</th>
                     <th>Descripción</th>
                     <th>Alquiler</th>
                     <th>Acciones</th>
@@ -253,153 +320,3 @@
         </div>  <!--FIN Modal DETALLE-->
 
 <script src="<?php echo URL; ?>views/contrato/contrato.js"></script>
-
-<script type="text/javascript">
-  $(document).ready(function(){
-    $("#btn_InsertContrato").on('click', function(e){
-      e.preventDefault();
-       CrudContrato('contrato/add');
-    });
-  });
-</script>
-
-<script type="text/javascript">
-  $(document).ready(function(){
-    $("#btn_EditarContrato").on('click', function(e){
-      e.preventDefault();
-       CrudContrato('contrato/edit');
-    });
-  });
-</script>
-
-
-<script type="text/javascript">
-  $(document).ready(function(){
-    $("#btnNuevoRegistro").on('click', function(e){
-      e.preventDefault();
-       $("#titulo").html("Registro de Contratos");
-       $("#OpcionEditar").hide();
-       $("#OpcionNuevo").show("slow");
-       LimpiarCamposContrato();
-    });
-  });
-</script>
-
-<script type="text/javascript">
-   $(document).ready(function(){
-    ListarContrato();
-    $("#SelBuscarCliente").select2(LlenarCliente());
-   });
-</script>
-
-<script type="text/javascript">
-// selecciona un registro para editar
-  $(document).on('click', '.EditarContrato', function(e){
- e.preventDefault();
-
- $("#titulo").html("Modificar Registro");
- $("#OpcionNuevo").hide();
- $("#OpcionEditar").show("slow");
-
-$('#SelBuscarCliente').val($(this).parents("tr").find("td").eq(1).html()).trigger('change');
-
- document.getElementsByName("txt_idcontrato")[0].value=$(this).parents("tr").find("td").eq(0).html();
-
-  document.getElementsByName("txt_actividad")[0].value=$(this).parents("tr").find("td").eq(3).html();
- 
- document.getElementsByName("txt_razon_social")[0].value=$(this).parents("tr").find("td").eq(4).html();
- document.getElementsByName("txt_contrato")[0].value=$(this).parents("tr").find("td").eq(5).html();
- document.getElementsByName("txt_fecha_inicio")[0].value=$(this).parents("tr").find("td").eq(6).html();
- document.getElementsByName("txt_tiempo")[0].value=$(this).parents("tr").find("td").eq(7).html();
-
-});
-</script>
-
-
-<script type="text/javascript">
-// selecciona un registro para HABILITAR EL REGISTRO DE DETALLE
-
-  $(document).on('click', '.DetalleContrato', function(e){
- e.preventDefault();
-
-// funcion para limpiar el contenido del combobox y no se sobre cargue y repita los items
- $("#SelBuscarCatalogo").html('');
-
-
-$("#SelBuscarCatalogo").select2(LlenarCatalogo());
- 
-$('#SelBuscarCatalogo').val('0').trigger('change');
-
- document.getElementsByName("txt_idcontrato1")[0].value=$(this).parents("tr").find("td").eq(0).html();
-ListarDetalle('contrato/listar_detalle/'+ document.getElementsByName("txt_idcontrato1")[0].value);
-});
-</script>
-
-<script type="text/javascript">
-  $(document).ready(function(){
-   $("#btn_Adicionar").on('click', function(e){
-      e.preventDefault();
-     CrudDetalle('contrato/addetalle/'+document.getElementsByName("txt_idcontrato1")[0].value+'-'+ $('#SelBuscarCatalogo').val());
-
-      ListarDetalle('contrato/listar_detalle/'+ document.getElementsByName("txt_idcontrato1")[0].value);
-    });
-  });
-</script>
-
-<script type="text/javascript">
-// selecciona un registro para eliminar detalle
-  $(document).on('click', '.EliminarDetalle', function(e){
- e.preventDefault();
- 
-  CrudDetalle('contrato/del_detalle/'+$(this).parents("tr").find("td").eq(0).html());
-                            
-         ListarDetalle('contrato/listar_detalle/'+ document.getElementsByName("txt_idcontrato1")[0].value);
-});
-</script>
-
-
-
-
-<script type="text/javascript">
-// selecciona un registro para eliminar
-  $(document).on('click', '.EliminarContrato', function(e){
- e.preventDefault();
- var registro=$(this).parents("tr").find("td").eq(5).html()+' '+$(this).parents("tr").find("td").eq(3).html();
-   //registro=registro+' cedula:'+$(this).parents("tr").find("td").eq(3).html();
-    Swal.fire({
-      title: 'Está seguro de Eliminar este Registro?',
-      text: registro+" / Esta operación NO podrá Revertirse",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Eliminar el Registro!'
-    }).then((result) => {
-                          if (result.isConfirmed) {
-                          CrudContrato('contrato/delete/'+$(this).parents("tr").find("td").eq(0).html());
-                            }
-                       })
-});
-</script>
-
-<script type="text/javascript">
-// selecciona un registro para confirmar
-  $(document).on('click', '.ConfirmarContrato', function(e){
- e.preventDefault();
- var registro=$(this).parents("tr").find("td").eq(5).html()+' '+$(this).parents("tr").find("td").eq(3).html();
-   //registro=registro+' cedula:'+$(this).parents("tr").find("td").eq(3).html();
-    Swal.fire({
-      title: 'Está seguro de Confirmar este Registro de Contrato?',
-      text: registro+" / Esta operación NO podrá Revertirse",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Confirmar Contrato!'
-    }).then((result) => {
-                          if (result.isConfirmed) {
-                          CrudContrato('contrato/confirmar/'+$(this).parents("tr").find("td").eq(0).html());
-                            }
-                       })
-});
-</script>

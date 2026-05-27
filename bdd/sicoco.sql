@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 27-05-2026 a las 17:12:38
+-- Tiempo de generación: 27-05-2026 a las 17:51:30
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -470,26 +470,31 @@ INSERT INTO `catalogo` (`IDCATALOGO`, `IDAREA`, `DESCRIPCION`, `ALQUILER`, `ESTA
 
 CREATE TABLE `clientes` (
   `IDCLIENTE` int(11) NOT NULL,
-  `NOMBRE` varchar(50) NOT NULL,
+  `NOMBRES` varchar(50) DEFAULT NULL,
+  `PATERNO` varchar(50) DEFAULT NULL,
+  `MATERNO` varchar(50) DEFAULT NULL,
+  `NOMBRE_COMPLETO` varchar(150) NOT NULL,
   `CEDULA` varchar(15) NOT NULL,
   `CONTACTOS` varchar(20) NOT NULL,
-  `DIRECCION` varchar(70) NOT NULL
+  `DIRECCION` varchar(70) NOT NULL,
+  `LATITUD` decimal(10,8) DEFAULT NULL,
+  `LONGITUD` decimal(11,8) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `clientes`
 --
 
-INSERT INTO `clientes` (`IDCLIENTE`, `NOMBRE`, `CEDULA`, `CONTACTOS`, `DIRECCION`) VALUES
-(1, 'ALVARO FLORES MAMANI', '8545213', '54625135-6546513', 'ZONAS DE ORURO'),
-(2, 'JAIME ZENTENO ROBLES', '6521485', '5256187-72315874', 'NORTE PLAZA SEBASTIAN PAGADOR'),
-(3, 'FERNANDO QUISPE CASTRO', '36254125', '72358427', 'EL ALTO VILLA ADELA'),
-(4, 'DIVAR GUTIERREZ SORIA GALVARRO', '2421324', '1502021458', 'ZONA NORTE FRENTE AL SAPO'),
-(5, 'BORIS MONTAÑO AJATA', '2517854', '683524785', 'ZONA NORTE PLAZA SEBASTIAN PAGADOR'),
-(6, 'ROBERTO WILSON SOTO VERA', '74875854', '72438529', 'JUNIN ESQUINA BRASIL'),
-(7, 'ALEJANDRO LIMA FERNANDEZ', '3562847', '683152457', 'CALLE 3 ESQUINA CALLE 4 ZONA NORTE'),
-(8, 'MIGUEL JORGE SOTO', '42515687', '685472154', 'CALLE 1 Y CALLE 4 ZONA YPFB'),
-(9, 'AMPARO SORIA VALDE', '102030', '683259741', 'ZONA SUD CALLE 4 BARRIO SOROA');
+INSERT INTO `clientes` (`IDCLIENTE`, `NOMBRES`, `PATERNO`, `MATERNO`, `NOMBRE_COMPLETO`, `CEDULA`, `CONTACTOS`, `DIRECCION`, `LATITUD`, `LONGITUD`) VALUES
+(1, NULL, NULL, NULL, 'ALVARO FLORES MAMANI', '8545213', '54625135-6546513', 'ZONAS DE ORURO', NULL, NULL),
+(2, NULL, NULL, NULL, 'JAIME ZENTENO ROBLES', '6521485', '5256187-72315874', 'NORTE PLAZA SEBASTIAN PAGADOR', NULL, NULL),
+(3, NULL, NULL, NULL, 'FERNANDO QUISPE CASTRO', '36254125', '72358427', 'EL ALTO VILLA ADELA', NULL, NULL),
+(4, NULL, NULL, NULL, 'DIVAR GUTIERREZ SORIA GALVARRO', '2421324', '1502021458', 'ZONA NORTE FRENTE AL SAPO', NULL, NULL),
+(5, NULL, NULL, NULL, 'BORIS MONTAÑO AJATA', '2517854', '683524785', 'ZONA NORTE PLAZA SEBASTIAN PAGADOR', NULL, NULL),
+(6, NULL, NULL, NULL, 'ROBERTO WILSON SOTO VERA', '74875854', '72438529', 'JUNIN ESQUINA BRASIL', NULL, NULL),
+(7, NULL, NULL, NULL, 'ALEJANDRO LIMA FERNANDEZ', '3562847', '683152457', 'CALLE 3 ESQUINA CALLE 4 ZONA NORTE', NULL, NULL),
+(8, NULL, NULL, NULL, 'MIGUEL JORGE SOTO', '42515687', '685472154', 'CALLE 1 Y CALLE 4 ZONA YPFB', NULL, NULL),
+(9, NULL, NULL, NULL, 'AMPARO SORIA VALDE', '102030', '683259741', 'ZONA SUD CALLE 4 BARRIO SOROA', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -791,19 +796,6 @@ CREATE TABLE `v_catalogo` (
 -- (Véase abajo para la vista actual)
 --
 CREATE TABLE `v_contratos` (
-`IDARRIENDO` int(11)
-,`IDUSUARIO` int(11)
-,`IDCLIENTE` int(11)
-,`ACTIVIDAD` varchar(100)
-,`RAZONSOCIAL` varchar(100)
-,`CONTRATO` varchar(30)
-,`FECHA_INICIO` varchar(10)
-,`TIEMPOCONTRATO` int(11)
-,`MONTO` decimal(10,0)
-,`OBSERVACIONES` varchar(250)
-,`VIGENTE` varchar(2)
-,`FECHA_REGISTRO` datetime
-,`REPRESENTANTE` varchar(68)
 );
 
 -- --------------------------------------------------------
@@ -828,11 +820,6 @@ CREATE TABLE `v_detalle` (
 -- (Véase abajo para la vista actual)
 --
 CREATE TABLE `v_resumen_gral_contrato` (
-`IDARRIENDO` int(11)
-,`GENERAL` varchar(299)
-,`REFERENCIAL` varchar(100)
-,`ESPECIFICO` varchar(31)
-,`VIGENTE` varchar(2)
 );
 
 -- --------------------------------------------------------
@@ -842,14 +829,6 @@ CREATE TABLE `v_resumen_gral_contrato` (
 -- (Véase abajo para la vista actual)
 --
 CREATE TABLE `v_resumen_pagos` (
-`IDARRIENDO` int(11)
-,`VIGENTE` varchar(2)
-,`IDPAGO` int(11)
-,`PERIODO` varchar(30)
-,`MONTO` decimal(10,0)
-,`FECHA_PAGO` datetime
-,`PENDIENTE` varchar(2)
-,`USR` varchar(20)
 );
 
 -- --------------------------------------------------------
@@ -1002,3 +981,24 @@ ALTER TABLE `clientes`
 
 --
 -- AUTO_INCREMENT de la tabla `detalle`
+--
+ALTER TABLE `detalle`
+  MODIFY `IDDETALLE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+
+--
+-- AUTO_INCREMENT de la tabla `log_accesos`
+--
+ALTER TABLE `log_accesos`
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+
+--
+-- AUTO_INCREMENT de la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  MODIFY `IDPAGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=198;
+
+--
+-- AUTO_INCREMENT de la tabla `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `IDROL` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;

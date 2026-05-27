@@ -56,6 +56,29 @@ class contratoController
 	  exit();
 	}
 
+	public function listar_areas()
+	{
+	  $datos=$this->contrato->lst_areas();
+	  echo json_encode(['status' => 'success', 'data' => $datos]);
+	  exit();
+	}
+
+	public function listar_catalogo_por_area($idarea = null)
+	{
+	  // Previene errores si el ID no llega correctamente
+	  if(!$idarea){
+	      echo json_encode(['status' => 'success', 'data' => []]);
+	      exit();
+	  }
+	  
+	  // Carga los ítems específicos de una idarea
+	  $this->contrato->set("idarea", $idarea);
+	  $datos=$this->contrato->lst_catalogo_por_area();
+
+	  echo json_encode(['status' => 'success', 'data' => $datos]);
+	  exit();
+	}
+
 	public function listar_detalle($argumento)
     {  
     //	$respuesta="valor inicial";
