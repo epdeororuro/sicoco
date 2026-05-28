@@ -30,36 +30,61 @@ class contratoController
 
 	public function listar()
 	{
-	  $datos=$this->contrato->lst();
-	  echo json_encode(['status' => 'success', 'data' => $datos]);
+	  try {
+	      $datos = $this->contrato->lst();
+	      if (ob_get_length()) ob_clean();
+	      
+	      $json = json_encode(['status' => 'success', 'data' => $datos]);
+	      if ($json === false) {
+	          echo json_encode(['status' => 'error', 'data' => [], 'message' => 'Error JSON: ' . json_last_error_msg()]);
+	      } else {
+	          echo $json;
+	      }
+	  } catch (\Exception $e) {
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'error', 'data' => [], 'message' => $e->getMessage()]);
+	  }
 	  exit();
-
 	}
 
 	
 	public function listar_clientes()
 	{
-	 // genera el listado para mostrarlo en un componente select2
-	  $datos=$this->contrato->lst_clientes();
-
-	  echo json_encode(['status' => 'success', 'data' => $datos]);
+	  try {
+	      $datos = $this->contrato->lst_clientes();
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'success', 'data' => $datos]);
+	  } catch (\Exception $e) {
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'error', 'data' => [], 'message' => $e->getMessage()]);
+	  }
 	  exit();
 	}
 
 	
 	public function listar_catalogo()
 	{
-	 // genera el listado para mostrarlo en un componente select2
-	  $datos=$this->contrato->lst_catalogo();
-
-	  echo json_encode(['status' => 'success', 'data' => $datos]);
+	  try {
+	      $datos = $this->contrato->lst_catalogo();
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'success', 'data' => $datos]);
+	  } catch (\Exception $e) {
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'error', 'data' => [], 'message' => $e->getMessage()]);
+	  }
 	  exit();
 	}
 
 	public function listar_areas()
 	{
-	  $datos=$this->contrato->lst_areas();
-	  echo json_encode(['status' => 'success', 'data' => $datos]);
+	  try {
+	      $datos = $this->contrato->lst_areas();
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'success', 'data' => $datos]);
+	  } catch (\Exception $e) {
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'error', 'data' => [], 'message' => $e->getMessage()]);
+	  }
 	  exit();
 	}
 
@@ -67,25 +92,34 @@ class contratoController
 	{
 	  // Previene errores si el ID no llega correctamente
 	  if(!$idarea){
+	      if (ob_get_length()) ob_clean();
 	      echo json_encode(['status' => 'success', 'data' => []]);
 	      exit();
 	  }
 	  
-	  // Carga los ítems específicos de una idarea
-	  $this->contrato->set("idarea", $idarea);
-	  $datos=$this->contrato->lst_catalogo_por_area();
-
-	  echo json_encode(['status' => 'success', 'data' => $datos]);
+	  try {
+	      $this->contrato->set("idarea", $idarea);
+	      $datos = $this->contrato->lst_catalogo_por_area();
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'success', 'data' => $datos]);
+	  } catch (\Exception $e) {
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'error', 'data' => [], 'message' => $e->getMessage()]);
+	  }
 	  exit();
 	}
 
 	public function listar_detalle($argumento)
     {  
-    //	$respuesta="valor inicial";
-	$this->contrato->set("idcontrato", $argumento);	
-	  $datos=$this->contrato->lst_detalle();
-
-	  echo json_encode(['status' => 'success', 'data' => $datos]);
+	  try {
+	      $this->contrato->set("idcontrato", $argumento);	
+	      $datos = $this->contrato->lst_detalle();
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'success', 'data' => $datos]);
+	  } catch (\Exception $e) {
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'error', 'data' => [], 'message' => $e->getMessage()]);
+	  }
 	  exit();
 	}
 
@@ -93,11 +127,17 @@ class contratoController
 public function add()
 	{		
 		if($_POST){
-			//echo "el valor enviado por post es-->".$_POST['txt_nombre'];
-			if (($_POST['SelBuscarCliente']=='0')||
+			// Verificación rigurosa de todos los campos del nuevo formulario
+			if (empty($_POST['SelItemCatalogo']) || $_POST['SelItemCatalogo'] == '0' ||
+				empty($_POST['txt_cedula']) ||
+				empty($_POST['txt_nombres']) ||
+				empty($_POST['txt_paterno']) ||
+				empty($_POST['txt_celular']) ||
+				empty($_POST['txt_direccion']) ||
 				empty($_POST['txt_actividad'])||
 				empty($_POST['txt_razon_social'])||
 				empty($_POST['txt_contrato']) ||
+				empty($_POST['txt_fecha_suscripcion']) ||
 		    	empty($_POST['txt_fecha_inicio'])||
 		    	empty($_POST['txt_tiempo']))
 			{
@@ -106,16 +146,29 @@ public function add()
 			else 
 			{
 				$cadena= $this->usuario_session->getCurrentUser(); // saca el idusuario que se encuentra en la sesion
-				$this->contrato->set("idcliente", $_POST['SelBuscarCliente']);
 				$this->contrato->set("idusuario", $cadena['idmiembro']); 
 				
+				// 1. Datos del Catálogo a Arrendar
+				$this->contrato->set("idcatalogo", $_POST['SelItemCatalogo']);
+
+				// 2. Datos Unificados del Cliente
+				$this->contrato->set("cedula", $_POST['txt_cedula']);
+				$this->contrato->set("nombres", $_POST['txt_nombres']);
+				$this->contrato->set("paterno", $_POST['txt_paterno']);
+				$this->contrato->set("materno", isset($_POST['txt_materno']) ? $_POST['txt_materno'] : '');
+				$this->contrato->set("celular", $_POST['txt_celular']);
+				$this->contrato->set("direccion", $_POST['txt_direccion']);
+
+				// 3. Datos del Contrato
 				$this->contrato->set("actividad", $_POST['txt_actividad']);
 				$this->contrato->set("razon_social", $_POST['txt_razon_social']);
 				$this->contrato->set("contrato", $_POST['txt_contrato']);
-			$this->contrato->set("fecha_inicio", $_POST['txt_fecha_inicio']);
-			$this->contrato->set("tiempo_contrato", $_POST['txt_tiempo']);
+				$this->contrato->set("fecha_suscripcion", $_POST['txt_fecha_suscripcion']);
+				$this->contrato->set("fecha_inicio", $_POST['txt_fecha_inicio']);
+				$this->contrato->set("tiempo_contrato", $_POST['txt_tiempo']);
 								
-				$datos=$this->contrato->add();	
+				// Llamada al nuevo método unificado
+				$datos=$this->contrato->add_unified();	
 				$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
 	        	if ($respuesta == '1') {
                     echo json_encode(['status' => 'success', 'message' => 'Registro insertado con éxito']);
@@ -141,6 +194,7 @@ public function edit()
 				empty($_POST['txt_actividad'])||
 				empty($_POST['txt_razon_social'])||
 				empty($_POST['txt_contrato']) ||
+				empty($_POST['txt_fecha_suscripcion']) ||
 		    	empty($_POST['txt_fecha_inicio'])||
 		    	empty($_POST['txt_tiempo']))
 			{
@@ -155,6 +209,7 @@ public function edit()
 			 $this->contrato->set("actividad", $_POST['txt_actividad']);
 			 $this->contrato->set("razon_social", $_POST['txt_razon_social']);
 			 $this->contrato->set("contrato", $_POST['txt_contrato']);
+			 $this->contrato->set("fecha_suscripcion", $_POST['txt_fecha_suscripcion']);
 			$this->contrato->set("fecha_inicio", $_POST['txt_fecha_inicio']);
 			$this->contrato->set("tiempo_contrato", $_POST['txt_tiempo']);
 				

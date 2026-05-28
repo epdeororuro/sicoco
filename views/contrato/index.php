@@ -42,6 +42,7 @@
                     <th>Razón Social</th>
                     <th>Contrato</th>
                     <th>Inicio</th>
+                    <th>Suscrip.</th>
                     <th>[Meses]</th>
                     <th>[Bs.]</th>
                     <th>Acciones</th>
@@ -57,6 +58,7 @@
                     <th>Razón Social</th>
                     <th>Contrato</th>
                     <th>Inicio</th>
+                    <th>Suscrip.</th>
                     <th>[Meses]</th>
                     <th>[Bs.]</th>
                     <th>Acciones</th>
@@ -111,7 +113,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>Seleccionar Ítem del Catálogo</label>
                                 <select class="form-control select2" id="SelItemCatalogo" name="SelItemCatalogo" style="width: 100%;" required disabled>
@@ -173,19 +175,39 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Celular / Contacto</label>
                                 <input type="text" class="form-control" name="txt_celular" id="txt_celular" placeholder="Nro de Celular" required>
                             </div>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-5">
                             <div class="form-group">
                                 <label>Dirección Actual</label>
                                 <input type="text" class="form-control" name="txt_direccion" id="txt_direccion" placeholder="Zona, Calle, Nro" required>
                             </div>
                         </div>
+
+                        <!-- <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Latitud (Opcional)</label>
+                                <input type="text" class="form-control bg-white" name="txt_latitud" id="txt_latitud" placeholder="-17.9XXXXX" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Longitud (Opcional)</label>
+                                <input type="text" class="form-control bg-white" name="txt_longitud" id="txt_longitud" placeholder="-67.1XXXXX" readonly>
+                            </div>
+                        </div> -->
                     </div>
+                    <!-- <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label>Ubicación en el Mapa</label>
+                            <div id="mapa_ubicacion" style="width: 100%; height: 250px; background-color: #e9ecef; border: 1px solid #ced4da; border-radius: 4px;"></div>
+                            <small class="text-muted"><i class="fas fa-info-circle"></i> Haga clic en el mapa o arrastre el marcador para fijar las coordenadas.</small>
+                        </div>
+                    </div> -->
 
                     <!-- SECCIÓN 3: DETALLES DEL CONTRATO -->
                     <h5 class="text-guindo border-bottom pb-2 mb-3 mt-4">3. Detalles del Contrato</h5>
@@ -198,14 +220,27 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Fecha de Inicio</label>
-                                <input type="date" class="form-control" id="txt_fecha_inicio" name="txt_fecha_inicio" required>
+                                <label>Fecha Suscripción</label>
+                                <input type="date" class="form-control" id="txt_fecha_suscripcion" name="txt_fecha_suscripcion" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Tiempo (Meses)</label>
-                                <input type="number" class="form-control" id="txt_tiempo" name="txt_tiempo" value="1" min="1" step="1" required>
+                                <label>Fecha de Inicio</label>
+                                <input type="date" class="form-control" id="txt_fecha_inicio" name="txt_fecha_inicio" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="form-group mb-0">
+                                <label>Tiempo (Meses referenciales)</label>
+                                <input type="number" class="form-control" id="txt_tiempo" name="txt_tiempo" value="1" min="1" step="1" required readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="alert alert-info mb-0 py-2">
+                                <i class="fas fa-clock"></i> <span id="texto_duracion">Seleccione la Fecha de Inicio para calcular el tiempo del contrato.</span>
                             </div>
                         </div>
                     </div>
@@ -319,4 +354,6 @@
           </div>
         </div>  <!--FIN Modal DETALLE-->
 
+<!-- Script de Google Maps API (Reemplaza TU_API_KEY por tu clave de Google Cloud) -->
+<!-- <script src="https://maps.googleapis.com/maps/api/js?key=AQUI_PEGA_TU_NUEVA_CLAVE_DE_GOOGLE"></script> -->
 <script src="<?php echo URL; ?>views/contrato/contrato.js"></script>

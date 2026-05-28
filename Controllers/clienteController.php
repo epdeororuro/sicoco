@@ -108,6 +108,21 @@ public function delete($argumento)
 	echo $respuesta;	
 	exit();	
 }
+	public function buscar_por_ci()
+	{
+		if (isset($_POST['cedula'])) {
+			$cedula = trim($_POST['cedula']);
+			$datos = $this->cliente->buscar_ci($cedula);
+			
+			if ($datos && count($datos) > 0) {
+				// Devuelve el primer cliente encontrado
+				echo json_encode(['status' => 'success', 'data' => $datos[0]]);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => 'No se encontró el cliente']);
+			}
+		}
+		exit();
+	}
 	
 } // fin clase
 ?>

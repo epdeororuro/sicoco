@@ -8,12 +8,21 @@
 		private $actividad;
 		private $razon_social;
 		private $contrato;
+		private $fecha_suscripcion;
 		private $fecha_inicio;
 		private $tiempo_contrato;
 		private $_contrato;
 		private $iddetalle;
 		private $idcatalogo;
 		private $idarea;
+
+		// Campos unificados del Cliente
+		private $cedula;
+		private $nombres;
+		private $paterno;
+		private $materno;
+		private $celular;
+		private $direccion;
 		
 		private $con;
 
@@ -30,14 +39,21 @@
 		}
 
 		public function lst(){
-			$sql = "SELECT * FROM v_contratos 
-			        WHERE VIGENTE='PR'";
+			// Se consulta directamente a las tablas para evitar el error de la vista v_contratos (columna NOMBRE)
+			// y se incluyen los contratos confirmados ('SI') además de los pendientes ('PR').
+			$sql = "SELECT a.IDARRIENDO, a.IDUSUARIO, a.IDCLIENTE, a.ACTIVIDAD, 
+			               a.RAZONSOCIAL, a.CONTRATO, a.FECHA_SUSCRIPCION, a.FECHA_INICIO, a.TIEMPOCONTRATO, 
+			               a.MONTO, a.OBSERVACIONES, a.VIGENTE, a.FECHA_REGISTRO,
+			               CONCAT(c.CEDULA, ' - ', c.NOMBRE_COMPLETO) AS REPRESENTANTE 
+			        FROM arriendos a 
+			        INNER JOIN clientes c ON a.IDCLIENTE = c.IDCLIENTE
+			        WHERE a.VIGENTE IN ('PR', 'SI') ORDER BY a.IDARRIENDO DESC";
 			$stmt = $this->con->conexion->query($sql);
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function lst_clientes(){
-			$sql = "SELECT IDCLIENTE, CONCAT(NOMBRE, ' - ', CEDULA) AS BCLIENTE FROM clientes ORDER BY NOMBRE";
+			$sql = "SELECT IDCLIENTE, CONCAT(NOMBRE_COMPLETO, ' - ', CEDULA) AS BCLIENTE FROM clientes ORDER BY NOMBRE_COMPLETO";
 			$stmt = $this->con->conexion->query($sql);
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
@@ -74,7 +90,7 @@
 		}
 
 		public function add(){
-			$sql="CALL SP_INSERT_CONTRATO (?, ?, ?, ?, ?, ?, ?)";
+			$sql="CALL SP_INSERT_CONTRATO (?, ?, ?, ?, ?, ?, ?, ?)";
 			$stmt = $this->con->conexion->prepare($sql);
 			$stmt->execute([
 				$this->idusuario, 
@@ -82,10 +98,33 @@
 				$this->actividad, 
 				$this->razon_social,
 				$this->contrato,
+				$this->fecha_suscripcion,
 				$this->fecha_inicio,
 				$this->tiempo_contrato
 			]);
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);			
+		}
+
+		public function add_unified(){
+			$sql = "CALL SP_NUEVO_ARRENDAMIENTO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([
+				$this->idusuario,
+				$this->cedula,
+				$this->nombres,
+				$this->paterno,
+				$this->materno,
+				$this->celular,
+				$this->direccion,
+				$this->idcatalogo,
+				$this->actividad,
+				$this->razon_social,
+				$this->contrato,
+				$this->fecha_suscripcion,
+				$this->fecha_inicio,
+				$this->tiempo_contrato
+			]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function add_detalle(){
@@ -112,13 +151,14 @@
 		}
 
 		public function edit(){
-			$sql="CALL SP_MOD_CONTRATO (?, ?, ?, ?, ?, ?, ?)";
+			$sql="CALL SP_MOD_CONTRATO (?, ?, ?, ?, ?, ?, ?, ?)";
 			$stmt = $this->con->conexion->prepare($sql);
 			$stmt->execute([
 				$this->idcontrato,
 				$this->idcliente,
 				$this->actividad,
 				$this->razon_social,
+				$this->fecha_suscripcion,
 				$this->fecha_inicio,
 				$this->tiempo_contrato,
 				$this->contrato

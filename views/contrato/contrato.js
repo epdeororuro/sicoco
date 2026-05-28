@@ -25,12 +25,14 @@ function LimpiarCamposContrato()
   document.getElementsByName("txt_actividad")[0].value = "";
   document.getElementsByName("txt_razon_social")[0].value = "Sin dato";
   document.getElementsByName("txt_contrato")[0].value = "";
+  document.getElementsByName("txt_fecha_suscripcion")[0].value = "";
   document.getElementsByName("txt_fecha_inicio")[0].value = "";
   document.getElementsByName("txt_tiempo")[0].value = "1";
+  $("#texto_duracion").text("Seleccione la Fecha de Inicio para calcular el tiempo del contrato.");
 
   // Limpiar inputs del cliente
   $("#txt_cedula, #txt_nombres, #txt_paterno, #txt_materno").val('');
-  $("#txt_celular, #txt_direccion, input[name='txt_latitud'], input[name='txt_longitud']").val('');
+  $("#txt_celular, #txt_direccion").val(''); // #txt_latitud, #txt_longitud removidos temporalmente
 } // fin LimpiarCamposContrato()
 
 
@@ -127,12 +129,75 @@ function ListarDetalle(operacion){
 } // fin de funcion listarContrato
 
 // =========================================================================
+// MANEJO DEL MAPA DE GOOGLE MAPS PARA UBICACIÓN DEL CLIENTE
+// =========================================================================
+/* -- MAPA DESHABILITADO TEMPORALMENTE --
+var mapaCliente;
+var marcadorCliente;
+
+function inicializarMapa() {
+    // Coordenadas por defecto (Ej: Ciudad de Oruro, Bolivia)
+    var posicionInicial = { lat: -17.9647, lng: -67.1152 };
+    
+    if (!mapaCliente) {
+        mapaCliente = new google.maps.Map(document.getElementById('mapa_ubicacion'), {
+            center: posicionInicial,
+            zoom: 14
+        });
+
+        marcadorCliente = new google.maps.Marker({
+            position: posicionInicial,
+            map: mapaCliente,
+            draggable: true,
+            title: "Ubicación del Arrendatario"
+        });
+
+        // Evento al mover el marcador manualmente
+        google.maps.event.addListener(marcadorCliente, 'dragend', function() {
+            $('#txt_latitud').val(marcadorCliente.getPosition().lat().toFixed(8));
+            $('#txt_longitud').val(marcadorCliente.getPosition().lng().toFixed(8));
+        });
+
+        // Evento al hacer clic en cualquier parte del mapa
+        google.maps.event.addListener(mapaCliente, 'click', function(event) {
+            marcadorCliente.setPosition(event.latLng);
+            $('#txt_latitud').val(event.latLng.lat().toFixed(8));
+            $('#txt_longitud').val(event.latLng.lng().toFixed(8));
+        });
+    } else {
+        // Si el mapa ya existe, forzamos un redibujado porque estaba oculto
+        google.maps.event.trigger(mapaCliente, 'resize');
+    }
+}
+
+function colocarMarcador(lat, lng) {
+    if (mapaCliente && marcadorCliente && lat && lng) {
+        var pos = { lat: parseFloat(lat), lng: parseFloat(lng) };
+        marcadorCliente.setPosition(pos);
+        mapaCliente.setCenter(pos);
+        mapaCliente.setZoom(16);
+    }
+}
+*/
+
+// =========================================================================
 // EVENTOS DEL DOM MOVIDOS DESDE LA VISTA (index.php) PARA MANTENER MVC LIMPIO
 // =========================================================================
 
 $(document).ready(function(){
-  // Inicializar Select2 en los combos de la vista
-  $('.select2').select2();
+  // Inicializar mapa solo cuando el Modal termine de abrirse
+  // $('#ModalContrato').on('shown.bs.modal', function () {
+  //     inicializarMapa();
+  // });
+
+  // Inicializar Select2 corrigiendo el bloqueo del filtrador en Modales de Bootstrap
+  $('#SelArea, #SelItemCatalogo').select2({
+      dropdownParent: $('#ModalContrato')
+  });
+  
+  $('#SelBuscarCatalogo').select2({
+      dropdownParent: $('#ModalDetalle')
+  });
 
   // Ejecutar carga inicial de áreas
   LlenarArea();
@@ -203,6 +268,36 @@ $(document).ready(function(){
       $("#txt_alquiler_ref").val(precio ? precio : '');
   });
 
+  // Auto-calcular meses y días hasta final de año al cambiar Fecha Inicio
+  $("#txt_fecha_inicio").on('change', function(){
+      var fecha = $(this).val();
+      if(fecha){
+          var partes = fecha.split('-');
+          var anio = parseInt(partes[0]);
+          var mes = parseInt(partes[1]);
+          var dia = parseInt(partes[2]);
+          
+          var diasEnMes = new Date(anio, mes, 0).getDate();
+          var diasRestantes = diasEnMes - dia + 1;
+          var mesesRestantes = 12 - mes;
+          
+          if (diasRestantes === diasEnMes) {
+              mesesRestantes += 1;
+              diasRestantes = 0;
+          }
+          
+          var textoMeses = mesesRestantes > 0 ? mesesRestantes + (mesesRestantes === 1 ? " mes" : " meses") : "";
+          var textoDias = diasRestantes > 0 ? diasRestantes + (diasRestantes === 1 ? " día" : " días") : "";
+          var union = (mesesRestantes > 0 && diasRestantes > 0) ? " y " : "";
+          
+          $("#texto_duracion").text("Se está estableciendo un contrato por " + textoMeses + union + textoDias + " hasta fin de año.");
+          $("#txt_tiempo").val(mesesRestantes + (diasRestantes > 0 ? 1 : 0));
+      } else {
+          $("#txt_tiempo").val(1);
+          $("#texto_duracion").text("Seleccione la Fecha de Inicio para calcular el tiempo del contrato.");
+      }
+  });
+
   // Autocompletar datos del cliente al ingresar la Cédula (CI)
   $("#txt_cedula").on('blur', function() {
     var ci = $(this).val().trim();
@@ -224,8 +319,11 @@ $(document).ready(function(){
                     $("#txt_materno").val(response.data.MATERNO);
                     $("#txt_celular").val(response.data.CONTACTOS);
                     $("#txt_direccion").val(response.data.DIRECCION);
-                    $("input[name='txt_latitud']").val(response.data.LATITUD);
-                    $("input[name='txt_longitud']").val(response.data.LONGITUD);
+                    // $("#txt_latitud").val(response.data.LATITUD);
+                    // $("#txt_longitud").val(response.data.LONGITUD);
+                    
+                    // Centrar el marcador en el mapa si este cliente ya tiene coordenadas guardadas
+                    // colocarMarcador(response.data.LATITUD, response.data.LONGITUD);
                     
                     Swal.fire({
                         toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
@@ -233,7 +331,7 @@ $(document).ready(function(){
                     });
                 } else {
                     $("#txt_nombres, #txt_paterno, #txt_materno, #txt_celular, #txt_direccion").val('');
-                    $("input[name='txt_latitud'], input[name='txt_longitud']").val('');
+                    // $("#txt_latitud, #txt_longitud").val('');
                 }
             },
             error: function() {
@@ -260,13 +358,15 @@ $(document).on('click', '.EditarContrato', function(e){
   document.getElementsByName("txt_razon_social")[0].value=$(this).parents("tr").find("td").eq(4).html();
   document.getElementsByName("txt_contrato")[0].value=$(this).parents("tr").find("td").eq(5).html();
   document.getElementsByName("txt_fecha_inicio")[0].value=$(this).parents("tr").find("td").eq(6).html();
-  document.getElementsByName("txt_tiempo")[0].value=$(this).parents("tr").find("td").eq(7).html();
+  document.getElementsByName("txt_fecha_suscripcion")[0].value=$(this).parents("tr").find("td").eq(7).html();
+  document.getElementsByName("txt_tiempo")[0].value=$(this).parents("tr").find("td").eq(8).html();
 });
 
 $(document).on('click', '.DetalleContrato', function(e){
   e.preventDefault();
   $("#SelBuscarCatalogo").html('');
-  $("#SelBuscarCatalogo").select2(LlenarCatalogo());
+  
+  LlenarCatalogo();
   $('#SelBuscarCatalogo').val('0').trigger('change');
 
   document.getElementsByName("txt_idcontrato1")[0].value=$(this).parents("tr").find("td").eq(0).html();
@@ -328,7 +428,12 @@ function ListarContrato(){
    "autoWidth": false,
       "ajax":{
         "url": base_url+'contrato/listar',
-        "dataSrc": function(json) { return json.data ? json.data : json; }       
+        "dataSrc": function(json) { 
+            if (json.status === 'error') {
+                console.error("Error backend BD:", json.message);
+            }
+            return json.data ? json.data : []; 
+        }       
       },
       "columns":[
       {"data": "IDARRIENDO"},
@@ -338,6 +443,7 @@ function ListarContrato(){
       {"data": "RAZONSOCIAL"},
       {"data": "CONTRATO"},
       {"data": "FECHA_INICIO"},
+      {"data": "FECHA_SUSCRIPCION"},
       {"data": "TIEMPOCONTRATO"},
       {"data": "MONTO"},
       {"defaultContent":boton_editar+" "+boton_detalle+" "+boton_confirmar+" "+boton_eliminar}

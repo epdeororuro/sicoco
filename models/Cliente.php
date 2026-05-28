@@ -52,6 +52,14 @@
 			$datos = $this->con->ConsultaRetorno($sql);
 			return $datos;
 		}
+		public function buscar_ci($cedula)
+		{
+			$sql = "SELECT * FROM clientes WHERE CEDULA = ? LIMIT 1";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$cedula]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		}
+
 		
 	}
 
