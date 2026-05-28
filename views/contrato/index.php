@@ -274,85 +274,46 @@
         </div>  <!--FIN Modal -->
 
 
-<!-- Modal DETALLE-->
+<!-- Modal PAGOS (Antiguo Detalle) -->
         <div id="ModalDetalle" class="modal fade" role="dialog">
 
-          <div class="modal-dialog modal-xl">
+          <div class="modal-dialog modal-lg">
 
             <!-- Modal content-->
             <div class="modal-content">
               <div class="modal-header">
-                <h4 class="modal-title" id="titulo">Detalle registro Alquiler</h4>
+                <h4 class="modal-title"><i class="fas fa-money-bill-wave"></i> Plan de Pagos del Contrato</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
               </div>
               
             <div class="modal-body">
-                <p class="statusMsg"></p>
-              <form role="form" enctype="multipart/form-data" 
-                id="FormDetalle"  method="POST" autocomplete="off">
-                    <div class="form-group">
-                      <input  type="hidden"  id="txt_idcontrato1" name="txt_idcontrato1">
-                    </div>
+                <div class="alert alert-info py-2" id="info_pago_contrato">
+                    <!-- Info del contrato y cliente se cargará aquí por JS -->
+                </div>
 
-                    <div class="row bg-info text-dark" >
-                      <div class="col-sm-12">
-                          <label for="SelBuscarCatalogo">Referencia del Espacio | Servicio</label>
-                          <select id="SelBuscarCatalogo" 
-                            name="SelBuscarCatalogo" class="form-control" style="width:100%">
-                            <option value="0">Seleccionar..</option>
-                          </select>                              
-                      </div>
-                    </div>
-                </form>
-              </div>
-
-              <div class="modal-footer" id="OpcionAdicionar">
-                <button type="button" class="btn btn-success btn-lg " 
-                  id="btn_Adicionar" name="btn_Adicionar" >
-                  <span><i class="fas fa-save"></i></span>
-                  Adicionar
-                </button>
-                
-                <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal">Salir</button>
-              </div>
-                <!--tabla  DETALLE-->
-
-                 <div class="card-body" id="ListadoDetalle">
-
-                <table id="TablaDetalle"  class="table table-bordered table-striped table-hover table-sm">
+                <div class="table-responsive">
+                <table id="TablaDetalle"  class="table table-bordered table-striped table-hover table-sm" style="width: 100%;">
                  <thead class=" table-success">
                   <tr>
-                    <th>Id</th>
-                    <th>IdCo</th>
-                    <th>Ubicación</th>
-                    <th>Descripción</th>
-                    <th>Alquiler</th>
-                    <th>Acciones</th>
+                    <th>Nro Pago</th>
+                    <th>Periodo</th>
+                    <th>Monto (Bs.)</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
                   </tr>
                 </thead>
-                 
-                  <tfoot class=" table-success">
-                  <tr>
-                    <th>Id</th>
-                    <th>IdCo</th>
-                    <th>Ubicación</th>
-                    <th>Descripción</th>
-                    <th>Alquiler</th>
-                    <th>Acciones</th>
-                  </tr>
-                  </tfoot>
-                
                 </table>
+                </div>
 
                </div>
-
-
-                  <!--FIN tabla DETALLE-->
-
+              
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+              </div>
 
             </div>
           </div>
-        </div>  <!--FIN Modal DETALLE-->
+        </div>  <!--FIN Modal PAGOS-->
 
 <!-- Script de Google Maps API (Reemplaza TU_API_KEY por tu clave de Google Cloud) -->
 <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AQUI_PEGA_TU_NUEVA_CLAVE_DE_GOOGLE"></script> -->

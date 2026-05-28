@@ -88,21 +88,8 @@ function LlenarCatalogo()
 });  
 } // final funcion Llenar_servicios combobox
 
-function CrudDetalle(operacion)
-{ const ruta=base_url+operacion;
-  var op=operacion.split('/');  
-  var msj;
-  switch (op[1])
-  {
-    case 'addetalle':  msj='Registro Insertado con Éxito'; break;
-    case 'del_detalle': msj='Registro Eliminado con Éxito'; break;
-  }  
-  AccionAjax(ruta, null, ListarContrato, msj);
-}// fin CrudDetalle
-
-function ListarDetalle(operacion){
-  const ruta=base_url+operacion;  
-  var boton_eliminar="<button type='button' class='EliminarDetalle btn btn-danger btn-sm'><i class='fas fa-trash'></i></button>";
+function ListarDetalle(idarriendo){
+  const ruta = base_url + 'pagos/plan_pagos/' + idarriendo;
   
   $("#TablaDetalle").DataTable({     
     "responsive":true,
@@ -114,12 +101,18 @@ function ListarDetalle(operacion){
         "dataSrc": function(json) { return json.data ? json.data : json; }       
       },
       "columns":[
-      {"data": "IDDETALLE"},
-      {"data": "IDARRIENDO"},
-      {"data": "DISTRIBUCION"},
-      {"data": "DESCRIPCION"},
-      {"data": "ALQUILER"},
-      {"defaultContent":boton_eliminar}
+      {"data": "IDPAGO"},
+      {"data": "PERIODO"},
+      {"data": "MONTO"},
+      {"data": "PENDIENTE", "render": function(data) {
+          return data === 'SI' ? '<span class="badge badge-warning">PENDIENTE</span>' : '<span class="badge badge-success"><i class="fas fa-check-double"></i> PAGADO</span>';
+      }},
+      {"data": null, "render": function(data, type, row) {
+          if(row.PENDIENTE === 'SI') {
+              return "<button class='btn btn-success btn-sm PagarCuota' data-id='"+row.IDPAGO+"' data-periodo='"+row.PERIODO+"' data-monto='"+row.MONTO+"'><i class='fas fa-dollar-sign'></i> Pagar</button>";
+          }
+          return "<span class='text-success'><i class='fas fa-check'></i> Completado</span>";
+      }}
       ],
        dom: 'Bfrtip',
        buttons: [
@@ -195,10 +188,6 @@ $(document).ready(function(){
       dropdownParent: $('#ModalContrato')
   });
   
-  $('#SelBuscarCatalogo').select2({
-      dropdownParent: $('#ModalDetalle')
-  });
-
   // Ejecutar carga inicial de áreas
   LlenarArea();
 
@@ -224,10 +213,38 @@ $(document).ready(function(){
     LimpiarCamposContrato();
   });
 
-  $("#btn_Adicionar").on('click', function(e){
-    e.preventDefault();
-    CrudDetalle('contrato/addetalle/'+document.getElementsByName("txt_idcontrato1")[0].value+'-'+ $('#SelBuscarCatalogo').val());
-    ListarDetalle('contrato/listar_detalle/'+ document.getElementsByName("txt_idcontrato1")[0].value);
+  // Evento para realizar el Pago de una Cuota
+  $(document).on('click', '.PagarCuota', function(e) {
+      e.preventDefault();
+      var idpago = $(this).data('id');
+      var periodo = $(this).data('periodo');
+      var monto = $(this).data('monto');
+      
+      Swal.fire({
+          title: '¿Confirmar Pago?',
+          text: 'Se registrará el pago del periodo ' + periodo + ' por Bs. ' + monto,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#28a745',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Sí, Pagar!'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              $.ajax({
+                  url: base_url + 'pagos/realizar_pago/' + idpago,
+                  type: 'POST',
+                  dataType: 'json',
+                  success: function(resp) {
+                      if(resp.status === 'success') {
+                          Swal.fire({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Pago registrado.'});
+                          $('#TablaDetalle').DataTable().ajax.reload();
+                      } else {
+                          Swal.fire('Error', resp.message, 'error');
+                      }
+                  }
+              });
+          }
+      });
   });
 
   // -------------------------------------------------------------------------
@@ -352,31 +369,83 @@ $(document).on('click', '.EditarContrato', function(e){
   $("#OpcionNuevo").hide();
   $("#OpcionEditar").show("slow");
 
-  $('#SelBuscarCliente').val($(this).parents("tr").find("td").eq(1).html()).trigger('change');
-  document.getElementsByName("txt_idcontrato")[0].value=$(this).parents("tr").find("td").eq(0).html();
-  document.getElementsByName("txt_actividad")[0].value=$(this).parents("tr").find("td").eq(3).html();
-  document.getElementsByName("txt_razon_social")[0].value=$(this).parents("tr").find("td").eq(4).html();
-  document.getElementsByName("txt_contrato")[0].value=$(this).parents("tr").find("td").eq(5).html();
-  document.getElementsByName("txt_fecha_inicio")[0].value=$(this).parents("tr").find("td").eq(6).html();
-  document.getElementsByName("txt_fecha_suscripcion")[0].value=$(this).parents("tr").find("td").eq(7).html();
-  document.getElementsByName("txt_tiempo")[0].value=$(this).parents("tr").find("td").eq(8).html();
+  var idcontrato = $(this).parents("tr").find("td").eq(0).html();
+  
+  // Limpiar campos visuales antes de cargar la info
+  LimpiarCamposContrato();
+  document.getElementsByName("txt_idcontrato")[0].value = idcontrato;
+
+  // Cargar datos del contrato completo por AJAX
+  $.ajax({
+      url: base_url + 'contrato/obtener/' + idcontrato,
+      type: 'GET',
+      dataType: 'json',
+      success: function(response) {
+          if (response.status === 'success' && response.data) {
+              var d = response.data;
+              
+              // 1. Llenar contrato
+              $("#txt_actividad").val(d.ACTIVIDAD);
+              $("#txt_razon_social").val(d.RAZONSOCIAL);
+              $("#txt_contrato").val(d.CONTRATO);
+              $("#txt_fecha_suscripcion").val(d.FECHA_SUSCRIPCION);
+              $("#txt_fecha_inicio").val(d.FECHA_INICIO);
+              
+              // Disparar evento para auto-calcular la frase y luego asignar el tiempo exacto guardado
+              $("#txt_fecha_inicio").trigger('change');
+              $("#txt_tiempo").val(d.TIEMPOCONTRATO); 
+
+              // 2. Llenar cliente
+              $("#txt_cedula").val(d.CEDULA);
+              $("#txt_nombres").val(d.NOMBRES);
+              $("#txt_paterno").val(d.PATERNO);
+              $("#txt_materno").val(d.MATERNO);
+              $("#txt_celular").val(d.CELULAR);
+              $("#txt_direccion").val(d.DIRECCION);
+              
+              // 3. Llenar área y catálogo anidado
+              if(d.IDAREA) {
+                  $("#SelArea").val(d.IDAREA).trigger('change.select2');
+                  
+                  var $selectCatalogo = $("#SelItemCatalogo");
+                  $selectCatalogo.empty().append('<option value="0">-- Cargando Catálogo... --</option>').prop('disabled', false);
+                  
+                  $.ajax({
+                      url: base_url + 'contrato/listar_catalogo_por_area/' + d.IDAREA,
+                      type: 'POST',
+                      dataType: 'json',
+                      success: function(catResp) {
+                          var datos = catResp.data ? catResp.data : catResp;
+                          $selectCatalogo.empty().append('<option value="0">-- Seleccione un Espacio / Servicio --</option>');
+                          $(datos).each(function(i, v) {
+                              var option = '<option value="' + v.IDCATALOGO + '" data-precio="' + v.ALQUILER + '">' + v.BESPACIO + '</option>';
+                              $selectCatalogo.append(option);
+                          });
+                          // Seleccionar el ítem correcto que tenía el contrato y su precio
+                          $selectCatalogo.val(d.IDCATALOGO).trigger('change.select2');
+                          $("#txt_alquiler_ref").val(d.ALQUILER);
+                      }
+                  });
+              }
+          } else {
+              Swal.fire('Error', 'No se pudo cargar los datos del contrato', 'error');
+          }
+      },
+      error: function() {
+          Swal.fire('Error', 'Error de conexión al obtener el contrato', 'error');
+      }
+  });
 });
 
 $(document).on('click', '.DetalleContrato', function(e){
   e.preventDefault();
-  $("#SelBuscarCatalogo").html('');
   
-  LlenarCatalogo();
-  $('#SelBuscarCatalogo').val('0').trigger('change');
-
-  document.getElementsByName("txt_idcontrato1")[0].value=$(this).parents("tr").find("td").eq(0).html();
-  ListarDetalle('contrato/listar_detalle/'+ document.getElementsByName("txt_idcontrato1")[0].value);
-});
-
-$(document).on('click', '.EliminarDetalle', function(e){
-  e.preventDefault();
-  CrudDetalle('contrato/del_detalle/'+$(this).parents("tr").find("td").eq(0).html());
-  ListarDetalle('contrato/listar_detalle/'+ document.getElementsByName("txt_idcontrato1")[0].value);
+  var idcontrato = $(this).parents("tr").find("td").eq(0).html();
+  var clienteText = $(this).parents("tr").find("td").eq(2).html();
+  var contratoText = $(this).parents("tr").find("td").eq(5).html();
+  
+  $("#info_pago_contrato").html("<strong>Nro Contrato:</strong> " + contratoText + " | <strong>Arrendatario:</strong> " + clienteText);
+  ListarDetalle(idcontrato);
 });
 
 $(document).on('click', '.EliminarContrato', function(e){

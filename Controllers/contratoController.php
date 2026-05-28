@@ -185,12 +185,34 @@ public function add()
         exit();
 	}
 
+	public function obtener($argumento)
+	{
+	  try {
+	      $this->contrato->set("idcontrato", $argumento);	
+	      $datos = $this->contrato->obtener_contrato_completo();
+	      if (ob_get_length()) ob_clean();
+	      if ($datos && count($datos) > 0) {
+              echo json_encode(['status' => 'success', 'data' => $datos[0]]);
+          } else {
+              echo json_encode(['status' => 'error', 'message' => 'Contrato no encontrado']);
+          }
+	  } catch (\Exception $e) {
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+	  }
+	  exit();
+	}
+
 public function edit()
 	{		
 		if($_POST){
-			//echo "el valor enviado por post es-->".$_POST['txt_descripcion'];
 			if (empty($_POST['txt_idcontrato'])||
-				($_POST['SelBuscarCliente']=='0')||
+				empty($_POST['SelItemCatalogo']) || $_POST['SelItemCatalogo'] == '0' ||
+				empty($_POST['txt_cedula']) ||
+				empty($_POST['txt_nombres']) ||
+				empty($_POST['txt_paterno']) ||
+				empty($_POST['txt_celular']) ||
+				empty($_POST['txt_direccion']) ||
 				empty($_POST['txt_actividad'])||
 				empty($_POST['txt_razon_social'])||
 				empty($_POST['txt_contrato']) ||
@@ -201,17 +223,21 @@ public function edit()
 				echo json_encode(['status' => 'error', 'message' => 'Debe Completar los Datos, Todos los Campos son Obligatorios']);				
 			}
 			else 
-			{ $cadena= $this->usuario_session->getCurrentUser(); // saca el idusuario que se encuentra en la sesion
-			 $this->contrato->set("idcliente", $_POST['SelBuscarCliente']);
-			 $this->contrato->set("idusuario", $cadena['idmiembro']);
-			 
-			 $this->contrato->set("idcontrato",$_POST['txt_idcontrato'] );
-			 $this->contrato->set("actividad", $_POST['txt_actividad']);
-			 $this->contrato->set("razon_social", $_POST['txt_razon_social']);
-			 $this->contrato->set("contrato", $_POST['txt_contrato']);
-			 $this->contrato->set("fecha_suscripcion", $_POST['txt_fecha_suscripcion']);
-			$this->contrato->set("fecha_inicio", $_POST['txt_fecha_inicio']);
-			$this->contrato->set("tiempo_contrato", $_POST['txt_tiempo']);
+			{ 
+				$this->contrato->set("idcontrato", $_POST['txt_idcontrato']);
+				$this->contrato->set("idcatalogo", $_POST['SelItemCatalogo']);
+				$this->contrato->set("cedula", $_POST['txt_cedula']);
+				$this->contrato->set("nombres", $_POST['txt_nombres']);
+				$this->contrato->set("paterno", $_POST['txt_paterno']);
+				$this->contrato->set("materno", isset($_POST['txt_materno']) ? $_POST['txt_materno'] : '');
+				$this->contrato->set("celular", $_POST['txt_celular']);
+				$this->contrato->set("direccion", $_POST['txt_direccion']);
+				$this->contrato->set("actividad", $_POST['txt_actividad']);
+				$this->contrato->set("razon_social", $_POST['txt_razon_social']);
+				$this->contrato->set("contrato", $_POST['txt_contrato']);
+				$this->contrato->set("fecha_suscripcion", $_POST['txt_fecha_suscripcion']);
+				$this->contrato->set("fecha_inicio", $_POST['txt_fecha_inicio']);
+				$this->contrato->set("tiempo_contrato", $_POST['txt_tiempo']);
 				
 	        	$datos=$this->contrato->edit();	
 				$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;

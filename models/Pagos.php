@@ -5,8 +5,11 @@
 		private $idpago;
 		private $idarriendo;
 		private $usr;
-		
-
+		private $idcliente;
+		private $nombre;
+		private $cedula;
+		private $contactos;
+		private $direccion;
 		private $con;
 
 		public function __construct(){
@@ -56,6 +59,23 @@
 
 			$datos = $this->con->ConsultaRetorno($sql);
 			return $datos;
+		}
+
+		public function plan_pagos(){
+			$sql= "SELECT IDPAGO, PERIODO, MONTO, PENDIENTE 
+			       FROM pagos 
+			       WHERE IDARRIENDO = ?
+			       ORDER BY PERIODO ASC";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idarriendo]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		}
+
+		public function registrar_pago(){
+			$sql = "UPDATE pagos SET PENDIENTE = 'NO', FECHA_PAGO = NOW(), USR = ? WHERE IDPAGO = ?";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->usr, $this->idpago]);
+			return true;
 		}
 
 		public function add(){

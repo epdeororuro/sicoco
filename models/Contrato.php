@@ -89,6 +89,20 @@
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
+		public function obtener_contrato_completo(){
+			$sql = "SELECT a.IDARRIENDO, a.ACTIVIDAD, a.RAZONSOCIAL, a.CONTRATO, a.FECHA_SUSCRIPCION, a.FECHA_INICIO, a.TIEMPOCONTRATO, 
+			               c.CEDULA, c.NOMBRES, c.PATERNO, c.MATERNO, c.CONTACTOS AS CELULAR, c.DIRECCION, c.LATITUD, c.LONGITUD,
+			               d.IDCATALOGO, cat.IDAREA, d.ALQUILER_NOMINAL AS ALQUILER
+			        FROM arriendos a 
+			        INNER JOIN clientes c ON a.IDCLIENTE = c.IDCLIENTE
+			        LEFT JOIN detalle d ON a.IDARRIENDO = d.IDARRIENDO
+			        LEFT JOIN catalogo cat ON d.IDCATALOGO = cat.IDCATALOGO
+			        WHERE a.IDARRIENDO = ? LIMIT 1";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idcontrato]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		}
+
 		public function add(){
 			$sql="CALL SP_INSERT_CONTRATO (?, ?, ?, ?, ?, ?, ?, ?)";
 			$stmt = $this->con->conexion->prepare($sql);
@@ -151,17 +165,23 @@
 		}
 
 		public function edit(){
-			$sql="CALL SP_MOD_CONTRATO (?, ?, ?, ?, ?, ?, ?, ?)";
+			$sql="CALL SP_MOD_ARRENDAMIENTO_UNIFICADO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			$stmt = $this->con->conexion->prepare($sql);
 			$stmt->execute([
 				$this->idcontrato,
-				$this->idcliente,
+				$this->cedula,
+				$this->nombres,
+				$this->paterno,
+				$this->materno,
+				$this->celular,
+				$this->direccion,
+				$this->idcatalogo,
 				$this->actividad,
 				$this->razon_social,
+				$this->contrato,
 				$this->fecha_suscripcion,
 				$this->fecha_inicio,
-				$this->tiempo_contrato,
-				$this->contrato
+				$this->tiempo_contrato
 			]);
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}

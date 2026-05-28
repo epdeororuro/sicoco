@@ -84,6 +84,36 @@ public function add()
    	      exit();
 	}
 
+	public function plan_pagos($argumento)
+	{
+	  try {
+	      $this->pagos->set("idarriendo", $argumento);	
+	      $datos = $this->pagos->plan_pagos();
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'success', 'data' => $datos]);
+	  } catch (\Exception $e) {
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode(['status' => 'error', 'data' => [], 'message' => $e->getMessage()]);
+	  }
+	  exit();
+	}
+
+	public function realizar_pago($idpago)
+	{
+	    try {
+	        $this->pagos->set("idpago", $idpago);
+            $cadena = $this->usuario_session->getCurrentUser();
+	        $this->pagos->set("usr", $cadena['nombre']);
+	        $this->pagos->registrar_pago();
+	        if (ob_get_length()) ob_clean();
+	        echo json_encode(['status' => 'success', 'message' => 'Pago realizado correctamente']);
+	    } catch (\Exception $e) {
+	        if (ob_get_length()) ob_clean();
+	        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+	    }
+	    exit();
+	}
+
 public function edit()
 	{$respuesta="valor inicial";		
 		if($_POST){
