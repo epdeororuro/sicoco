@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 29-05-2026 a las 20:00:55
+-- Tiempo de generación: 29-05-2026 a las 22:27:34
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -692,7 +692,8 @@ INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FEC
 (38, 7, '575455', '2026-05-28 17:09:30', '2026-05-28 17:14:30', 'USADO', '::1'),
 (39, 7, '428176', '2026-05-29 08:36:09', '2026-05-29 08:41:09', 'USADO', '::1'),
 (40, 7, '708237', '2026-05-29 13:04:15', '2026-05-29 13:09:15', 'USADO', '::1'),
-(41, 7, '542904', '2026-05-29 13:46:25', '2026-05-29 13:51:25', 'USADO', '::1');
+(41, 7, '542904', '2026-05-29 13:46:25', '2026-05-29 13:51:25', 'USADO', '::1'),
+(42, 7, '582536', '2026-05-29 14:23:35', '2026-05-29 14:28:35', 'USADO', '::1');
 
 -- --------------------------------------------------------
 
@@ -1028,7 +1029,7 @@ ALTER TABLE `detalle`
 -- AUTO_INCREMENT de la tabla `log_accesos`
 --
 ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`
