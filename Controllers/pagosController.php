@@ -98,12 +98,109 @@ public function add()
 	  exit();
 	}
 
+	public function imprimir_recibo($idpago)
+	{
+	    $this->pagos->set("idpago", $idpago);
+	    $datos = $this->pagos->obtener_datos_recibo();
+
+	    if (!$datos) {
+	        die("Error: Recibo no encontrado.");
+	    }
+
+	    // Asegúrate de tener el archivo FPDF en esta ruta
+	    require_once ROOT . "libs/fpdf/fpdf.php";
+
+	    $pdf = new \FPDF('P', 'mm', 'Letter');
+	    $pdf->AddPage();
+	    $pdf->SetAutoPageBreak(false);
+
+	    // --- DIBUJAR 2 RECIBOS EN LA MISMA HOJA ---
+	    $this->dibujar_recibo($pdf, $datos, 10, 'ORIGINAL - CLIENTE');
+	    
+	    // Línea de corte (Guiones)
+	    $pdf->SetDrawColor(150, 150, 150);
+	    for($i = 10; $i < 200; $i += 5) {
+	        $pdf->Line($i, 135, $i+2, 135);
+	    }
+
+	    $this->dibujar_recibo($pdf, $datos, 145, 'COPIA - ARCHIVO');
+
+	    if (ob_get_length()) ob_clean();
+	    $pdf->Output('I', 'Recibo_Pago_Nro_'.$idpago.'.pdf');
+	    exit();
+	}
+
+	private function dibujar_recibo($pdf, $datos, $y, $tipo)
+	{
+	    $meses = ['01'=>'Enero', '02'=>'Febrero', '03'=>'Marzo', '04'=>'Abril', '05'=>'Mayo', '06'=>'Junio', '07'=>'Julio', '08'=>'Agosto', '09'=>'Septiembre', '10'=>'Octubre', '11'=>'Noviembre', '12'=>'Diciembre'];
+	    $partes = explode('-', $datos['PERIODO']);
+	    $mes_texto = $meses[$partes[1]] . ' de ' . $partes[0];
+
+	    // RUTAS A TUS IMÁGENES
+	    $img_izq = ROOT . 'img/logos/logo_1.jpg'; 
+	    $img_cen = ROOT . 'img/logos/logo_2.jpg'; 
+	    $img_der = ROOT . 'img/logos/logo_3.jpg'; 
+
+	    if (file_exists($img_izq)) $pdf->Image($img_izq, 15, $y, 45);
+	    if (file_exists($img_cen)) $pdf->Image($img_cen, 75, $y, 60);
+	    if (file_exists($img_der)) $pdf->Image($img_der, 175, $y, 25);
+
+	    $pdf->SetFont('Arial', 'B', 14);
+	    $pdf->SetXY(45, $y + 5);
+	    $pdf->Cell(120, 6, utf8_decode(''), 0, 1, 'C');
+	    $pdf->SetFont('Arial', 'B', 10);
+	    $pdf->SetXY(45, $y + 11);
+	    $pdf->Cell(120, 5, utf8_decode('COMPROBANTE DE PAGO DE ARRENDAMIENTO'), 0, 1, 'C');
+
+	    $pdf->SetFont('Arial', 'B', 8);
+	    $pdf->SetXY(160, $y + 25);
+	    $pdf->Cell(40, 5, utf8_decode($tipo), 0, 1, 'R');
+
+	    $pdf->SetFont('Arial', 'B', 10);
+	    $pdf->SetXY(15, $y + 30);
+	    $pdf->Cell(90, 6, utf8_decode('RECIBO NRO: ' . str_pad($datos['IDPAGO'], 6, '0', STR_PAD_LEFT)), 0, 0, 'L');
+	    $pdf->SetFont('Arial', '', 10);
+	    $pdf->Cell(90, 6, utf8_decode('Fecha y Hora: ' . date('d/m/Y H:i', strtotime($datos['FECHA_PAGO']))), 0, 1, 'R');
+	    $pdf->Ln(2);
+
+	    $pdf->SetFillColor(240, 240, 240);
+	    $pdf->SetDrawColor(200, 200, 200);
+	    $pdf->SetX(15); $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Arrendatario:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(95, 7, utf8_decode(' ' . $datos['CLIENTE']), 1, 0, 'L');
+	    $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(20, 7, utf8_decode(' CI:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(35, 7, utf8_decode(' ' . $datos['CEDULA']), 1, 1, 'L');
+
+	    $pdf->SetX(15); $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Nro. Contrato:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(95, 7, utf8_decode(' ' . $datos['CONTRATO']), 1, 0, 'L');
+	    $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(20, 7, utf8_decode(' Actividad:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 7); $pdf->Cell(35, 7, utf8_decode(' ' . substr($datos['ACTIVIDAD'], 0, 20)), 1, 1, 'L');
+
+	    $pdf->SetX(15); $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Corresponde a:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(150, 7, utf8_decode(' MES DE ' . strtoupper($mes_texto)), 1, 1, 'L');
+	    $pdf->Ln(5);
+
+	    $pdf->SetX(15); $pdf->SetFont('Arial', 'B', 11); $pdf->Cell(140, 10, utf8_decode(' TOTAL PAGADO:'), 1, 0, 'R', true);
+	    $pdf->SetFont('Arial', 'B', 12); $pdf->Cell(45, 10, utf8_decode('Bs. ' . number_format($datos['MONTO'], 2)), 1, 1, 'C');
+	    $pdf->Ln(15);
+
+	    $pdf->SetFont('Arial', '', 9);
+	    $pdf->SetX(30); $pdf->Cell(60, 4, '_____________________________', 0, 0, 'C');
+	    $pdf->SetX(120); $pdf->Cell(60, 4, '_____________________________', 0, 1, 'C');
+	    $pdf->SetX(30); $pdf->Cell(60, 4, utf8_decode('Firma del Cajero'), 0, 0, 'C');
+	    $pdf->SetX(120); $pdf->Cell(60, 4, utf8_decode('Firma del Arrendatario'), 0, 1, 'C');
+	    $pdf->SetX(30); $pdf->Cell(60, 4, utf8_decode('Cajero: ' . $datos['USR']), 0, 0, 'C');
+	}
+
 	public function realizar_pago($idpago)
 	{
 	    try {
 	        $this->pagos->set("idpago", $idpago);
             $cadena = $this->usuario_session->getCurrentUser();
 	        $this->pagos->set("usr", $cadena['nombre']);
+            
+            // Asignar número de recibo también para cobros individuales (botón de 1 solo mes)
+            $this->pagos->set("nro_recibo", str_pad($idpago, 6, '0', STR_PAD_LEFT));
+            
 	        $this->pagos->registrar_pago();
 	        if (ob_get_length()) ob_clean();
 	        echo json_encode(['status' => 'success', 'message' => 'Pago realizado correctamente']);
@@ -112,6 +209,203 @@ public function add()
 	        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 	    }
 	    exit();
+	}
+
+	public function historial() {
+	    try {
+	        $datos = $this->pagos->historial_caja();
+	        if (ob_get_length()) ob_clean();
+	        $json = json_encode(['status' => 'success', 'data' => $datos]);
+	        if ($json === false) {
+	            echo json_encode(['status' => 'error', 'data' => [], 'message' => 'Error JSON: ' . json_last_error_msg()]);
+	        } else {
+	            echo $json;
+	        }
+	    } catch (\Exception $e) {
+	        if (ob_get_length()) ob_clean();
+	        echo json_encode(['status' => 'error', 'data' => [], 'message' => $e->getMessage()]);
+	    }
+	    exit();
+	}
+
+	public function reimprimir($nro_recibo) {
+	    if(!$nro_recibo) {
+	        die("Error: Número de recibo no especificado.");
+	    }
+	    
+	    $this->pagos->set("nro_recibo", $nro_recibo);
+	    $pagos = $this->pagos->obtener_ids_por_recibo();
+	    
+	    if (!$pagos || count($pagos) == 0) {
+	        die("Error: El recibo solicitado no existe o no tiene pagos asociados.");
+	    }
+	    
+	    $ids = [];
+	    foreach($pagos as $p) {
+	        $ids[] = $p['IDPAGO'];
+	    }
+	    
+	    // Simulamos la llamada múltiple pasándole los IDs encontrados
+	    $_GET['ids'] = implode(',', $ids);
+	    $this->imprimir_recibo_multiple();
+	}
+
+	public function realizar_pago_multiple()
+	{
+	    if(isset($_POST['idpagos'])) {
+	        try {
+	            $ids = explode(',', $_POST['idpagos']);
+	            $cadena = $this->usuario_session->getCurrentUser();
+	            $usr = $cadena['nombre'];
+	            
+	            // Usamos el ID del primer pago formateado a 6 dígitos como Nro de Recibo Transaccional
+	            $nro_recibo = str_pad($ids[0], 6, '0', STR_PAD_LEFT);
+
+	            foreach($ids as $idpago) {
+	                $this->pagos->set("idpago", $idpago);
+	                $this->pagos->set("usr", $usr);
+	                $this->pagos->set("nro_recibo", $nro_recibo);
+	                $this->pagos->registrar_pago();
+	            }
+	            if (ob_get_length()) ob_clean();
+	            echo json_encode(['status' => 'success', 'message' => 'Pagos realizados correctamente']);
+	        } catch (\Exception $e) {
+	            if (ob_get_length()) ob_clean();
+	            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+	        }
+	    }
+	    exit();
+	}
+
+	public function imprimir_recibo_multiple()
+	{
+	    if(!isset($_GET['ids'])) {
+	        die("Error: No se especificaron los pagos.");
+	    }
+	    
+	    $ids = explode(',', $_GET['ids']);
+	    if(count($ids) == 0) die("Error: Lista de pagos vacía.");
+
+	    // Optimización: 1 sola consulta a la base de datos en lugar de un bucle (N+1)
+	    $lista_datos = $this->pagos->obtener_datos_recibos_multiples($ids);
+
+	    if (!$lista_datos || count($lista_datos) == 0) {
+	        die("Error: Recibo no encontrado.");
+	    }
+
+	    $datos_base = $lista_datos[0];
+	    $total_monto = 0;
+	    $periodos = [];
+	    
+	    foreach($lista_datos as $d) {
+	        $total_monto += $d['MONTO'];
+	        $periodos[] = $d['PERIODO'];
+	    }
+
+	    $datos_base['MONTO'] = $total_monto;
+	    $datos_base['PERIODOS_ARRAY'] = $periodos;
+        
+        if (count($ids) > 1) {
+            $datos_base['RECIBO_NRO'] = str_pad($ids[0], 6, '0', STR_PAD_LEFT) . ' - ' . str_pad(end($ids), 6, '0', STR_PAD_LEFT);
+        } else {
+            $datos_base['RECIBO_NRO'] = str_pad($ids[0], 6, '0', STR_PAD_LEFT);
+        }
+
+	    require_once ROOT . "libs/fpdf/fpdf.php";
+
+	    $pdf = new \FPDF('P', 'mm', 'Letter');
+	    $pdf->AddPage();
+	    $pdf->SetAutoPageBreak(false);
+
+	    $this->dibujar_recibo_multiple($pdf, $datos_base, 10, 'ORIGINAL - CLIENTE');
+	    
+	    $pdf->SetDrawColor(150, 150, 150);
+	    for($i = 10; $i < 200; $i += 5) {
+	        $pdf->Line($i, 135, $i+2, 135);
+	    }
+
+	    $this->dibujar_recibo_multiple($pdf, $datos_base, 145, 'COPIA - ARCHIVO');
+
+	    if (ob_get_length()) ob_clean();
+	    $pdf->Output('I', 'Recibo_Pagos_'.$datos_base['RECIBO_NRO'].'.pdf');
+	    exit();
+	}
+
+	private function dibujar_recibo_multiple($pdf, $datos, $y, $tipo)
+	{
+	    $meses = ['01'=>'Enero', '02'=>'Febrero', '03'=>'Marzo', '04'=>'Abril', '05'=>'Mayo', '06'=>'Junio', '07'=>'Julio', '08'=>'Agosto', '09'=>'Septiembre', '10'=>'Octubre', '11'=>'Noviembre', '12'=>'Diciembre'];
+	    
+        $text_periodos = "";
+        if (isset($datos['PERIODOS_ARRAY'])) {
+            $arr = [];
+            foreach($datos['PERIODOS_ARRAY'] as $p) {
+                $partes = explode('-', $p);
+                $arr[] = $meses[$partes[1]] . '/' . $partes[0];
+            }
+            if(count($arr) > 3) {
+                $text_periodos = $arr[0] . ' al ' . end($arr);
+            } else {
+                $text_periodos = implode(', ', $arr);
+            }
+        } else {
+            $partes = explode('-', $datos['PERIODO']);
+	        $text_periodos = $meses[$partes[1]] . ' de ' . $partes[0];
+        }
+
+        // Reutilizamos toda la estructura gráfica de tu recibo (Solo cambiamos el contenido textual)
+	    $img_izq = ROOT . 'img/logos/logo_1.jpg'; 
+	    $img_cen = ROOT . 'img/logos/logo_2.jpg'; 
+	    $img_der = ROOT . 'img/logos/logo_3.jpg'; 
+
+	    if (file_exists($img_izq)) $pdf->Image($img_izq, 15, $y, 45);
+	    if (file_exists($img_cen)) $pdf->Image($img_cen, 75, $y, 60);
+	    if (file_exists($img_der)) $pdf->Image($img_der, 175, $y, 25);
+
+	    $pdf->SetFont('Arial', 'B', 14);
+	    $pdf->SetXY(45, $y + 5);
+	    $pdf->Cell(120, 6, utf8_decode(''), 0, 1, 'C');
+	    $pdf->SetFont('Arial', 'B', 10);
+	    $pdf->SetXY(45, $y + 11);
+	    $pdf->Cell(120, 5, utf8_decode('COMPROBANTE DE PAGO DE ARRENDAMIENTO'), 0, 1, 'C');
+
+	    $pdf->SetFont('Arial', 'B', 8);
+	    $pdf->SetXY(160, $y + 25);
+	    $pdf->Cell(40, 5, utf8_decode($tipo), 0, 1, 'R');
+
+	    $pdf->SetFont('Arial', 'B', 10);
+	    $pdf->SetXY(15, $y + 30);
+        $nro = isset($datos['RECIBO_NRO']) ? $datos['RECIBO_NRO'] : str_pad($datos['IDPAGO'], 6, '0', STR_PAD_LEFT);
+	    $pdf->Cell(90, 6, utf8_decode('RECIBO NRO: ' . $nro), 0, 0, 'L');
+	    $pdf->SetFont('Arial', '', 10);
+	    $pdf->Cell(90, 6, utf8_decode('Fecha y Hora: ' . date('d/m/Y H:i', strtotime($datos['FECHA_PAGO']))), 0, 1, 'R');
+	    $pdf->Ln(2);
+
+	    $pdf->SetFillColor(240, 240, 240);
+	    $pdf->SetDrawColor(200, 200, 200);
+	    $pdf->SetX(15); $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Arrendatario:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(95, 7, utf8_decode(' ' . $datos['CLIENTE']), 1, 0, 'L');
+	    $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(20, 7, utf8_decode(' CI:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(35, 7, utf8_decode(' ' . $datos['CEDULA']), 1, 1, 'L');
+
+	    $pdf->SetX(15); $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Nro. Contrato:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(95, 7, utf8_decode(' ' . $datos['CONTRATO']), 1, 0, 'L');
+	    $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(20, 7, utf8_decode(' Actividad:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 7); $pdf->Cell(35, 7, utf8_decode(' ' . substr($datos['ACTIVIDAD'], 0, 20)), 1, 1, 'L');
+
+	    $pdf->SetX(15); $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Corresponde a:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(150, 7, utf8_decode(' MES(ES): ' . strtoupper($text_periodos)), 1, 1, 'L');
+	    $pdf->Ln(5);
+
+	    $pdf->SetX(15); $pdf->SetFont('Arial', 'B', 11); $pdf->Cell(140, 10, utf8_decode(' TOTAL PAGADO:'), 1, 0, 'R', true);
+	    $pdf->SetFont('Arial', 'B', 12); $pdf->Cell(45, 10, utf8_decode('Bs. ' . number_format($datos['MONTO'], 2)), 1, 1, 'C');
+	    $pdf->Ln(15);
+
+	    $pdf->SetFont('Arial', '', 9);
+	    $pdf->SetX(30); $pdf->Cell(60, 4, '_____________________________', 0, 0, 'C');
+	    $pdf->SetX(120); $pdf->Cell(60, 4, '_____________________________', 0, 1, 'C');
+	    $pdf->SetX(30); $pdf->Cell(60, 4, utf8_decode('Firma del Cajero'), 0, 0, 'C');
+	    $pdf->SetX(120); $pdf->Cell(60, 4, utf8_decode('Firma del Arrendatario'), 0, 1, 'C');
+	    $pdf->SetX(30); $pdf->Cell(60, 4, utf8_decode('Cajero: ' . $datos['USR']), 0, 0, 'C');
 	}
 
 public function edit()

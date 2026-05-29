@@ -311,6 +311,33 @@ public function confirmar($argumento)
     }
 	exit();	
 }
+
+	public function upload_pdf() {
+		if(isset($_FILES['file_pdf']) && isset($_POST['idcontrato_pdf'])) {
+			$id = $_POST['idcontrato_pdf'];
+			$directorio = 'views/contrato/pdf/';
+			
+			// Crear directorio con permisos si no existe
+			if (!file_exists($directorio)) {
+				mkdir($directorio, 0777, true);
+			}
+
+			$nombre_archivo = "contrato_" . $id . "_" . time() . ".pdf";
+			$ruta_destino = $directorio . $nombre_archivo;
+
+			if(move_uploaded_file($_FILES['file_pdf']['tmp_name'], $ruta_destino)) {
+				$this->contrato->set("idcontrato", $id);
+				$this->contrato->set("archivo_pdf", $nombre_archivo);
+				$this->contrato->subir_pdf();
+				echo json_encode(['status' => 'success', 'message' => 'PDF almacenado en el expediente', 'archivo' => $nombre_archivo]);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => 'Error al mover el archivo PDF al servidor']);
+			}
+		} else {
+			echo json_encode(['status' => 'error', 'message' => 'Datos incompletos para subir el archivo']);
+		}
+		exit();
+	}
 	
 } // fin clase
 ?>

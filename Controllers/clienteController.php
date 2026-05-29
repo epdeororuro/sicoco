@@ -29,8 +29,14 @@ class clienteController
 
 	public function listar()
 	{
-	  $datos=$this->cliente->lst();
-	  echo json_encode($datos);
+	  try {
+	      $datos = $this->cliente->lst();
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode($datos);
+	  } catch (\Exception $e) {
+	      if (ob_get_length()) ob_clean();
+	      echo json_encode([]); // Retorna un array vacío en caso de error para no romper DataTables
+	  }
 	  exit();
 	}
 

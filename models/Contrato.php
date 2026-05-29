@@ -15,6 +15,7 @@
 		private $iddetalle;
 		private $idcatalogo;
 		private $idarea;
+		private $archivo_pdf;
 
 		// Campos unificados del Cliente
 		private $cedula;
@@ -90,7 +91,7 @@
 		}
 
 		public function obtener_contrato_completo(){
-			$sql = "SELECT a.IDARRIENDO, a.ACTIVIDAD, a.RAZONSOCIAL, a.CONTRATO, a.FECHA_SUSCRIPCION, a.FECHA_INICIO, a.TIEMPOCONTRATO, 
+			$sql = "SELECT a.IDARRIENDO, a.ACTIVIDAD, a.RAZONSOCIAL, a.CONTRATO, a.FECHA_SUSCRIPCION, a.FECHA_INICIO, a.TIEMPOCONTRATO, a.ARCHIVO_PDF,
 			               c.CEDULA, c.NOMBRES, c.PATERNO, c.MATERNO, c.CONTACTOS AS CELULAR, c.DIRECCION, c.LATITUD, c.LONGITUD,
 			               d.IDCATALOGO, cat.IDAREA, d.ALQUILER_NOMINAL AS ALQUILER
 			        FROM arriendos a 
@@ -192,6 +193,12 @@
 			$stmt = $this->con->conexion->prepare($sql);
 			$stmt->execute([$this->idcontrato]);
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		}
+
+		public function subir_pdf() {
+			$sql = "UPDATE arriendos SET ARCHIVO_PDF = ? WHERE IDARRIENDO = ?";
+			$stmt = $this->con->conexion->prepare($sql);
+			return $stmt->execute([$this->archivo_pdf, $this->idcontrato]);
 		}
 		
 	}

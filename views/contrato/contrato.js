@@ -94,14 +94,39 @@ function ListarDetalle(idarriendo){
   $("#TablaDetalle").DataTable({     
     "responsive":true,
    "destroy":true, 
+   "bPaginate": false, // Desactiva paginación aquí para que todos los checkbox se detecten a la vez
    "order": [],
    "autoWidth": false,
       "ajax":{
         "url": ruta,
-        "dataSrc": function(json) { return json.data ? json.data : json; }       
+        "dataSrc": function(json) { 
+            var datos = json.data ? json.data : json; 
+            if(datos && datos.length > 0) {
+                $("#mensaje_sin_pagos").hide();
+                $("#contenedor_tabla_pagos").show();
+                $('#btn_pagar_seleccionados').prop('disabled', true).html('<i class="fas fa-dollar-sign"></i> Pagar Seleccionados');
+            } else {
+                $("#contenedor_tabla_pagos").hide();
+                $("#mensaje_sin_pagos").show();
+            }
+            return datos; 
+        }       
       },
       "columns":[
-      {"data": "IDPAGO"},
+      {"data": null, "orderable": false, "searchable": false, "className": "text-center", "render": function(data, type, row) {
+          if(row.PENDIENTE === 'SI') {
+              return "<input type='checkbox' class='chk_pago' style='transform: scale(1.5); cursor: pointer;' data-id='"+row.IDPAGO+"' data-monto='"+row.MONTO+"' data-periodo='"+row.PERIODO+"'>";
+          }
+          return "<i class='fas fa-check text-success'></i>";
+      }},
+      {"data": "PERIODO", "render": function(data) {
+          var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+          if(data) {
+              var mesIndex = parseInt(data.split('-')[1]) - 1;
+              return meses[mesIndex];
+          }
+          return data;
+      }},
       {"data": "PERIODO"},
       {"data": "MONTO"},
       {"data": "PENDIENTE", "render": function(data) {
@@ -109,9 +134,9 @@ function ListarDetalle(idarriendo){
       }},
       {"data": null, "render": function(data, type, row) {
           if(row.PENDIENTE === 'SI') {
-              return "<button class='btn btn-success btn-sm PagarCuota' data-id='"+row.IDPAGO+"' data-periodo='"+row.PERIODO+"' data-monto='"+row.MONTO+"'><i class='fas fa-dollar-sign'></i> Pagar</button>";
+              return "<span class='text-muted'><i class='fas fa-clock'></i> Por cobrar</span>";
           }
-          return "<span class='text-success'><i class='fas fa-check'></i> Completado</span>";
+          return "<span class='text-success'><i class='fas fa-check'></i> Completado</span> <a href='"+base_url+"pagos/imprimir_recibo_multiple?ids="+row.IDPAGO+"' target='_blank' class='btn btn-danger btn-sm ml-2' title='Imprimir Recibo PDF'><i class='fas fa-file-pdf'></i></a>";
       }}
       ],
        dom: 'Bfrtip',
@@ -213,31 +238,89 @@ $(document).ready(function(){
     LimpiarCamposContrato();
   });
 
-  // Evento para realizar el Pago de una Cuota
-  $(document).on('click', '.PagarCuota', function(e) {
-      e.preventDefault();
-      var idpago = $(this).data('id');
-      var periodo = $(this).data('periodo');
-      var monto = $(this).data('monto');
+  // Lógica Correlativa de Selección Múltiple
+  $(document).on('change', '.chk_pago', function() {
+      var $chkboxes = $('.chk_pago');
+      var idx = $chkboxes.index(this);
+      var isChecked = $(this).is(':checked');
+
+      if (isChecked) {
+          // Si se marca uno, se marcan TODOS los anteriores
+          $chkboxes.each(function(i) {
+              if (i <= idx) $(this).prop('checked', true);
+          });
+      } else {
+          // Si se desmarca uno, se desmarcan TODOS los posteriores
+          $chkboxes.each(function(i) {
+              if (i >= idx) $(this).prop('checked', false);
+          });
+      }
       
+      var total = 0;
+      var count = 0;
+      $chkboxes.filter(':checked').each(function() {
+          total += parseFloat($(this).data('monto'));
+          count++;
+      });
+      
+      if (count > 0) {
+          $('#btn_pagar_seleccionados').prop('disabled', false).html('<i class="fas fa-dollar-sign"></i> Pagar ' + count + ' Mes(es) (Bs. ' + total.toFixed(2) + ')');
+      } else {
+          $('#btn_pagar_seleccionados').prop('disabled', true).html('<i class="fas fa-dollar-sign"></i> Pagar Seleccionados');
+      }
+  });
+
+  // Enviar Pagos en Bloque
+  $('#btn_pagar_seleccionados').on('click', function(e) {
+      e.preventDefault();
+      var $checked = $('.chk_pago:checked');
+      if ($checked.length === 0) return;
+
+      var ids = [];
+      var total = 0;
+      var periodos = [];
+      $checked.each(function() {
+          ids.push($(this).data('id'));
+          total += parseFloat($(this).data('monto'));
+          periodos.push($(this).data('periodo'));
+      });
+      
+      var idpagos_str = ids.join(',');
+      var texto_meses = periodos.length > 1 ? periodos[0] + ' al ' + periodos[periodos.length - 1] : periodos[0];
+
       Swal.fire({
-          title: '¿Confirmar Pago?',
-          text: 'Se registrará el pago del periodo ' + periodo + ' por Bs. ' + monto,
+          title: '¿Confirmar Cobro Múltiple?',
+          text: 'Se registrará el cobro de ' + periodos.length + ' mes(es) (' + texto_meses + ') por un total de Bs. ' + total.toFixed(2),
           icon: 'question',
           showCancelButton: true,
           confirmButtonColor: '#28a745',
           cancelButtonColor: '#d33',
-          confirmButtonText: 'Sí, Pagar!'
+          confirmButtonText: 'Sí, Pagar Todo!'
       }).then((result) => {
           if (result.isConfirmed) {
               $.ajax({
-                  url: base_url + 'pagos/realizar_pago/' + idpago,
+                  url: base_url + 'pagos/realizar_pago_multiple',
                   type: 'POST',
+                  data: { idpagos: idpagos_str },
                   dataType: 'json',
                   success: function(resp) {
                       if(resp.status === 'success') {
-                          Swal.fire({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Pago registrado.'});
                           $('#TablaDetalle').DataTable().ajax.reload();
+                          $('#btn_pagar_seleccionados').prop('disabled', true).html('<i class="fas fa-dollar-sign"></i> Pagar Seleccionados');
+                          Swal.fire({
+                              title: '¡Cobro Registrado!',
+                              text: 'Los pagos se agruparon y guardaron exitosamente.',
+                              icon: 'success',
+                              showCancelButton: true,
+                              confirmButtonColor: '#3085d6',
+                              cancelButtonColor: '#6c757d',
+                              confirmButtonText: '<i class="fas fa-print"></i> Imprimir Recibo',
+                              cancelButtonText: 'Cerrar'
+                          }).then((res) => {
+                              if (res.isConfirmed) {
+                                  window.open(base_url + 'pagos/imprimir_recibo_multiple?ids=' + idpagos_str, '_blank');
+                              }
+                          });
                       } else {
                           Swal.fire('Error', resp.message, 'error');
                       }
@@ -369,7 +452,7 @@ $(document).on('click', '.EditarContrato', function(e){
   $("#OpcionNuevo").hide();
   $("#OpcionEditar").show("slow");
 
-  var idcontrato = $(this).parents("tr").find("td").eq(0).html();
+  var idcontrato = $(this).data("id");
   
   // Limpiar campos visuales antes de cargar la info
   LimpiarCamposContrato();
@@ -440,17 +523,91 @@ $(document).on('click', '.EditarContrato', function(e){
 $(document).on('click', '.DetalleContrato', function(e){
   e.preventDefault();
   
-  var idcontrato = $(this).parents("tr").find("td").eq(0).html();
-  var clienteText = $(this).parents("tr").find("td").eq(2).html();
-  var contratoText = $(this).parents("tr").find("td").eq(5).html();
+  var idcontrato = $(this).data("id");
   
-  $("#info_pago_contrato").html("<strong>Nro Contrato:</strong> " + contratoText + " | <strong>Arrendatario:</strong> " + clienteText);
-  ListarDetalle(idcontrato);
+  // Cargar datos del contrato completo por AJAX para llenar el Expediente
+  $.ajax({
+      url: base_url + 'contrato/obtener/' + idcontrato,
+      type: 'GET',
+      dataType: 'json',
+      success: function(response) {
+          if (response.status === 'success' && response.data) {
+              var d = response.data;
+              var clienteText = d.NOMBRES + ' ' + (d.PATERNO ? d.PATERNO : '') + ' ' + (d.MATERNO ? d.MATERNO : '');
+              
+              var infoHtml = "<strong>Nro Cite/Contrato:</strong> " + d.CONTRATO + "<br>" +
+                             "<strong>Arrendatario:</strong> " + clienteText + " | <strong>CI:</strong> " + d.CEDULA + "<br>" +
+                             "<strong>Actividad:</strong> " + d.ACTIVIDAD + "<br>" +
+                             "<strong>Periodo:</strong> " + d.FECHA_INICIO + " (Suscrito: " + (d.FECHA_SUSCRIPCION ? d.FECHA_SUSCRIPCION : 'N/A') + ")";
+              $("#info_pago_contrato").html(infoHtml);
+
+              // Manejo dinámico del panel del PDF
+              var pdfHtml = '';
+              if(d.ARCHIVO_PDF && d.ARCHIVO_PDF !== null && d.ARCHIVO_PDF !== '') {
+                  pdfHtml = '<h6 class="text-success m-0"><i class="fas fa-file-pdf text-danger fa-2x"></i></h6>' +
+                            '<small class="d-block mb-1 text-muted">Contrato Digitalizado</small>' +
+                            '<a href="' + base_url + 'views/contrato/pdf/' + d.ARCHIVO_PDF + '" target="_blank" class="btn btn-outline-danger btn-sm mb-1 w-100"><i class="fas fa-eye"></i> Ver Documento</a>' +
+                            '<button type="button" class="btn btn-link btn-sm text-muted p-0" onclick="mostrarFormularioPDF(' + idcontrato + ')"><small>Actualizar Archivo</small></button>';
+              } else {
+                  pdfHtml = '<h6 class="text-secondary m-0"><i class="fas fa-file-upload fa-2x"></i></h6>' +
+                            '<small class="d-block mb-1 text-muted">Sin Respaldo Digital</small>' +
+                            '<form id="form_subir_pdf" enctype="multipart/form-data">' +
+                            '<input type="hidden" name="idcontrato_pdf" id="idcontrato_pdf" value="' + idcontrato + '">' +
+                            '<input type="file" name="file_pdf" id="file_pdf" accept="application/pdf" class="form-control-file form-control-sm mb-1" required style="font-size: 0.75rem;">' +
+                            '<button type="submit" class="btn btn-primary btn-sm btn-block"><i class="fas fa-upload"></i> Subir PDF</button>' +
+                            '</form>';
+              }
+              $("#panel_pdf").html(pdfHtml);
+              
+              ListarDetalle(idcontrato);
+          }
+      }
+  });
+});
+
+// Función global para mostrar el formulario si el usuario quiere sobreescribir el PDF
+window.mostrarFormularioPDF = function(idcontrato) {
+    var pdfHtml = '<h6 class="text-primary m-0"><i class="fas fa-file-upload fa-2x"></i></h6>' +
+                  '<small class="d-block mb-1 text-muted">Actualizar Respaldo</small>' +
+                  '<form id="form_subir_pdf" enctype="multipart/form-data">' +
+                  '<input type="hidden" name="idcontrato_pdf" value="' + idcontrato + '">' +
+                  '<input type="file" name="file_pdf" id="file_pdf" accept="application/pdf" class="form-control-file form-control-sm mb-1" required style="font-size: 0.75rem;">' +
+                  '<button type="submit" class="btn btn-primary btn-sm btn-block"><i class="fas fa-upload"></i> Guardar Nuevo PDF</button>' +
+                  '</form>';
+    $("#panel_pdf").html(pdfHtml);
+};
+
+// Evento para subir el PDF mediante AJAX sin recargar la página
+$(document).on('submit', '#form_subir_pdf', function(e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+    var idcontrato = $("input[name='idcontrato_pdf']").val();
+    
+    Swal.fire({ title: 'Subiendo archivo...', text: 'Por favor espere.', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+    
+    $.ajax({
+        url: base_url + 'contrato/upload_pdf',
+        type: 'POST',
+        data: formData, contentType: false, processData: false, dataType: 'json',
+        success: function(resp) {
+            if(resp.status === 'success') {
+                Swal.fire({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: resp.message});
+                // Recargar el panel dinámicamente sin cerrar el modal
+                var pdfHtml = '<h6 class="text-success m-0"><i class="fas fa-file-pdf text-danger fa-2x"></i></h6>' +
+                              '<small class="d-block mb-1 text-muted">Contrato Digitalizado</small>' +
+                              '<a href="' + base_url + 'views/contrato/pdf/' + resp.archivo + '" target="_blank" class="btn btn-outline-danger btn-sm mb-1 w-100"><i class="fas fa-eye"></i> Ver Documento</a>' +
+                              '<button type="button" class="btn btn-link btn-sm text-muted p-0" onclick="mostrarFormularioPDF(' + idcontrato + ')"><small>Actualizar Archivo</small></button>';
+                $("#panel_pdf").html(pdfHtml);
+            } else { Swal.fire('Error', resp.message, 'error'); }
+        },
+        error: function() { Swal.fire('Error', 'Problema de conexión al subir el archivo.', 'error'); }
+    });
 });
 
 $(document).on('click', '.EliminarContrato', function(e){
   e.preventDefault();
-  var registro=$(this).parents("tr").find("td").eq(5).html()+' '+$(this).parents("tr").find("td").eq(3).html();
+  var idcontrato = $(this).data("id");
+  var registro = $(this).data("contrato") + ' ' + $(this).data("actividad");
   Swal.fire({
     title: 'Está seguro de Eliminar este Registro?',
     text: registro+" / Esta operación NO podrá Revertirse",
@@ -461,14 +618,15 @@ $(document).on('click', '.EliminarContrato', function(e){
     confirmButtonText: 'Eliminar el Registro!'
   }).then((result) => {
     if (result.isConfirmed) {
-      CrudContrato('contrato/delete/'+$(this).parents("tr").find("td").eq(0).html());
+      CrudContrato('contrato/delete/'+idcontrato);
     }
   });
 });
 
 $(document).on('click', '.ConfirmarContrato', function(e){
   e.preventDefault();
-  var registro=$(this).parents("tr").find("td").eq(5).html()+' '+$(this).parents("tr").find("td").eq(3).html();
+  var idcontrato = $(this).data("id");
+  var registro = $(this).data("contrato") + ' ' + $(this).data("actividad");
   Swal.fire({
     title: 'Está seguro de Confirmar este Registro de Contrato?',
     text: registro+" / Esta operación NO podrá Revertirse",
@@ -479,17 +637,12 @@ $(document).on('click', '.ConfirmarContrato', function(e){
     confirmButtonText: 'Confirmar Contrato!'
   }).then((result) => {
     if (result.isConfirmed) {
-      CrudContrato('contrato/confirmar/'+$(this).parents("tr").find("td").eq(0).html());
+      CrudContrato('contrato/confirmar/'+idcontrato);
     }
   });
 });
 
 function ListarContrato(){
-  var boton_editar="<button type='button' class='EditarContrato btn btn-warning btn-sm' data-toggle='modal' data-target='#ModalContrato' ><i class='fas fa-edit'></i></button>";
-  var boton_detalle="<button type='button' class='DetalleContrato btn btn-info btn-sm' data-toggle='modal' data-target='#ModalDetalle'><i class='fas fa-table'></i> Detalle</button>";
-  var boton_confirmar="<button type='button' class='ConfirmarContrato btn btn-success btn-sm'><i class='fas fa-thumbs-up'></i> Confirmar</button>";
-  var boton_eliminar="<button type='button' class='EliminarContrato btn btn-danger btn-sm'><i class='fas fa-trash'></i></button>";
-  
   $("#TablaContrato").DataTable({     
     "responsive":true,
    "destroy":true, 
@@ -505,17 +658,53 @@ function ListarContrato(){
         }       
       },
       "columns":[
-      {"data": "IDARRIENDO"},
-      {"data": "IDCLIENTE"},
+  {"data": null, "searchable": false, "orderable": false, "render": function (data, type, row, meta) {
+      return meta.row + 1; // Contador automático (1, 2, 3...)
+  }},
       {"data": "REPRESENTANTE"},
       {"data": "ACTIVIDAD"},
       {"data": "RAZONSOCIAL"},
       {"data": "CONTRATO"},
       {"data": "FECHA_INICIO"},
       {"data": "FECHA_SUSCRIPCION"},
-      {"data": "TIEMPOCONTRATO"},
+      {"data": "FECHA_INICIO", "render": function(data, type, row) {
+          if (!data) return row.TIEMPOCONTRATO + " meses";
+          var partes = data.split('-');
+          var anio = parseInt(partes[0]);
+          var mes = parseInt(partes[1]);
+          var dia = parseInt(partes[2]);
+          
+          var diasEnMes = new Date(anio, mes, 0).getDate();
+          var diasRestantes = diasEnMes - dia + 1;
+          var mesesRestantes = 12 - mes;
+          
+          if (diasRestantes === diasEnMes) {
+              mesesRestantes += 1;
+              diasRestantes = 0;
+          }
+          
+          var textoMeses = mesesRestantes > 0 ? mesesRestantes + (mesesRestantes === 1 ? " mes" : " meses") : "";
+          var textoDias = diasRestantes > 0 ? diasRestantes + (diasRestantes === 1 ? " día" : " días") : "";
+          var union = (mesesRestantes > 0 && diasRestantes > 0) ? ", " : "";
+          
+          return textoMeses + union + textoDias;
+      }},
       {"data": "MONTO"},
-      {"defaultContent":boton_editar+" "+boton_detalle+" "+boton_confirmar+" "+boton_eliminar}
+      {"data": null, "render": function(data, type, row) {
+          var atributos = "data-id='"+row.IDARRIENDO+"' data-contrato='"+row.CONTRATO+"' data-actividad='"+row.ACTIVIDAD+"'";
+          // Botones con title para tooltip y sin texto, usando iconos actualizados
+          var boton_editar = "<button type='button' class='EditarContrato btn btn-warning btn-sm mx-1' "+atributos+" data-toggle='modal' data-target='#ModalContrato' title='Editar Contrato'><i class='fas fa-edit'></i></button>";
+          var boton_detalle = "<button type='button' class='DetalleContrato btn btn-info btn-sm mx-1' "+atributos+" data-toggle='modal' data-target='#ModalDetalle' title='Expediente y Pagos'><i class='fas fa-folder-open'></i></button>";
+          var boton_eliminar = "<button type='button' class='EliminarContrato btn btn-danger btn-sm mx-1' "+atributos+" title='Eliminar Contrato'><i class='fas fa-trash'></i></button>";
+          
+          var boton_confirmar = "";
+          // Si el contrato está en Pre-Registro (PR), mostramos el botón de Confirmar
+          if(row.VIGENTE === 'PR') {
+              boton_confirmar = "<button type='button' class='ConfirmarContrato btn btn-success btn-sm mx-1' "+atributos+" title='Confirmar Contrato'><i class='fas fa-thumbs-up'></i></button>";
+          }
+          
+          return "<div class='text-nowrap text-center'>" + boton_editar + boton_detalle + boton_confirmar + boton_eliminar + "</div>";
+      }}
       ],
        dom: 'Bfrtip',
        buttons: [

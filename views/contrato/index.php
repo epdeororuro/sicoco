@@ -35,15 +35,14 @@
                 <table id="TablaContrato"  class="table table-bordered table-striped table-hover table-sm">
                  <thead class=" table-success">
                   <tr>
-                    <th>Id</th>
-                    <th>IdCl</th>
+                    <th>Nro</th>
                     <th>Cliente</th>
                     <th>Actividad</th>
                     <th>Razón Social</th>
                     <th>Contrato</th>
                     <th>Inicio</th>
                     <th>Suscrip.</th>
-                    <th>[Meses]</th>
+                    <th>Duración</th>
                     <th>[Bs.]</th>
                     <th>Acciones</th>
                   </tr>
@@ -51,15 +50,14 @@
                  
                   <tfoot class=" table-success">
                   <tr>
-                    <th>Id</th>
-                    <th>IdCl</th>
+                    <th>Nro</th>
                     <th>Cliente</th>
                     <th>Actividad</th>
                     <th>Razón Social</th>
                     <th>Contrato</th>
                     <th>Inicio</th>
                     <th>Suscrip.</th>
-                    <th>[Meses]</th>
+                    <th>Duración</th>
                     <th>[Bs.]</th>
                     <th>Acciones</th>
                   </tr>
@@ -232,13 +230,8 @@
                         </div>
                     </div>
                     <div class="row align-items-center">
-                        <div class="col-md-4">
-                            <div class="form-group mb-0">
-                                <label>Tiempo (Meses referenciales)</label>
-                                <input type="number" class="form-control" id="txt_tiempo" name="txt_tiempo" value="1" min="1" step="1" required readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-8">
+                        <div class="col-md-12">
+                            <input type="hidden" id="txt_tiempo" name="txt_tiempo" value="1">
                             <div class="alert alert-info mb-0 py-2">
                                 <i class="fas fa-clock"></i> <span id="texto_duracion">Seleccione la Fecha de Inicio para calcular el tiempo del contrato.</span>
                             </div>
@@ -282,27 +275,51 @@
             <!-- Modal content-->
             <div class="modal-content">
               <div class="modal-header">
-                <h4 class="modal-title"><i class="fas fa-money-bill-wave"></i> Plan de Pagos del Contrato</h4>
+                <h4 class="modal-title"><i class="fas fa-folder-open"></i> Expediente y Plan de Pagos</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
               </div>
               
             <div class="modal-body">
-                <div class="alert alert-info py-2" id="info_pago_contrato">
-                    <!-- Info del contrato y cliente se cargará aquí por JS -->
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <div class="alert alert-info py-2 h-100 mb-0" id="info_pago_contrato" style="font-size: 0.9rem;">
+                            <!-- Info del contrato se cargará aquí por JS -->
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mb-0 h-100 shadow-sm border-secondary">
+                            <div class="card-body p-2 text-center d-flex flex-column justify-content-center bg-light" id="panel_pdf">
+                                <!-- JS inyectará el botón de subir o descargar PDF aquí -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="table-responsive">
-                <table id="TablaDetalle"  class="table table-bordered table-striped table-hover table-sm" style="width: 100%;">
-                 <thead class=" table-success">
-                  <tr>
-                    <th>Nro Pago</th>
-                    <th>Periodo</th>
-                    <th>Monto (Bs.)</th>
-                    <th>Estado</th>
-                    <th>Acción</th>
-                  </tr>
-                </thead>
-                </table>
+                <div id="contenedor_tabla_pagos" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mt-2 mb-2">
+                        <h6 class="text-secondary mb-0">Seleccione los meses a cobrar:</h6>
+                        <button class="btn btn-success font-weight-bold shadow-sm" id="btn_pagar_seleccionados" disabled><i class="fas fa-dollar-sign"></i> Pagar Seleccionados</button>
+                    </div>
+                    <div class="table-responsive">
+                    <table id="TablaDetalle"  class="table table-bordered table-striped table-hover table-sm" style="width: 100%;">
+                     <thead class=" table-success">
+                      <tr>
+                        <th class="text-center" style="width: 40px;"><i class="fas fa-check-square"></i></th>
+                        <th>Mes a Pagar</th>
+                        <th>Periodo</th>
+                        <th>Monto (Bs.)</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    </table>
+                    </div>
+                </div>
+
+                <div id="mensaje_sin_pagos" class="alert alert-warning text-center mt-3" style="display: none;">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i><br>
+                    <strong>El Plan de Pagos aún no ha sido generado.</strong><br>
+                    Debe hacer clic en el botón <span class="badge badge-success"><i class="fas fa-thumbs-up"></i> Confirmar</span> en la tabla principal para habilitar el cobro de mensualidades.
                 </div>
 
                </div>

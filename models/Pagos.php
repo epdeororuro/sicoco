@@ -10,6 +10,7 @@
 		private $cedula;
 		private $contactos;
 		private $direccion;
+		private $nro_recibo;
 		private $con;
 
 		public function __construct(){
@@ -61,6 +62,34 @@
 			return $datos;
 		}
 
+		public function obtener_datos_recibo(){
+			$sql = "SELECT p.IDPAGO, p.PERIODO, p.MONTO, p.FECHA_PAGO, p.USR,
+			               a.CONTRATO, a.ACTIVIDAD,
+			               c.NOMBRE_COMPLETO AS CLIENTE, c.CEDULA
+			        FROM pagos p
+			        INNER JOIN arriendos a ON p.IDARRIENDO = a.IDARRIENDO
+			        INNER JOIN clientes c ON a.IDCLIENTE = c.IDCLIENTE
+			        WHERE p.IDPAGO = ? LIMIT 1";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idpago]);
+			return $stmt->fetch(\PDO::FETCH_ASSOC);
+		}
+
+		public function obtener_datos_recibos_multiples($ids){
+			$inQuery = implode(',', array_fill(0, count($ids), '?'));
+			$sql = "SELECT p.IDPAGO, p.PERIODO, p.MONTO, p.FECHA_PAGO, p.USR,
+			               a.CONTRATO, a.ACTIVIDAD,
+			               c.NOMBRE_COMPLETO AS CLIENTE, c.CEDULA
+			        FROM pagos p
+			        INNER JOIN arriendos a ON p.IDARRIENDO = a.IDARRIENDO
+			        INNER JOIN clientes c ON a.IDCLIENTE = c.IDCLIENTE
+			        WHERE p.IDPAGO IN ($inQuery) 
+			        ORDER BY p.IDPAGO ASC";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute($ids);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		}
+
 		public function plan_pagos(){
 			$sql= "SELECT IDPAGO, PERIODO, MONTO, PENDIENTE 
 			       FROM pagos 
@@ -72,10 +101,31 @@
 		}
 
 		public function registrar_pago(){
-			$sql = "UPDATE pagos SET PENDIENTE = 'NO', FECHA_PAGO = NOW(), USR = ? WHERE IDPAGO = ?";
+			$sql = "UPDATE pagos SET PENDIENTE = 'NO', FECHA_PAGO = NOW(), USR = ?, NRO_RECIBO = ? WHERE IDPAGO = ?";
 			$stmt = $this->con->conexion->prepare($sql);
-			$stmt->execute([$this->usr, $this->idpago]);
+			$stmt->execute([$this->usr, $this->nro_recibo, $this->idpago]);
 			return true;
+		}
+
+		public function historial_caja() {
+			$sql = "SELECT IFNULL(p.NRO_RECIBO, LPAD(p.IDPAGO, 6, '0')) AS NRO_RECIBO, MAX(p.FECHA_PAGO) AS FECHA, SUM(p.MONTO) AS TOTAL,
+						   GROUP_CONCAT(p.PERIODO ORDER BY p.PERIODO ASC SEPARATOR ', ') AS PERIODOS, 
+						   c.NOMBRE_COMPLETO AS CLIENTE, a.CONTRATO, p.USR AS CAJERO
+					FROM pagos p
+					INNER JOIN arriendos a ON p.IDARRIENDO = a.IDARRIENDO
+					INNER JOIN clientes c ON a.IDCLIENTE = c.IDCLIENTE
+					WHERE p.PENDIENTE = 'NO'
+					GROUP BY IFNULL(p.NRO_RECIBO, LPAD(p.IDPAGO, 6, '0')), c.NOMBRE_COMPLETO, a.CONTRATO, p.USR
+					ORDER BY MAX(p.FECHA_PAGO) DESC";
+			$stmt = $this->con->conexion->query($sql);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		}
+
+		public function obtener_ids_por_recibo() {
+			$sql = "SELECT IDPAGO FROM pagos WHERE NRO_RECIBO = ? ORDER BY IDPAGO ASC";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->nro_recibo]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function add(){

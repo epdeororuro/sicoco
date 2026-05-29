@@ -24,8 +24,8 @@
 		}
 
 		public function lst(){
-			$sql = "SELECT * FROM clientes 
-			order by NOMBRE";
+			$sql = "SELECT IDCLIENTE, NOMBRE_COMPLETO AS NOMBRE, CEDULA, CONTACTOS, DIRECCION 
+			        FROM clientes ORDER BY NOMBRE_COMPLETO";
 			$datos = $this->con->ConsultaRetorno($sql);
 			return $datos;
 		}
