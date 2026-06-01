@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 29-05-2026 a las 22:27:34
+-- Tiempo de generación: 01-06-2026 a las 23:04:21
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -693,7 +693,37 @@ INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FEC
 (39, 7, '428176', '2026-05-29 08:36:09', '2026-05-29 08:41:09', 'USADO', '::1'),
 (40, 7, '708237', '2026-05-29 13:04:15', '2026-05-29 13:09:15', 'USADO', '::1'),
 (41, 7, '542904', '2026-05-29 13:46:25', '2026-05-29 13:51:25', 'USADO', '::1'),
-(42, 7, '582536', '2026-05-29 14:23:35', '2026-05-29 14:28:35', 'USADO', '::1');
+(42, 7, '582536', '2026-05-29 14:23:35', '2026-05-29 14:28:35', 'USADO', '::1'),
+(43, 7, '967067', '2026-06-01 10:17:59', '2026-06-01 10:22:59', 'USADO', '::1'),
+(44, 7, '286105', '2026-06-01 10:55:01', '2026-06-01 11:00:01', 'USADO', '::1'),
+(45, 7, '548819', '2026-06-01 13:21:33', '2026-06-01 13:26:33', 'USADO', '::1'),
+(46, 7, '900511', '2026-06-01 15:01:18', '2026-06-01 15:06:18', 'USADO', '::1'),
+(47, 7, '737429', '2026-06-01 15:38:48', '2026-06-01 15:43:48', 'USADO', '::1');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `log_cierres`
+--
+
+CREATE TABLE `log_cierres` (
+  `IDLOGCIERRE` int(11) NOT NULL,
+  `FECHA_INICIO` date NOT NULL,
+  `FECHA_FIN` date NOT NULL,
+  `FECHA_GENERACION` datetime NOT NULL DEFAULT current_timestamp(),
+  `USUARIO` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `log_cierres`
+--
+
+INSERT INTO `log_cierres` (`IDLOGCIERRE`, `FECHA_INICIO`, `FECHA_FIN`, `FECHA_GENERACION`, `USUARIO`) VALUES
+(1, '2026-06-01', '2026-06-01', '2026-06-01 13:21:50', 'wil.arroyo'),
+(2, '2026-06-01', '2026-06-01', '2026-06-01 16:16:22', 'wil.arroyo'),
+(3, '2026-06-01', '2026-06-01', '2026-06-01 16:16:25', 'wil.arroyo'),
+(4, '2026-06-01', '2026-06-01', '2026-06-01 16:33:24', 'wil.arroyo'),
+(5, '2026-06-01', '2026-06-01', '2026-06-01 16:33:38', 'wil.arroyo');
 
 -- --------------------------------------------------------
 
@@ -725,6 +755,31 @@ INSERT INTO `pagos` (`IDPAGO`, `IDARRIENDO`, `PERIODO`, `MONTO`, `FECHA_PAGO`, `
 (6, 1, '2026-10', 200.00, NULL, 'SI', NULL, NULL),
 (7, 1, '2026-11', 200.00, NULL, 'SI', NULL, NULL),
 (8, 1, '2026-12', 200.00, NULL, 'SI', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `propuestas`
+--
+
+CREATE TABLE `propuestas` (
+  `IDPROPUESTA` int(11) NOT NULL,
+  `CI_POSTULANTE` varchar(15) NOT NULL,
+  `NOMBRE_POSTULANTE` varchar(150) NOT NULL,
+  `IDCATALOGO` int(11) NOT NULL,
+  `MONTO` decimal(10,2) NOT NULL DEFAULT 100.00,
+  `FECHA_COBRO` datetime NOT NULL DEFAULT current_timestamp(),
+  `FECHA_DEVOLUCION` datetime DEFAULT NULL,
+  `ESTADO` varchar(20) NOT NULL DEFAULT 'RETENIDA',
+  `USUARIO` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `propuestas`
+--
+
+INSERT INTO `propuestas` (`IDPROPUESTA`, `CI_POSTULANTE`, `NOMBRE_POSTULANTE`, `IDCATALOGO`, `MONTO`, `FECHA_COBRO`, `FECHA_DEVOLUCION`, `ESTADO`, `USUARIO`) VALUES
+(1, '7403044', 'REYNALDO JESUS FLORES JAILLITA', 2, 100.00, '2026-06-01 15:03:13', '2026-06-01 15:56:55', 'DEVUELTA', 'wil.arroyo');
 
 -- --------------------------------------------------------
 
@@ -971,11 +1026,24 @@ ALTER TABLE `log_accesos`
   ADD PRIMARY KEY (`IDLOG`);
 
 --
+-- Indices de la tabla `log_cierres`
+--
+ALTER TABLE `log_cierres`
+  ADD PRIMARY KEY (`IDLOGCIERRE`);
+
+--
 -- Indices de la tabla `pagos`
 --
 ALTER TABLE `pagos`
   ADD PRIMARY KEY (`IDPAGO`),
   ADD KEY `IDARRIENDO` (`IDARRIENDO`);
+
+--
+-- Indices de la tabla `propuestas`
+--
+ALTER TABLE `propuestas`
+  ADD PRIMARY KEY (`IDPROPUESTA`),
+  ADD KEY `IDCATALOGO` (`IDCATALOGO`);
 
 --
 -- Indices de la tabla `roles`
@@ -1021,71 +1089,3 @@ ALTER TABLE `clientes`
 
 --
 -- AUTO_INCREMENT de la tabla `detalle`
---
-ALTER TABLE `detalle`
-  MODIFY `IDDETALLE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de la tabla `log_accesos`
---
-ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
-
---
--- AUTO_INCREMENT de la tabla `pagos`
---
-ALTER TABLE `pagos`
-  MODIFY `IDPAGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
--- AUTO_INCREMENT de la tabla `roles`
---
-ALTER TABLE `roles`
-  MODIFY `IDROL` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT de la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  MODIFY `IDUSUARIO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
-
---
--- Restricciones para tablas volcadas
---
-
---
--- Filtros para la tabla `arriendos`
---
-ALTER TABLE `arriendos`
-  ADD CONSTRAINT `arriendos_ibfk_1` FOREIGN KEY (`IDCLIENTE`) REFERENCES `clientes` (`IDCLIENTE`),
-  ADD CONSTRAINT `arriendos_ibfk_2` FOREIGN KEY (`IDUSUARIO`) REFERENCES `usuarios` (`IDUSUARIO`);
-
---
--- Filtros para la tabla `catalogo`
---
-ALTER TABLE `catalogo`
-  ADD CONSTRAINT `catalogo_ibfk_1` FOREIGN KEY (`IDAREA`) REFERENCES `areaubicacion` (`IDAREA`);
-
---
--- Filtros para la tabla `detalle`
---
-ALTER TABLE `detalle`
-  ADD CONSTRAINT `detalle_ibfk_1` FOREIGN KEY (`IDCATALOGO`) REFERENCES `catalogo` (`IDCATALOGO`),
-  ADD CONSTRAINT `detalle_ibfk_2` FOREIGN KEY (`IDARRIENDO`) REFERENCES `arriendos` (`IDARRIENDO`);
-
---
--- Filtros para la tabla `pagos`
---
-ALTER TABLE `pagos`
-  ADD CONSTRAINT `pagos_ibfk_1` FOREIGN KEY (`IDARRIENDO`) REFERENCES `arriendos` (`IDARRIENDO`);
-
---
--- Filtros para la tabla `usuarios`
---
-ALTER TABLE `usuarios`
-  ADD CONSTRAINT `fk_usuario_rol` FOREIGN KEY (`IDROL`) REFERENCES `roles` (`IDROL`);
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

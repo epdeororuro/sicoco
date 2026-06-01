@@ -107,6 +107,25 @@
 			return true;
 		}
 
+		public function cierre_caja_diario($fecha_inicio, $fecha_fin) {
+			$sql = "SELECT IFNULL(p.NRO_RECIBO, LPAD(p.IDPAGO, 6, '0')) AS NRO_RECIBO, 
+						   MAX(p.FECHA_PAGO) AS HORA, 
+						   SUM(p.MONTO) AS TOTAL,
+						   GROUP_CONCAT(p.PERIODO ORDER BY p.PERIODO ASC SEPARATOR ', ') AS PERIODOS, 
+						   c.NOMBRE_COMPLETO AS CLIENTE, 
+						   a.CONTRATO, 
+						   p.USR AS CAJERO
+					FROM pagos p
+					INNER JOIN arriendos a ON p.IDARRIENDO = a.IDARRIENDO
+					INNER JOIN clientes c ON a.IDCLIENTE = c.IDCLIENTE
+					WHERE p.PENDIENTE = 'NO' AND DATE(p.FECHA_PAGO) BETWEEN ? AND ?
+					GROUP BY IFNULL(p.NRO_RECIBO, LPAD(p.IDPAGO, 6, '0')), c.NOMBRE_COMPLETO, a.CONTRATO, p.USR
+					ORDER BY p.USR ASC, MAX(p.FECHA_PAGO) ASC";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$fecha_inicio, $fecha_fin]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		}
+
 		public function historial_caja() {
 			$sql = "SELECT IFNULL(p.NRO_RECIBO, LPAD(p.IDPAGO, 6, '0')) AS NRO_RECIBO, MAX(p.FECHA_PAGO) AS FECHA, SUM(p.MONTO) AS TOTAL,
 						   GROUP_CONCAT(p.PERIODO ORDER BY p.PERIODO ASC SEPARATOR ', ') AS PERIODOS, 
@@ -126,6 +145,13 @@
 			$stmt = $this->con->conexion->prepare($sql);
 			$stmt->execute([$this->nro_recibo]);
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		}
+
+		public function registrar_log_cierre($fecha_inicio, $fecha_fin, $usuario) {
+			$sql = "INSERT INTO log_cierres (FECHA_INICIO, FECHA_FIN, USUARIO) VALUES (?, ?, ?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$fecha_inicio, $fecha_fin, $usuario]);
+			return true;
 		}
 
 		public function add(){

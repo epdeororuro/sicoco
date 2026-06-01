@@ -129,11 +129,24 @@ function ListarDetalle(idarriendo){
       }},
       {"data": "PERIODO"},
       {"data": "MONTO"},
-      {"data": "PENDIENTE", "render": function(data) {
-          return data === 'SI' ? '<span class="badge badge-warning">PENDIENTE</span>' : '<span class="badge badge-success"><i class="fas fa-check-double"></i> PAGADO</span>';
+      {"data": "PENDIENTE", "render": function(data, type, row) {
+          if (data === 'SI') {
+              var hoy = new Date();
+              var partes = row.PERIODO.split('-');
+              if (parseInt(partes[0]) < hoy.getFullYear() || (parseInt(partes[0]) === hoy.getFullYear() && parseInt(partes[1]) < (hoy.getMonth() + 1))) {
+                  return '<span class="badge badge-danger"><i class="fas fa-exclamation-circle"></i> VENCIDO</span>';
+              }
+              return '<span class="badge badge-warning"><i class="fas fa-clock"></i> PENDIENTE</span>';
+          }
+          return '<span class="badge badge-success"><i class="fas fa-check-double"></i> PAGADO</span>';
       }},
       {"data": null, "render": function(data, type, row) {
           if(row.PENDIENTE === 'SI') {
+              var hoy = new Date();
+              var partes = row.PERIODO.split('-');
+              if (parseInt(partes[0]) < hoy.getFullYear() || (parseInt(partes[0]) === hoy.getFullYear() && parseInt(partes[1]) < (hoy.getMonth() + 1))) {
+                  return "<span class='text-danger font-weight-bold'><i class='fas fa-exclamation-triangle'></i> Mora</span>";
+              }
               return "<span class='text-muted'><i class='fas fa-clock'></i> Por cobrar</span>";
           }
           return "<span class='text-success'><i class='fas fa-check'></i> Completado</span> <a href='"+base_url+"pagos/imprimir_recibo_multiple?ids="+row.IDPAGO+"' target='_blank' class='btn btn-danger btn-sm ml-2' title='Imprimir Recibo PDF'><i class='fas fa-file-pdf'></i></a>";

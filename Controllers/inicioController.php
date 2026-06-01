@@ -1,43 +1,52 @@
 <?php
-/**
- * 
- */
+use Models\Inicio as Inicio;
 use Config\sessionController as SessionController;
 
 class inicioController
-{  private $usuario_session;
-	public function __construct()
-	{
-		//SE VERIFICA SI SE TIENE SESSION
-	$this->usuario_session=new SessionController();
-		
-		if ($this->usuario_session->verifica()) 
-			{ 
-				//echo "el resultado de la sesion es:  ";
-				//echo $this->usuario_session->getStatus();
-				//print_r($this->usuario_session->getCurrentUser()) ;
-				//$cadena= $this->usuario_session->getCurrentUser();
-			//	print_r( $cadena['nombre']);
-			  }
-		else
-		{
-			header('Location:'. URL . "login");
-			exit();
-		}
-	}
-	
-	public function index()
-	{
-		//echo "<br> Sistema integrado para -----control de calidad y Asistencia Tecnica";
-		//header('Location:'. URL . "login");
+{
+    private $inicio;
+    private $usuario_session;
 
+    public function __construct()
+    {
+        $this->usuario_session = new SessionController();
+        if ($this->usuario_session->verifica()) {
+            $this->inicio = new Inicio();
+        } else {
+            header('Location:'. URL . "login");
+            exit();
+        }
+    }
+    
+    public function index()
+    {
+        // El renderizado de la vista views/inicio/index.php lo maneja el enrutador principal
+    }
 
-	}
+    public function cargar_kpis()
+    {
+        try {
+            $datos = $this->inicio->get_kpis();
+            if (ob_get_length()) ob_clean();
+            echo json_encode(['status' => 'success', 'data' => $datos]);
+        } catch (\Exception $e) {
+            if (ob_get_length()) ob_clean();
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+        exit();
+    }
 
-	public function inicio()
-	{
-		//echo "<br> saludos, el metodo inicio";
-	}
-
+    public function cargar_grafico()
+    {
+        try {
+            $datos = $this->inicio->get_chart_ingresos();
+            if (ob_get_length()) ob_clean();
+            echo json_encode(['status' => 'success', 'data' => $datos]);
+        } catch (\Exception $e) {
+            if (ob_get_length()) ob_clean();
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+        exit();
+    }
 }
 ?>

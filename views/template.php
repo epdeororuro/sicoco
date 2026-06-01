@@ -170,6 +170,12 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a class="nav-link" href="<?php echo URL; ?>propuestas">
+                  <i class="fas fa-hand-holding-usd fa-lg"></i>
+                  <p>Garantías Propuestas</p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL; ?>pagos">
                   <i class="fa fa-credit-card fa-lg"></i>
                   <p>Pagos</p>
@@ -195,9 +201,9 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="../forms/general.html" class="nav-link">
-                  <i class="fa fa-ship fa-lg"></i>
-                  <p>Movimiento de Ingreso</p>
+                <a href="<?php echo URL; ?>reportes" class="nav-link">
+                  <i class="fas fa-file-invoice-dollar fa-lg"></i>
+                  <p>Movimientos de Ingreso</p>
                 </a>
               </li>
               <li class="nav-item">

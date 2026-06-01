@@ -17,6 +17,9 @@ function ListarHistorialCaja(){
         }
       },
       "columns":[
+      {"data": null, "searchable": false, "orderable": false, "render": function (data, type, row, meta) {
+          return meta.row + 1; // Contador automático
+      }},
       {"data": "NRO_RECIBO", "render": function(data){
           return "<span class='text-danger font-weight-bold'><i class='fas fa-receipt'></i> " + data + "</span>";
       }},
@@ -36,3 +39,16 @@ function ListarHistorialCaja(){
        buttons: ['excel', 'pdf', 'print']       
     }); 
 }
+
+// Evento para imprimir el Cierre de Caja Diario
+$(document).ready(function() {
+    $('#btn_imprimir_cierre').on('click', function(e) {
+        e.preventDefault();
+        var fecha = $('#fecha_cierre').val();
+        if(fecha) {
+            window.open(base_url + 'pagos/imprimir_cierre/' + fecha + '/' + fecha, '_blank');
+        } else {
+            Swal.fire('Atención', 'Seleccione una fecha válida para el cierre.', 'warning');
+        }
+    });
+});

@@ -211,6 +211,125 @@ public function add()
 	    exit();
 	}
 
+	public function imprimir_cierre($fecha_inicio = null)
+	{
+	    $fecha_fin = isset($_GET['fin']) ? $_GET['fin'] : null;
+
+	    if(!$fecha_inicio) {
+	        $fecha_inicio = date('Y-m-d');
+	    }
+	    if(!$fecha_fin) {
+	        $fecha_fin = $fecha_inicio; // Si solo envían una fecha, asume que es reporte de un día
+	    }
+
+	    $datos = $this->pagos->cierre_caja_diario($fecha_inicio, $fecha_fin);
+
+	    // Registrar en el log de cierres para auditoría contable
+	    $cadena = $this->usuario_session->getCurrentUser();
+	    $this->pagos->registrar_log_cierre($fecha_inicio, $fecha_fin, $cadena['nombre']);
+
+	    require_once ROOT . "libs/fpdf/fpdf.php";
+	    $pdf = new \FPDF('P', 'mm', 'Letter');
+	    $pdf->AddPage();
+	    $pdf->SetAutoPageBreak(true, 15);
+
+	    // Logos Institucionales
+	    $img_izq = ROOT . 'img/logos/logo_1.jpg'; 
+	    $img_cen = ROOT . 'img/logos/logo_2.jpg'; 
+	    $img_der = ROOT . 'img/logos/logo_3.jpg'; 
+
+	    if (file_exists($img_izq)) $pdf->Image($img_izq, 15, 10, 35);
+	    if (file_exists($img_cen)) $pdf->Image($img_cen, 75, 10, 60);
+	    if (file_exists($img_der)) $pdf->Image($img_der, 175, 10, 20);
+
+	    $pdf->Ln(20);
+	    $pdf->SetFont('Arial', 'B', 14);
+	    $pdf->Cell(0, 6, utf8_decode('REPORTE FINANCIERO DE INGRESOS'), 0, 1, 'C');
+	    $pdf->SetFont('Arial', '', 11);
+	    
+	    if ($fecha_inicio == $fecha_fin) {
+	        $pdf->Cell(0, 6, utf8_decode('Fecha de Transacciones: ' . date('d/m/Y', strtotime($fecha_inicio))), 0, 1, 'C');
+	    } else {
+	        $pdf->Cell(0, 6, utf8_decode('Periodo del: ' . date('d/m/Y', strtotime($fecha_inicio)) . ' al ' . date('d/m/Y', strtotime($fecha_fin))), 0, 1, 'C');
+	    }
+	    $pdf->Ln(5);
+
+	    if (!$datos || count($datos) == 0) {
+	        $pdf->SetFont('Arial', 'B', 12);
+	        $pdf->Cell(0, 20, utf8_decode('No se registraron cobros en el periodo seleccionado.'), 0, 1, 'C');
+	        if (ob_get_length()) ob_clean();
+	        $pdf->Output('I', 'Reporte_Ingresos_'.$fecha_inicio.'_al_'.$fecha_fin.'.pdf');
+	        exit();
+	    }
+
+	    $gran_total = 0;
+	    $cajero_actual = "";
+	    $subtotal_cajero = 0;
+
+	    foreach($datos as $d) {
+	        // Detección de cambio de cajero para subtotales y cabeceras
+	        if($cajero_actual != $d['CAJERO']) {
+	            if($cajero_actual != "") {
+	                $pdf->SetFillColor(230, 230, 230);
+	                $pdf->SetFont('Arial', 'B', 9);
+	                $pdf->Cell(165, 6, utf8_decode('SUBTOTAL RECAUDADO POR ' . $cajero_actual . ': '), 1, 0, 'R', true);
+	                $pdf->Cell(30, 6, number_format($subtotal_cajero, 2), 1, 1, 'R', true);
+	                $pdf->Ln(3);
+	            }
+	            $cajero_actual = $d['CAJERO'];
+	            $subtotal_cajero = 0;
+	            $pdf->SetFillColor(210, 230, 255);
+	            $pdf->SetFont('Arial', 'B', 10);
+	            $pdf->Cell(0, 7, utf8_decode(' CAJERO / USUARIO: ' . strtoupper($cajero_actual)), 1, 1, 'L', true);
+	            $pdf->SetFillColor(230, 230, 230);
+	            $pdf->SetFont('Arial', 'B', 8);
+	            $pdf->Cell(18, 6, 'RECIBO', 1, 0, 'C', true);
+	            $pdf->Cell(12, 6, 'HORA', 1, 0, 'C', true);
+	            $pdf->Cell(70, 6, 'CLIENTE', 1, 0, 'C', true);
+	            $pdf->Cell(25, 6, 'CONTRATO', 1, 0, 'C', true);
+	            $pdf->Cell(40, 6, 'PERIODOS', 1, 0, 'C', true);
+	            $pdf->Cell(30, 6, 'TOTAL (Bs)', 1, 1, 'C', true);
+	        }
+
+	        // Fila de datos del recibo
+	        $pdf->SetFont('Arial', '', 8);
+	        $pdf->Cell(18, 6, $d['NRO_RECIBO'], 1, 0, 'C');
+	        $pdf->Cell(12, 6, date('H:i', strtotime($d['HORA'])), 1, 0, 'C');
+	        $pdf->Cell(70, 6, utf8_decode(substr($d['CLIENTE'], 0, 38)), 1, 0, 'L');
+	        $pdf->Cell(25, 6, utf8_decode($d['CONTRATO']), 1, 0, 'C');
+	        $pdf->Cell(40, 6, utf8_decode(substr($d['PERIODOS'], 0, 23)), 1, 0, 'C');
+	        $pdf->Cell(30, 6, number_format($d['TOTAL'], 2), 1, 1, 'R');
+
+	        $subtotal_cajero += $d['TOTAL'];
+	        $gran_total += $d['TOTAL'];
+	    }
+
+	    // Imprimir subtotal del último cajero del bucle
+	    $pdf->SetFillColor(230, 230, 230);
+	    $pdf->SetFont('Arial', 'B', 9);
+	    $pdf->Cell(165, 6, utf8_decode('SUBTOTAL RECAUDADO POR ' . $cajero_actual . ': '), 1, 0, 'R', true);
+	    $pdf->Cell(30, 6, number_format($subtotal_cajero, 2), 1, 1, 'R', true);
+	    $pdf->Ln(5);
+
+	    // GRAN TOTAL DEL DÍA
+	    $pdf->SetFillColor(200, 255, 200);
+	    $pdf->SetFont('Arial', 'B', 12);
+	    $pdf->Cell(165, 8, utf8_decode('GRAN TOTAL RECAUDADO EN EL DÍA: '), 1, 0, 'R', true);
+	    $pdf->Cell(30, 8, 'Bs. ' . number_format($gran_total, 2), 1, 1, 'R', true);
+
+	    // Firmas de Conformidad
+	    $pdf->Ln(20);
+	    $pdf->SetFont('Arial', '', 9);
+	    $pdf->Cell(95, 4, '_____________________________', 0, 0, 'C');
+	    $pdf->Cell(95, 4, '_____________________________', 0, 1, 'C');
+	    $pdf->Cell(95, 4, utf8_decode('Revisado por (Contabilidad)'), 0, 0, 'C');
+	    $pdf->Cell(95, 4, utf8_decode('Aprobado por (Gerencia)'), 0, 1, 'C');
+
+	    if (ob_get_length()) ob_clean();
+	    $pdf->Output('I', 'Reporte_Ingresos_'.$fecha_inicio.'_al_'.$fecha_fin.'.pdf');
+	    exit();
+	}
+
 	public function historial() {
 	    try {
 	        $datos = $this->pagos->historial_caja();
