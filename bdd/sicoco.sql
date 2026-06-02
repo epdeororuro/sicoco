@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-06-2026 a las 18:13:42
+-- Tiempo de generación: 02-06-2026 a las 23:04:04
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -549,14 +549,6 @@ CREATE TABLE `arriendos` (
   `ARCHIVO_PDF` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `arriendos`
---
-
-INSERT INTO `arriendos` (`IDARRIENDO`, `IDUSUARIO`, `IDCLIENTE`, `ACTIVIDAD`, `RAZONSOCIAL`, `CONTRATO`, `FECHA_SUSCRIPCION`, `FECHA_INICIO`, `TIEMPOCONTRATO`, `MONTO`, `OBSERVACIONES`, `VIGENTE`, `FECHA_REGISTRO`, `ARCHIVO_PDF`) VALUES
-(1, 7, 10, 'ASDAS', 'SIN DATO', 'ASDAD', '2026-05-29', '2026-05-29', 8, 200, 'SIN OBSERVACIÓN', 'SI', '2026-05-29 13:51:03', NULL),
-(2, 7, 11, 'PARA GUARDAR FIERROS', 'SIN DATO', 'CONT/ARRE-BOD2', '2026-06-01', '2026-06-02', 7, 200, 'SIN OBSERVACIÓN', 'PR', '2026-06-02 11:00:02', NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -576,7 +568,7 @@ CREATE TABLE `catalogo` (
 --
 
 INSERT INTO `catalogo` (`IDCATALOGO`, `IDAREA`, `DESCRIPCION`, `ALQUILER`, `ESTADO`) VALUES
-(1, 6, '1', 200, 'ALQUILADO'),
+(1, 6, '1', 200, 'DISPONIBLE'),
 (2, 6, '2', 200, 'DISPONIBLE'),
 (3, 6, '3', 200, 'DISPONIBLE'),
 (4, 6, '4', 200, 'DISPONIBLE');
@@ -635,7 +627,6 @@ CREATE TABLE `detalle` (
 --
 
 INSERT INTO `detalle` (`IDDETALLE`, `IDCATALOGO`, `IDARRIENDO`, `ALQUILER_NOMINAL`) VALUES
-(0, 2, 2, 200),
 (1, 1, 1, 200);
 
 -- --------------------------------------------------------
@@ -679,54 +670,10 @@ CREATE TABLE `log_accesos` (
 --
 
 INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FECHA_EXPIRACION`, `ESTADO`, `IP_ACCESO`) VALUES
-(0, 7, '792953', '2026-06-02 10:58:37', '2026-06-02 11:03:37', 'USADO', '::1'),
-(1, 7, '327507', '2026-05-15 13:45:34', '2026-05-15 13:50:34', 'PENDIENTE', '::1'),
-(2, 7, '629497', '2026-05-15 13:45:59', '2026-05-15 13:50:59', 'USADO', '::1'),
-(3, 7, '230299', '2026-05-15 15:36:51', '2026-05-15 15:41:51', 'PENDIENTE', '::1'),
-(4, 7, '876036', '2026-05-15 15:38:03', '2026-05-15 15:43:03', 'PENDIENTE', '::1'),
-(5, 7, '757094', '2026-05-15 15:38:09', '2026-05-15 15:43:09', 'PENDIENTE', '::1'),
-(6, 7, '526087', '2026-05-15 15:51:04', '2026-05-15 15:56:04', 'USADO', '::1'),
-(7, 7, '149013', '2026-05-18 08:37:37', '2026-05-18 08:42:37', 'USADO', '::1'),
-(8, 7, '117765', '2026-05-18 09:24:08', '2026-05-18 09:29:08', 'USADO', '::1'),
-(9, 7, '981527', '2026-05-18 09:46:53', '2026-05-18 09:51:53', 'USADO', '::1'),
-(10, 7, '179510', '2026-05-18 10:54:19', '2026-05-18 10:59:19', 'USADO', '::1'),
-(11, 7, '585905', '2026-05-18 12:36:48', '2026-05-18 12:41:48', 'USADO', '::1'),
-(12, 7, '691717', '2026-05-18 13:56:32', '2026-05-18 14:01:32', 'USADO', '::1'),
-(13, 7, '780886', '2026-05-18 14:53:02', '2026-05-18 14:58:02', 'USADO', '::1'),
-(14, 7, '741551', '2026-05-18 15:50:05', '2026-05-18 15:55:05', 'USADO', '::1'),
-(15, 7, '145180', '2026-05-18 17:02:40', '2026-05-18 17:07:40', 'USADO', '::1'),
-(16, 7, '662838', '2026-05-19 09:49:16', '2026-05-19 09:54:16', 'USADO', '::1'),
-(17, 7, '717510', '2026-05-25 14:34:23', '2026-05-25 14:39:23', 'USADO', '::1'),
-(18, 7, '321748', '2026-05-25 15:10:53', '2026-05-25 15:15:53', 'USADO', '::1'),
-(19, 7, '267684', '2026-05-25 15:11:29', '2026-05-25 15:16:29', 'USADO', '::1'),
-(20, 7, '282498', '2026-05-25 17:03:27', '2026-05-25 17:08:27', 'USADO', '::1'),
-(21, 7, '292174', '2026-05-25 17:11:34', '2026-05-25 17:16:34', 'USADO', '::1'),
-(22, 7, '647469', '2026-05-25 17:12:18', '2026-05-25 17:17:18', 'USADO', '::1'),
-(23, 7, '624570', '2026-05-25 17:14:04', '2026-05-25 17:19:04', 'PENDIENTE', '::1'),
-(24, 7, '240694', '2026-05-26 15:31:33', '2026-05-26 15:36:33', 'USADO', '::1'),
-(25, 7, '826474', '2026-05-27 11:00:59', '2026-05-27 11:05:59', 'USADO', '::1'),
-(26, 7, '424079', '2026-05-27 12:01:54', '2026-05-27 12:06:54', 'USADO', '::1'),
-(27, 7, '114812', '2026-05-27 14:47:32', '2026-05-27 14:52:32', 'USADO', '::1'),
-(28, 7, '896961', '2026-05-27 16:13:53', '2026-05-27 16:18:53', 'USADO', '::1'),
-(29, 7, '369347', '2026-05-27 16:52:08', '2026-05-27 16:57:08', 'USADO', '::1'),
-(30, 7, '767869', '2026-05-28 08:22:25', '2026-05-28 08:27:25', 'USADO', '::1'),
-(31, 7, '713745', '2026-05-28 08:22:31', '2026-05-28 08:27:31', 'PENDIENTE', '::1'),
-(32, 7, '894420', '2026-05-28 08:22:32', '2026-05-28 08:27:32', 'PENDIENTE', '::1'),
-(33, 7, '102268', '2026-05-28 10:16:59', '2026-05-28 10:21:59', 'USADO', '::1'),
-(34, 7, '642748', '2026-05-28 12:10:04', '2026-05-28 12:15:04', 'USADO', '::1'),
-(35, 7, '711198', '2026-05-28 13:02:14', '2026-05-28 13:07:14', 'USADO', '::1'),
-(36, 7, '224313', '2026-05-28 13:34:36', '2026-05-28 13:39:36', 'USADO', '::1'),
-(37, 7, '977593', '2026-05-28 15:57:06', '2026-05-28 16:02:06', 'USADO', '::1'),
-(38, 7, '575455', '2026-05-28 17:09:30', '2026-05-28 17:14:30', 'USADO', '::1'),
-(39, 7, '428176', '2026-05-29 08:36:09', '2026-05-29 08:41:09', 'USADO', '::1'),
-(40, 7, '708237', '2026-05-29 13:04:15', '2026-05-29 13:09:15', 'USADO', '::1'),
-(41, 7, '542904', '2026-05-29 13:46:25', '2026-05-29 13:51:25', 'USADO', '::1'),
-(42, 7, '582536', '2026-05-29 14:23:35', '2026-05-29 14:28:35', 'USADO', '::1'),
-(43, 7, '967067', '2026-06-01 10:17:59', '2026-06-01 10:22:59', 'USADO', '::1'),
-(44, 7, '286105', '2026-06-01 10:55:01', '2026-06-01 11:00:01', 'USADO', '::1'),
-(45, 7, '548819', '2026-06-01 13:21:33', '2026-06-01 13:26:33', 'USADO', '::1'),
-(46, 7, '900511', '2026-06-01 15:01:18', '2026-06-01 15:06:18', 'USADO', '::1'),
-(47, 7, '737429', '2026-06-01 15:38:48', '2026-06-01 15:43:48', 'USADO', '::1');
+(1, 7, '401577', '2026-06-02 12:27:05', '2026-06-02 12:32:05', 'USADO', '::1'),
+(2, 7, '830622', '2026-06-02 13:04:08', '2026-06-02 13:09:08', 'USADO', '::1'),
+(3, 7, '453075', '2026-06-02 14:46:09', '2026-06-02 14:51:09', 'PENDIENTE', '::1'),
+(4, 7, '907075', '2026-06-02 14:52:40', '2026-06-02 14:57:40', 'USADO', '::1');
 
 -- --------------------------------------------------------
 
@@ -770,21 +717,6 @@ CREATE TABLE `pagos` (
   `USR` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `pagos`
---
-
-INSERT INTO `pagos` (`IDPAGO`, `IDARRIENDO`, `PERIODO`, `MONTO`, `FECHA_PAGO`, `PENDIENTE`, `NRO_RECIBO`, `USR`) VALUES
-(0, 2, 'GARANTIA', 200.00, NULL, 'SI', NULL, NULL),
-(1, 1, '2026-05', 19.35, '2026-05-29 13:51:22', 'NO', '000001', 'wil.arroyo'),
-(2, 1, '2026-06', 200.00, '2026-05-29 13:51:22', 'NO', '000001', 'wil.arroyo'),
-(3, 1, '2026-07', 200.00, NULL, 'SI', NULL, NULL),
-(4, 1, '2026-08', 200.00, NULL, 'SI', NULL, NULL),
-(5, 1, '2026-09', 200.00, NULL, 'SI', NULL, NULL),
-(6, 1, '2026-10', 200.00, NULL, 'SI', NULL, NULL),
-(7, 1, '2026-11', 200.00, NULL, 'SI', NULL, NULL),
-(8, 1, '2026-12', 200.00, NULL, 'SI', NULL, NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -808,7 +740,7 @@ CREATE TABLE `propuestas` (
 --
 
 INSERT INTO `propuestas` (`IDPROPUESTA`, `CI_POSTULANTE`, `NOMBRE_POSTULANTE`, `IDCATALOGO`, `MONTO`, `FECHA_COBRO`, `FECHA_DEVOLUCION`, `ESTADO`, `USUARIO`) VALUES
-(1, '7403044', 'REYNALDO JESUS FLORES JAILLITA', 2, 100.00, '2026-06-01 15:03:13', '2026-06-01 15:56:55', 'DEVUELTA', 'wil.arroyo');
+(0, '7403044', 'REYNALDO JESUS FLORES JAILLITA', 1, 100.00, '2026-06-02 16:17:32', NULL, 'RETENIDA', 'wil.arroyo');
 
 -- --------------------------------------------------------
 
@@ -1110,7 +1042,7 @@ ALTER TABLE `areaubicacion`
 -- AUTO_INCREMENT de la tabla `arriendos`
 --
 ALTER TABLE `arriendos`
-  MODIFY `IDARRIENDO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `IDARRIENDO` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `catalogo`
@@ -1122,19 +1054,25 @@ ALTER TABLE `catalogo`
 -- AUTO_INCREMENT de la tabla `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `IDCLIENTE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
--- AUTO_INCREMENT de la tabla `log_accesos`
---
-ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `IDCLIENTE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `garantias_cumplimiento`
 --
 ALTER TABLE `garantias_cumplimiento`
   MODIFY `IDGARANTIA` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `log_accesos`
+--
+ALTER TABLE `log_accesos`
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  MODIFY `IDPAGO` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Restricciones para tablas volcadas
