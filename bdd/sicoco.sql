@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 01-06-2026 a las 23:04:21
+-- Tiempo de generación: 02-06-2026 a las 18:13:42
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -45,9 +45,9 @@ DECLARE OP VARCHAR(100);
 IF (SELECT COUNT(*) FROM DETALLE
     WHERE IDARRIENDO=_IDARRIENDO) > 0 THEN
 BEGIN
- IF
-   (SELECT COUNT(*) FROM PAGOS
-    WHERE IDARRIENDO=_IDARRIENDO)=0 THEN
+ IF (SELECT COUNT(*) FROM PAGOS WHERE IDARRIENDO=_IDARRIENDO AND PENDIENTE='SI') > 0 OR (SELECT COUNT(*) FROM PAGOS WHERE IDARRIENDO=_IDARRIENDO) = 0 THEN
+  SET OP='Error, el Adjudicado debe pagar la Garantía de Cumplimiento en Caja primero.';
+ ELSEIF (SELECT VIGENTE FROM ARRIENDOS WHERE IDARRIENDO=_IDARRIENDO) = 'PR' THEN
   BEGIN
   DECLARE _IDCATALOGO INTEGER;
   DECLARE FINAL_CURSOR INTEGER DEFAULT 0;
@@ -76,7 +76,7 @@ BEGIN
  SET OP='1';
  END;
  ELSE
- SET OP='Error, el Registro tiene Historial de Pagos';
+ SET OP='Error, el Contrato ya se encuentra Vigente o hubo un error de estado.';
  END IF;
 END;
 ELSE
@@ -489,6 +489,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_NUEVO_ARRENDAMIENTO` (IN `_IDUSU
     -- 5. Actualizar el monto total del contrato
     UPDATE arriendos SET MONTO = (SELECT SUM(ALQUILER_NOMINAL) FROM detalle WHERE IDARRIENDO = _IDARRIENDO) WHERE IDARRIENDO = _IDARRIENDO;
 
+    -- 6. Generar el pago único: Garantía de Cumplimiento (Equivalente a 1 mes)
+    INSERT INTO pagos (IDARRIENDO, PERIODO, MONTO, PENDIENTE) 
+    VALUES (_IDARRIENDO, 'GARANTIA', _ALQUILER, 'SI');
+
     COMMIT;
     SELECT '1' AS OP;
 END$$
@@ -550,7 +554,8 @@ CREATE TABLE `arriendos` (
 --
 
 INSERT INTO `arriendos` (`IDARRIENDO`, `IDUSUARIO`, `IDCLIENTE`, `ACTIVIDAD`, `RAZONSOCIAL`, `CONTRATO`, `FECHA_SUSCRIPCION`, `FECHA_INICIO`, `TIEMPOCONTRATO`, `MONTO`, `OBSERVACIONES`, `VIGENTE`, `FECHA_REGISTRO`, `ARCHIVO_PDF`) VALUES
-(1, 7, 10, 'ASDAS', 'SIN DATO', 'ASDAD', '2026-05-29', '2026-05-29', 8, 200, 'SIN OBSERVACIÓN', 'SI', '2026-05-29 13:51:03', NULL);
+(1, 7, 10, 'ASDAS', 'SIN DATO', 'ASDAD', '2026-05-29', '2026-05-29', 8, 200, 'SIN OBSERVACIÓN', 'SI', '2026-05-29 13:51:03', NULL),
+(2, 7, 11, 'PARA GUARDAR FIERROS', 'SIN DATO', 'CONT/ARRE-BOD2', '2026-06-01', '2026-06-02', 7, 200, 'SIN OBSERVACIÓN', 'PR', '2026-06-02 11:00:02', NULL);
 
 -- --------------------------------------------------------
 
@@ -609,7 +614,8 @@ INSERT INTO `clientes` (`IDCLIENTE`, `NOMBRES`, `PATERNO`, `MATERNO`, `NOMBRE_CO
 (7, NULL, NULL, NULL, 'ALEJANDRO LIMA FERNANDEZ', '3562847', '683152457', 'CALLE 3 ESQUINA CALLE 4 ZONA NORTE', NULL, NULL),
 (8, NULL, NULL, NULL, 'MIGUEL JORGE SOTO', '42515687', '685472154', 'CALLE 1 Y CALLE 4 ZONA YPFB', NULL, NULL),
 (9, NULL, NULL, NULL, 'AMPARO SORIA VALDE', '102030', '683259741', 'ZONA SUD CALLE 4 BARRIO SOROA', NULL, NULL),
-(10, 'REYNALDO JESUS', 'FLORES', 'JAILLITA', 'FLORES JAILLITA REYNALDO JESUS', '7403044', '60408150', 'C/J MENDOZA #148', NULL, NULL);
+(10, 'REYNALDO JESUS', 'FLORES', 'JAILLITA', 'FLORES JAILLITA REYNALDO JESUS', '7403044', '60408150', 'C/J MENDOZA #148', NULL, NULL),
+(11, 'JUAN', 'PEREZ', 'PEREZ', 'PEREZ PEREZ JUAN', '85465854', '71852583', 'CALLE 1', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -629,7 +635,28 @@ CREATE TABLE `detalle` (
 --
 
 INSERT INTO `detalle` (`IDDETALLE`, `IDCATALOGO`, `IDARRIENDO`, `ALQUILER_NOMINAL`) VALUES
+(0, 2, 2, 200),
 (1, 1, 1, 200);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `garantias_cumplimiento`
+--
+
+CREATE TABLE `garantias_cumplimiento` (
+  `IDGARANTIA` int(11) NOT NULL,
+  `CITE_ADJUDICACION` varchar(50) NOT NULL,
+  `CI_POSTULANTE` varchar(15) NOT NULL,
+  `NOMBRE_POSTULANTE` varchar(150) NOT NULL,
+  `IDCATALOGO` int(11) NOT NULL,
+  `MONTO` decimal(10,2) NOT NULL,
+  `FECHA_COBRO` datetime NOT NULL DEFAULT current_timestamp(),
+  `FECHA_DEVOLUCION` datetime DEFAULT NULL,
+  `ESTADO` varchar(20) NOT NULL DEFAULT 'RETENIDA',
+  `IDARRIENDO` int(11) DEFAULT NULL,
+  `USUARIO` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -652,6 +679,7 @@ CREATE TABLE `log_accesos` (
 --
 
 INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FECHA_EXPIRACION`, `ESTADO`, `IP_ACCESO`) VALUES
+(0, 7, '792953', '2026-06-02 10:58:37', '2026-06-02 11:03:37', 'USADO', '::1'),
 (1, 7, '327507', '2026-05-15 13:45:34', '2026-05-15 13:50:34', 'PENDIENTE', '::1'),
 (2, 7, '629497', '2026-05-15 13:45:59', '2026-05-15 13:50:59', 'USADO', '::1'),
 (3, 7, '230299', '2026-05-15 15:36:51', '2026-05-15 15:41:51', 'PENDIENTE', '::1'),
@@ -747,6 +775,7 @@ CREATE TABLE `pagos` (
 --
 
 INSERT INTO `pagos` (`IDPAGO`, `IDARRIENDO`, `PERIODO`, `MONTO`, `FECHA_PAGO`, `PENDIENTE`, `NRO_RECIBO`, `USR`) VALUES
+(0, 2, 'GARANTIA', 200.00, NULL, 'SI', NULL, NULL),
 (1, 1, '2026-05', 19.35, '2026-05-29 13:51:22', 'NO', '000001', 'wil.arroyo'),
 (2, 1, '2026-06', 200.00, '2026-05-29 13:51:22', 'NO', '000001', 'wil.arroyo'),
 (3, 1, '2026-07', 200.00, NULL, 'SI', NULL, NULL),
@@ -1020,6 +1049,14 @@ ALTER TABLE `detalle`
   ADD KEY `IDARRIENDO` (`IDARRIENDO`);
 
 --
+-- Indices de la tabla `garantias_cumplimiento`
+--
+ALTER TABLE `garantias_cumplimiento`
+  ADD PRIMARY KEY (`IDGARANTIA`),
+  ADD KEY `IDCATALOGO` (`IDCATALOGO`),
+  ADD KEY `IDARRIENDO` (`IDARRIENDO`);
+
+--
 -- Indices de la tabla `log_accesos`
 --
 ALTER TABLE `log_accesos`
@@ -1073,7 +1110,7 @@ ALTER TABLE `areaubicacion`
 -- AUTO_INCREMENT de la tabla `arriendos`
 --
 ALTER TABLE `arriendos`
-  MODIFY `IDARRIENDO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `IDARRIENDO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `catalogo`
@@ -1085,7 +1122,31 @@ ALTER TABLE `catalogo`
 -- AUTO_INCREMENT de la tabla `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `IDCLIENTE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `IDCLIENTE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
--- AUTO_INCREMENT de la tabla `detalle`
+-- AUTO_INCREMENT de la tabla `log_accesos`
+--
+ALTER TABLE `log_accesos`
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+
+--
+-- AUTO_INCREMENT de la tabla `garantias_cumplimiento`
+--
+ALTER TABLE `garantias_cumplimiento`
+  MODIFY `IDGARANTIA` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `garantias_cumplimiento`
+--
+ALTER TABLE `garantias_cumplimiento`
+  ADD CONSTRAINT `garantias_cumplimiento_ibfk_1` FOREIGN KEY (`IDCATALOGO`) REFERENCES `catalogo` (`IDCATALOGO`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

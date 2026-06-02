@@ -19,8 +19,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Empresa Pública Departamental de Oruro</title>
-
+  <title>Sicoco - Empresa Pública Departamental de Oruro</title>
+  <link rel="icon" href="img/logos/favicon.ico" type="image/x-icon">
   <!-- Google Font: Source Sans Pro -->
   
   <!-- Font Awesome -->
@@ -68,13 +68,27 @@
       <li class="nav-item d-none d-sm-inline-block">
         <a href="<?php echo URL; ?>"  class="nav-link">Inicio</a>
       </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a href="#" class="nav-link">Contactos</a>
-      </li>
     </ul>
 
     <!-- Right navbar links -->
-    
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#" title="Opciones de Cuenta">
+          <i class="far fa-user-circle fa-lg"></i> Mi Cuenta
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right shadow-sm">
+          <span class="dropdown-item dropdown-header bg-light">Opciones de Usuario</span>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item">
+            <i class="fas fa-key mr-2 text-primary"></i> Cambiar Contraseña
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="<?php echo URL; ?>login/logout" class="dropdown-item dropdown-footer text-danger font-weight-bold">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión / Cambiar Usuario
+          </a>
+        </div>
+      </li>
+    </ul>
   </nav>
   <!-- /.navbar -->
 
@@ -82,20 +96,28 @@
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="<?php echo URL; ?>" class="brand-link">
-      <img src="<?php echo URL; ?>views/template/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-      <span class="brand-text font-weight-light">Arriendos</span>
+      <img src="<?php echo URL; ?>img/logos/logo.png" alt="SICOCO Logo" class="brand-image elevation-3" style="opacity: .9">
+      <span class="brand-text font-weight-bold">SICOCO</span>
     </a>
 
     <!-- Sidebar -->
     <div class="sidebar">
       <!-- Sidebar user (optional) -->
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <img src="<?php echo URL; ?>views/template/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
-        </div>
-        <div class="info">
-          <a href="#" class="d-block">Usuario de sistema</a>
-        </div>
+      <div class="user-panel mt-3 pb-3 mb-3 text-center">
+        <?php 
+          $sessionController = new \Config\sessionController();
+          $currentUser = $sessionController->getCurrentUser();
+          $nombreMostrar = 'Personal';
+          if(isset($currentUser['idmiembro'])) {
+              $db = new \Models\Conexion();
+              $stmt = $db->conexion->prepare("SELECT NOMBRE FROM usuarios WHERE IDUSUARIO = ?");
+              $stmt->execute([$currentUser['idmiembro']]);
+              $u = $stmt->fetch(\PDO::FETCH_ASSOC);
+              if($u) $nombreMostrar = $u['NOMBRE'];
+          }
+        ?>
+        <span class="d-block text-white" style="font-size: 0.85rem;"><i class="fas fa-user-tie"></i> <?php echo strtoupper($nombreMostrar); ?></span>
+        <small class="text-warning font-weight-bold" style="font-size: 0.75rem;"><i class="fas fa-stopwatch"></i> Expira en: <span id="session_timer">30:00</span></small>
       </div>
 
      
@@ -153,14 +175,20 @@
               <p>
                 REGISTROS
                 <i class="fas fa-angle-left right"></i>
-                <span class="badge badge-info right"> 0 </span>
+                <span class="badge badge-info right"></span>
               </p>
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a class="nav-link" href="<?php echo URL; ?>cliente">
-                  <i class="fa fa-address-card fa-lg"></i>
-                  <p>Clientes</p>
+                <a class="nav-link" href="<?php echo URL; ?>propuestas">
+                  <i class="fas fa-hand-holding-usd fa-lg"></i>
+                  <p>Garantías Propuestas</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="<?php echo URL; ?>cumplimiento">
+                  <i class="fas fa-shield-alt fa-lg"></i>
+                  <p>Garantías Cumplimiento</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -170,9 +198,9 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="<?php echo URL; ?>propuestas">
-                  <i class="fas fa-hand-holding-usd fa-lg"></i>
-                  <p>Garantías Propuestas</p>
+                <a class="nav-link" href="<?php echo URL; ?>cliente">
+                  <i class="fa fa-address-card fa-lg"></i>
+                  <p>Clientes</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -490,6 +518,32 @@
       options: stackedBarChartOptions
     })
   })
+
+  // --- TEMPORIZADOR DE SESIÓN POR INACTIVIDAD (30 MINUTOS) ---
+  let timeInSecs = 1800; // 30 minutos
+  let sessionTicker = setInterval(function() {
+    timeInSecs--;
+    if (timeInSecs <= 0) {
+      clearInterval(sessionTicker);
+      window.location.href = base_url + 'login/logout';
+    }
+    let m = Math.floor(timeInSecs / 60);
+    let s = timeInSecs % 60;
+    let timeStr = (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+    if(document.getElementById('session_timer')) document.getElementById('session_timer').innerText = timeStr;
+  }, 1000);
+
+  // --- AUTO-EXPANDIR Y MARCAR ACTIVO EL MENÚ ---
+  $(document).ready(function() {
+    var currentUrl = window.location.href.split('?')[0]; // Ignorar parámetros GET
+    $('.nav-sidebar a').each(function() {
+      if (this.href !== '' && this.href !== '#' && (this.href === currentUrl || currentUrl.startsWith(this.href + '/'))) {
+        $(this).addClass('active'); // Resalta la opción actual
+        $(this).parents('.nav-treeview').prev('.nav-link').addClass('active'); // Resalta el padre
+        $(this).parents('.nav-item').addClass('menu-open'); // Mantiene desplegado el menú padre
+      }
+    });
+  });
 </script>
 
 

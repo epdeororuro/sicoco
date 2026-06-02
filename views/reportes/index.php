@@ -13,7 +13,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <div class="card card-outline card-primary">
+                <div class="card card-outline card-guindo">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h3 class="card-title">Historial de Cierres Contables Generados</h3>
                         
@@ -22,7 +22,7 @@
                             <input type="date" id="fecha_inicio_reporte" class="form-control form-control-sm mr-2 shadow-sm" value="<?php echo date('Y-m-01'); ?>" max="<?php echo date('Y-m-d'); ?>">
                             <label class="mr-2 font-weight-bold text-secondary">al:</label>
                             <input type="date" id="fecha_fin_reporte" class="form-control form-control-sm mr-2 shadow-sm" value="<?php echo date('Y-m-d'); ?>" max="<?php echo date('Y-m-d'); ?>">
-                            <button id="btn_generar_reporte" class="btn btn-warning btn-sm font-weight-bold shadow-sm" title="Imprimir PDF">
+                            <button id="btn_generar_reporte" class="btn btn-guindo btn-sm font-weight-bold shadow-sm" title="Imprimir PDF">
                                 <i class="fas fa-print"></i> Generar Cierre
                             </button>
                         </div>
@@ -30,7 +30,7 @@
                     
                     <div class="card-body">
                         <table id="TablaLogsCierres" class="table table-bordered table-striped table-hover table-sm" style="width:100%">
-                            <thead class="table-info">
+                            <thead class="bg-guindo">
                                 <tr>
                                     <th>Fecha Inicio</th>
                                     <th>Fecha Fin</th>
@@ -39,6 +39,15 @@
                                     <th>Acción</th>
                                 </tr>
                             </thead>
+                            <tfoot class="bg-guindo">
+                                <tr>
+                                    <th>Fecha Inicio</th>
+                                    <th>Fecha Fin</th>
+                                    <th>Fecha/Hora de Generación</th>
+                                    <th>Usuario que Generó</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </tfoot>
                             <tbody>
                                 <!-- Datos por AJAX -->
                             </tbody>

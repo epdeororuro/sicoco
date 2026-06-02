@@ -15,14 +15,14 @@
       <div class="container-fluid">
         <div class="row">
           <div class="col-12">
-            <div class="card">
+            <div class="card card-outline card-guindo">
               <div class="card-header d-flex justify-content-between align-items-center">
                 <h3 class="card-title">Listado de todos los pagos registrados en el sistema</h3>
                 
                 <div class="form-inline ml-auto">
                     <label for="fecha_cierre" class="mr-2 font-weight-bold text-secondary">Cierre Diario:</label>
                     <input type="date" id="fecha_cierre" class="form-control form-control-sm mr-2 shadow-sm" value="<?php echo date('Y-m-d'); ?>" max="<?php echo date('Y-m-d'); ?>">
-                    <button id="btn_imprimir_cierre" class="btn btn-warning btn-sm font-weight-bold shadow-sm" title="Imprimir PDF de Cierre">
+                    <button id="btn_imprimir_cierre" class="btn btn-guindo btn-sm font-weight-bold shadow-sm" title="Imprimir PDF de Cierre">
                         <i class="fas fa-print"></i> Generar Cierre
                     </button>
                 </div>
@@ -30,7 +30,7 @@
               <!-- /.card-header -->
               <div class="card-body">
                 <table id="TablaHistorial" class="table table-bordered table-striped table-hover table-sm" style="width:100%">
-                  <thead class="table-success">
+                  <thead class="bg-guindo">
                   <tr>
                     <th>Nº</th>
                     <th>Nro. Recibo</th>
@@ -43,6 +43,19 @@
                     <th>Acción</th>
                   </tr>
                   </thead>
+                  <tfoot class="bg-guindo">
+                  <tr>
+                    <th>Nº</th>
+                    <th>Nro. Recibo</th>
+                    <th>Fecha y Hora</th>
+                    <th>Cliente</th>
+                    <th>Contrato</th>
+                    <th>Periodos Cobrados</th>
+                    <th>Total (Bs.)</th>
+                    <th>Cajero</th>
+                    <th>Acción</th>
+                  </tr>
+                  </tfoot>
                   <tbody>
                     <!-- El contenido se cargará por Ajax -->
                   </tbody>

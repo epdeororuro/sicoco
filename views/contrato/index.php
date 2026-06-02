@@ -11,7 +11,7 @@
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <span class="float-right"> 
-               <button type="button" id="btnNuevoRegistro" class="btn btn-primary btn-lm" data-toggle="modal" data-target="#ModalContrato">
+               <button type="button" id="btnNuevoRegistro" class="btn btn-guindo font-weight-bold shadow-sm" data-toggle="modal" data-target="#ModalContrato">
                 <i class="fas fa-plus-circle"></i> 
                  Nuevo Registro
                </button>
@@ -27,13 +27,13 @@
       <div class="container-fluid">
         <div class="row">
           <div class="col-12">
-            <div class="card">
+            <div class="card card-outline card-guindo">
              
               <!-- /.cargar el listado de la tabla -->
               <div class="card-body" id="listado">
 
                 <table id="TablaContrato"  class="table table-bordered table-striped table-hover table-sm">
-                 <thead class=" table-success">
+                 <thead class="bg-guindo">
                   <tr>
                     <th>Nro</th>
                     <th>Cliente</th>
@@ -48,7 +48,7 @@
                   </tr>
                 </thead>
                  
-                  <tfoot class=" table-success">
+                  <tfoot class="bg-guindo">
                   <tr>
                     <th>Nro</th>
                     <th>Cliente</th>
@@ -218,13 +218,13 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Fecha Suscripción</label>
+                                <label>Fecha Suscripción <a href="#" id="btn_hoy_suscripcion" class="text-primary ml-1"><small>[Hoy]</small></a></label>
                                 <input type="date" class="form-control" id="txt_fecha_suscripcion" name="txt_fecha_suscripcion" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Fecha de Inicio</label>
+                                <label>Fecha de Inicio <a href="#" id="btn_recomendacion_inicio" class="text-primary ml-1" style="display:none;"><small>[Recomendada: <span id="lbl_fecha_recomendada"></span>]</small></a></label>
                                 <input type="date" class="form-control" id="txt_fecha_inicio" name="txt_fecha_inicio" required>
                             </div>
                         </div>
@@ -302,7 +302,7 @@
                     </div>
                     <div class="table-responsive">
                     <table id="TablaDetalle"  class="table table-bordered table-striped table-hover table-sm" style="width: 100%;">
-                     <thead class=" table-success">
+                     <thead class="bg-guindo">
                       <tr>
                         <th class="text-center" style="width: 40px;"><i class="fas fa-check-square"></i></th>
                         <th>Mes a Pagar</th>
@@ -312,6 +312,16 @@
                         <th>Acción</th>
                       </tr>
                     </thead>
+                    <tfoot class="bg-guindo">
+                      <tr>
+                        <th class="text-center" style="width: 40px;"><i class="fas fa-check-square"></i></th>
+                        <th>Mes a Pagar</th>
+                        <th>Periodo</th>
+                        <th>Monto (Bs.)</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                      </tr>
+                    </tfoot>
                     </table>
                     </div>
                 </div>

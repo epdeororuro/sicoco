@@ -27,6 +27,8 @@ function LimpiarCamposContrato()
   document.getElementsByName("txt_contrato")[0].value = "";
   document.getElementsByName("txt_fecha_suscripcion")[0].value = "";
   document.getElementsByName("txt_fecha_inicio")[0].value = "";
+  $("#txt_fecha_inicio").removeAttr("min");
+  $("#btn_recomendacion_inicio").hide();
   document.getElementsByName("txt_tiempo")[0].value = "1";
   $("#texto_duracion").text("Seleccione la Fecha de Inicio para calcular el tiempo del contrato.");
 
@@ -120,8 +122,9 @@ function ListarDetalle(idarriendo){
           return "<i class='fas fa-check text-success'></i>";
       }},
       {"data": "PERIODO", "render": function(data) {
+          if(data === 'GARANTIA') return '<span class="badge badge-info"><i class="fas fa-shield-alt"></i> GARANTÍA</span>';
           var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-          if(data) {
+          if(data && data.includes('-')) {
               var mesIndex = parseInt(data.split('-')[1]) - 1;
               return meses[mesIndex];
           }
@@ -131,9 +134,10 @@ function ListarDetalle(idarriendo){
       {"data": "MONTO"},
       {"data": "PENDIENTE", "render": function(data, type, row) {
           if (data === 'SI') {
+              if (row.PERIODO === 'GARANTIA') return '<span class="badge badge-danger"><i class="fas fa-exclamation-circle"></i> REQUISITO</span>';
               var hoy = new Date();
               var partes = row.PERIODO.split('-');
-              if (parseInt(partes[0]) < hoy.getFullYear() || (parseInt(partes[0]) === hoy.getFullYear() && parseInt(partes[1]) < (hoy.getMonth() + 1))) {
+              if (partes.length === 2 && (parseInt(partes[0]) < hoy.getFullYear() || (parseInt(partes[0]) === hoy.getFullYear() && parseInt(partes[1]) < (hoy.getMonth() + 1)))) {
                   return '<span class="badge badge-danger"><i class="fas fa-exclamation-circle"></i> VENCIDO</span>';
               }
               return '<span class="badge badge-warning"><i class="fas fa-clock"></i> PENDIENTE</span>';
@@ -142,9 +146,10 @@ function ListarDetalle(idarriendo){
       }},
       {"data": null, "render": function(data, type, row) {
           if(row.PENDIENTE === 'SI') {
+              if (row.PERIODO === 'GARANTIA') return "<span class='text-danger font-weight-bold'><i class='fas fa-shield-alt'></i> Requisito de Firma</span>";
               var hoy = new Date();
               var partes = row.PERIODO.split('-');
-              if (parseInt(partes[0]) < hoy.getFullYear() || (parseInt(partes[0]) === hoy.getFullYear() && parseInt(partes[1]) < (hoy.getMonth() + 1))) {
+              if (partes.length === 2 && (parseInt(partes[0]) < hoy.getFullYear() || (parseInt(partes[0]) === hoy.getFullYear() && parseInt(partes[1]) < (hoy.getMonth() + 1)))) {
                   return "<span class='text-danger font-weight-bold'><i class='fas fa-exclamation-triangle'></i> Mora</span>";
               }
               return "<span class='text-muted'><i class='fas fa-clock'></i> Por cobrar</span>";
@@ -379,6 +384,47 @@ $(document).ready(function(){
   $("#SelItemCatalogo").on("change", function() {
       var precio = $(this).find(':selected').data('precio');
       $("#txt_alquiler_ref").val(precio ? precio : '');
+  });
+
+  // Lógica para asignar "Hoy" a Fecha de Suscripción
+  $(document).on('click', '#btn_hoy_suscripcion', function(e) {
+      e.preventDefault();
+      var hoy = new Date();
+      var dia = ("0" + hoy.getDate()).slice(-2);
+      var mes = ("0" + (hoy.getMonth() + 1)).slice(-2);
+      var fechaFormateada = hoy.getFullYear() + "-" + mes + "-" + dia;
+      $("#txt_fecha_suscripcion").val(fechaFormateada).trigger('change');
+  });
+
+  // Restringir que Fecha de Inicio no sea menor a Fecha de Suscripción
+  $("#txt_fecha_suscripcion").on('change', function() {
+      var fechaSuscripcion = $(this).val();
+      var $inputInicio = $("#txt_fecha_inicio");
+      if(fechaSuscripcion) {
+          $inputInicio.attr('min', fechaSuscripcion);
+          
+          // Mostrar recomendación dinámica
+          var partes = fechaSuscripcion.split('-');
+          var fechaFormat = partes[2] + "/" + partes[1] + "/" + partes[0];
+          $("#lbl_fecha_recomendada").text(fechaFormat);
+          $("#btn_recomendacion_inicio").show();
+          
+          if($inputInicio.val() && $inputInicio.val() < fechaSuscripcion) {
+              $inputInicio.val(fechaSuscripcion).trigger('change');
+          }
+      } else {
+          $inputInicio.removeAttr('min');
+          $("#btn_recomendacion_inicio").hide();
+      }
+  });
+
+  // Acción al hacer clic en la recomendación de Fecha de Inicio
+  $(document).on('click', '#btn_recomendacion_inicio', function(e) {
+      e.preventDefault();
+      var fechaSuscripcion = $("#txt_fecha_suscripcion").val();
+      if(fechaSuscripcion) {
+          $("#txt_fecha_inicio").val(fechaSuscripcion).trigger('change');
+      }
   });
 
   // Auto-calcular meses y días hasta final de año al cambiar Fecha Inicio
@@ -677,7 +723,12 @@ function ListarContrato(){
       {"data": "REPRESENTANTE"},
       {"data": "ACTIVIDAD"},
       {"data": "RAZONSOCIAL"},
-      {"data": "CONTRATO"},
+      {"data": "CONTRATO", "render": function(data, type, row) {
+          var estado = row.VIGENTE === 'PR' ? 
+              '<br><span class="badge badge-warning mt-1"><i class="fas fa-clock"></i> Adjudicado (Falta Garantía)</span>' : 
+              '<br><span class="badge badge-success mt-1"><i class="fas fa-check-circle"></i> Vigente</span>';
+          return "<strong>" + data + "</strong>" + estado;
+      }},
       {"data": "FECHA_INICIO"},
       {"data": "FECHA_SUSCRIPCION"},
       {"data": "FECHA_INICIO", "render": function(data, type, row) {

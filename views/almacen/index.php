@@ -34,7 +34,7 @@
               <div class="card-body" id="listado">
 
                 <table id="tabla_almacen"  class="table table-bordered table-striped table-hover table-sm">
-                 <thead class=" table-success">
+                 <thead class="bg-guindo">
                   <tr>
                     <th>Nro</th>
                     <th>Descripción</th>
@@ -46,7 +46,7 @@
                   </tr>
                 </thead>
                  
-                  <tfoot class=" table-success">
+                  <tfoot class="bg-guindo">
                   <tr>
                     <th>Nro</th>
                     <th>Descripción</th>
