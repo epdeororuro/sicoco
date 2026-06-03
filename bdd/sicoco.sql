@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-06-2026 a las 23:04:04
+-- Tiempo de generación: 03-06-2026 a las 22:25:17
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -673,7 +673,10 @@ INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FEC
 (1, 7, '401577', '2026-06-02 12:27:05', '2026-06-02 12:32:05', 'USADO', '::1'),
 (2, 7, '830622', '2026-06-02 13:04:08', '2026-06-02 13:09:08', 'USADO', '::1'),
 (3, 7, '453075', '2026-06-02 14:46:09', '2026-06-02 14:51:09', 'PENDIENTE', '::1'),
-(4, 7, '907075', '2026-06-02 14:52:40', '2026-06-02 14:57:40', 'USADO', '::1');
+(4, 7, '907075', '2026-06-02 14:52:40', '2026-06-02 14:57:40', 'USADO', '::1'),
+(5, 7, '279673', '2026-06-03 09:11:55', '2026-06-03 09:16:55', 'USADO', '::1'),
+(6, 7, '835785', '2026-06-03 10:23:01', '2026-06-03 10:28:01', 'USADO', '::1'),
+(7, 7, '335323', '2026-06-03 13:09:54', '2026-06-03 13:14:54', 'USADO', '::1');
 
 -- --------------------------------------------------------
 
@@ -694,6 +697,7 @@ CREATE TABLE `log_cierres` (
 --
 
 INSERT INTO `log_cierres` (`IDLOGCIERRE`, `FECHA_INICIO`, `FECHA_FIN`, `FECHA_GENERACION`, `USUARIO`) VALUES
+(0, '2026-06-03', '2026-06-03', '2026-06-03 11:38:27', 'wil.arroyo'),
 (1, '2026-06-01', '2026-06-01', '2026-06-01 13:21:50', 'wil.arroyo'),
 (2, '2026-06-01', '2026-06-01', '2026-06-01 16:16:22', 'wil.arroyo'),
 (3, '2026-06-01', '2026-06-01', '2026-06-01 16:16:25', 'wil.arroyo'),
@@ -1066,7 +1070,7 @@ ALTER TABLE `garantias_cumplimiento`
 -- AUTO_INCREMENT de la tabla `log_accesos`
 --
 ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`
