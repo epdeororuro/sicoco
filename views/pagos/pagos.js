@@ -34,9 +34,7 @@ function ListarHistorialCaja(){
       {"data": null, "render": function(data, type, row) {
           return "<a href='"+base_url+"pagos/reimprimir/"+row.NRO_RECIBO+"' target='_blank' class='btn btn-info btn-sm' title='Reimprimir Copia de Recibo'><i class='fas fa-print'></i> Reimprimir</a>";
       }}
-      ],
-       dom: 'Bfrtip',
-       buttons: ['excel', 'pdf', 'print']       
+      ],     
     }); 
 }
 

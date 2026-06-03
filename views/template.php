@@ -79,7 +79,7 @@
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right shadow-sm">
           <span class="dropdown-item dropdown-header bg-light">Opciones de Usuario</span>
           <div class="dropdown-divider"></div>
-          <a href="#" class="dropdown-item">
+          <a href="#" class="dropdown-item" data-toggle="modal" data-target="#ModalCambiarClave">
             <i class="fas fa-key mr-2 text-primary"></i> Cambiar Contraseña
           </a>
           <div class="dropdown-divider"></div>
@@ -304,6 +304,32 @@
 <!-- ./wrapper -->
 <?php endif; ?>
 
+<!-- Modal Cambiar Contraseña Global -->
+<div class="modal fade" id="ModalCambiarClave" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-guindo">
+        <h5 class="modal-title"><i class="fas fa-key"></i> Cambiar Mi Contraseña</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="FormCambiarClave">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="txt_nueva_clave">Nueva Contraseña</label>
+            <input type="password" class="form-control shadow-sm" id="txt_nueva_clave" name="txt_nueva_clave" required minlength="4" placeholder="Ingrese su nueva contraseña">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Actualizar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- jQuery -->
 <script src="<?php echo URL; ?>views/template/plugins/jquery/jquery-3.6.0.min.js"></script>
 <script src="<?php echo URL; ?>views/template/plugins/sweetalert2/sweetalert2.all.min.js"></script>
@@ -334,6 +360,34 @@
 <script src="<?php echo URL; ?>views/template/plugins/chart.js/Chart.min.js"></script>
 <!-- Page specific script -->
 
+<script>
+  // --- CONFIGURACIÓN GLOBAL PARA DATATABLES ---
+  // Esto aplicará automáticamente los 4 botones (Copy, Excel, PDF, Print) y el idioma Español a TODAS las tablas del sistema.
+  $.extend( true, $.fn.dataTable.defaults, {
+    "responsive": true,
+    "autoWidth": false,
+    "dom": "<'row mb-2'<'col-sm-12 col-md-6'B><'col-sm-12 col-md-6'f>>" +
+           "<'row'<'col-sm-12'tr>>" +
+           "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+    "buttons": [
+      { extend: 'copy', text: '<i class="fas fa-copy"></i> Copiar', className: 'btn btn-secondary btn-sm shadow-sm' },
+      { extend: 'excel', text: '<i class="fas fa-file-excel"></i> Excel', className: 'btn btn-success btn-sm shadow-sm' },
+      { extend: 'pdf', text: '<i class="fas fa-file-pdf"></i> PDF', className: 'btn btn-danger btn-sm shadow-sm' },
+      { extend: 'print', text: '<i class="fas fa-print"></i> Imprimir', className: 'btn btn-info btn-sm shadow-sm' }
+    ],
+    "language": {
+      "sProcessing":     "Procesando...",
+      "sLengthMenu":     "Mostrar _MENU_ registros",
+      "sZeroRecords":    "No se encontraron resultados",
+      "sEmptyTable":     "Ningún dato disponible en esta tabla",
+      "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+      "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+      "sSearch":         "Buscar:",
+      "oPaginate": { "sFirst": "Primero", "sLast": "Último", "sNext": "Siguiente", "sPrevious": "Anterior" }
+    }
+  });
+</script>
 
 <script>
   $(function () {
@@ -541,6 +595,29 @@
         $(this).addClass('active'); // Resalta la opción actual
         $(this).parents('.nav-treeview').prev('.nav-link').addClass('active'); // Resalta el padre
         $(this).parents('.nav-item').addClass('menu-open'); // Mantiene desplegado el menú padre
+      }
+    });
+  });
+
+  // --- LÓGICA PARA CAMBIAR CONTRASEÑA GLOBAL ---
+  $(document).on('submit', '#FormCambiarClave', function(e) {
+    e.preventDefault();
+    $.ajax({
+      url: base_url + 'usuario/cambiar_clave',
+      type: 'POST',
+      data: $(this).serialize(),
+      dataType: 'json',
+      success: function(resp) {
+        if(resp.status === 'success') {
+          $('#ModalCambiarClave').modal('hide');
+          $('#FormCambiarClave')[0].reset();
+          Swal.fire('¡Actualizada!', resp.message, 'success');
+        } else {
+          Swal.fire('Error', resp.message, 'error');
+        }
+      },
+      error: function() {
+        Swal.fire('Error', 'Problema de conexión al servidor.', 'error');
       }
     });
   });

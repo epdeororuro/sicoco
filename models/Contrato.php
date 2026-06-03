@@ -200,6 +200,31 @@
 			$stmt = $this->con->conexion->prepare($sql);
 			return $stmt->execute([$this->archivo_pdf, $this->idcontrato]);
 		}
+
+		public function cierre_gestion()
+		{
+			try {
+				$this->con->conexion->beginTransaction();
+				
+				// 1. Liberar los espacios en el catálogo (De ALQUILADO a DISPONIBLE)
+				$sql1 = "UPDATE catalogo c 
+						 INNER JOIN detalle d ON c.IDCATALOGO = d.IDCATALOGO 
+						 INNER JOIN arriendos a ON d.IDARRIENDO = a.IDARRIENDO 
+						 SET c.ESTADO = 'DISPONIBLE' 
+						 WHERE a.VIGENTE IN ('SI', 'PR')";
+				$this->con->conexion->exec($sql1);
+	
+				// 2. Pasar todos los contratos a Históricos / Finalizados ('FI')
+				$sql2 = "UPDATE arriendos SET VIGENTE = 'FI' WHERE VIGENTE IN ('SI', 'PR')";
+				$this->con->conexion->exec($sql2);
+	
+				$this->con->conexion->commit();
+				return true;
+			} catch (\Exception $e) {
+				$this->con->conexion->rollBack();
+				return false;
+			}
+		}
 		
 	}
 

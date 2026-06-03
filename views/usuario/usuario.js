@@ -85,11 +85,7 @@ function ListarUsuario(){
           }
       }
 
-      ],
-       dom: 'Bfrtip',
-       buttons: [
-            'copy', 'excel', 'pdf', 'print'
-        ]       
+      ]
     }); 
 } // fin de funcion listarUsuario
 
@@ -132,7 +128,6 @@ $(document).ready(function(){
   $("#btnNuevoRegistro").on('click', function(e){
     e.preventDefault();
     $("#titulo").html("Nuevo Registro de Accesos");
-    $("#header_modal_usuario").removeClass("bg-warning text-dark").addClass("bg-primary text-white");
     $("#OpcionEditar").hide();
     $("#OpcionNuevo").show("slow");
     LimpiarCamposUsuario();
@@ -142,7 +137,6 @@ $(document).ready(function(){
   $(document).on('click', '.EditarUsuario', function(e){
     e.preventDefault();
     $("#titulo").html("Modificar Registro");
-    $("#header_modal_usuario").removeClass("bg-primary text-white").addClass("bg-warning text-dark");
     $("#OpcionNuevo").hide();
     $("#OpcionEditar").show("slow");
 

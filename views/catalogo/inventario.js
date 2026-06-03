@@ -9,9 +9,7 @@ function initDataTable(selector, url, columns, extraOptions = {}) {
       url: url,
       dataSrc: ""
     },
-    columns: columns,
-    dom: 'Bfrtip',
-    buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+    columns: columns
   };
   var finalOptions = $.extend(true, {}, defaultOptions, extraOptions);
   return $(selector).DataTable(finalOptions);

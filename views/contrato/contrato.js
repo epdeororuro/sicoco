@@ -114,6 +114,16 @@ function ListarDetalle(idarriendo){
             return datos; 
         }       
       },
+      "createdRow": function(row, data, dataIndex) {
+          if (data.PENDIENTE === 'SI' && data.PERIODO !== 'GARANTIA') {
+              var hoy = new Date();
+              var partes = data.PERIODO.split('-');
+              if (partes.length === 2 && (parseInt(partes[0]) < hoy.getFullYear() || (parseInt(partes[0]) === hoy.getFullYear() && parseInt(partes[1]) < (hoy.getMonth() + 1)))) {
+                  // Pinta toda la fila de rojo si el mes está vencido
+                  $(row).addClass('table-danger text-danger');
+              }
+          }
+      },
       "columns":[
       {"data": null, "orderable": false, "searchable": false, "className": "text-center", "render": function(data, type, row) {
           if(row.PENDIENTE === 'SI') {
@@ -156,11 +166,7 @@ function ListarDetalle(idarriendo){
           }
           return "<span class='text-success'><i class='fas fa-check'></i> Completado</span> <a href='"+base_url+"pagos/imprimir_recibo_multiple?ids="+row.IDPAGO+"' target='_blank' class='btn btn-danger btn-sm ml-2' title='Imprimir Recibo PDF'><i class='fas fa-file-pdf'></i></a>";
       }}
-      ],
-       dom: 'Bfrtip',
-       buttons: [
-             'excel', 'pdf', 'print'
-        ]       
+      ]
     }); 
 } // fin de funcion listarContrato
 
@@ -254,6 +260,41 @@ $(document).ready(function(){
     $("#OpcionEditar").hide();
     $("#OpcionNuevo").show("slow");
     LimpiarCamposContrato();
+  });
+
+  // Evento Cierre de Gestión Anual
+  $("#btnCierreGestion").on('click', function(e) {
+      e.preventDefault();
+      Swal.fire({
+          title: '¿Confirmar CIERRE DE GESTIÓN?',
+          html: '<span class="text-danger font-weight-bold">¡ADVERTENCIA IRREVERSIBLE!</span><br><br>Esta acción finalizará <b>TODOS</b> los contratos vigentes (Pasarán a estado histórico) y <b>LIBERARÁ</b> todas las tiendas y espacios en el Catálogo para la nueva gestión.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: '<i class="fas fa-calendar-times"></i> Sí, Ejecutar Cierre Anual',
+          cancelButtonText: 'Cancelar'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              Swal.fire({ title: 'Procesando...', text: 'Finalizando contratos y liberando catálogo.', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+              $.ajax({
+                  url: base_url + 'contrato/cierre_gestion',
+                  type: 'POST',
+                  dataType: 'json',
+                  success: function(resp) {
+                      if(resp.status === 'success') {
+                          Swal.fire('¡Cierre Exitoso!', resp.message, 'success');
+                          $('#TablaContrato').DataTable().ajax.reload();
+                      } else {
+                          Swal.fire('Error', resp.message, 'error');
+                      }
+                  },
+                  error: function() {
+                      Swal.fire('Error', 'Problema de conexión al servidor.', 'error');
+                  }
+              });
+          }
+      });
   });
 
   // Lógica Correlativa de Selección Múltiple
@@ -769,10 +810,6 @@ function ListarContrato(){
           
           return "<div class='text-nowrap text-center'>" + boton_editar + boton_detalle + boton_confirmar + boton_eliminar + "</div>";
       }}
-      ],
-       dom: 'Bfrtip',
-       buttons: [
-             'excel', 'pdf', 'print'
-        ]       
+      ]
     }); 
 } // fin de funcion listarContrato

@@ -15,6 +15,10 @@
                 <i class="fas fa-plus-circle"></i> 
                  Nuevo Registro
                </button>
+               <button type="button" id="btnCierreGestion" class="btn btn-danger font-weight-bold shadow-sm ml-2" title="Ejecutar Cierre Anual">
+                <i class="fas fa-calendar-times"></i> 
+                 Cierre de Gestión
+               </button>
             </span>
             </ol>
           </div>
@@ -87,9 +91,9 @@
 
             <!-- Modal content-->
             <div class="modal-content">
-              <div class="modal-header">
+              <div class="modal-header bg-guindo text-white">
                 <h4 class="modal-title" id="titulo">Registro de Contratos</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
               </div>
               
             <div class="modal-body">
@@ -274,9 +278,9 @@
 
             <!-- Modal content-->
             <div class="modal-content">
-              <div class="modal-header">
+              <div class="modal-header bg-guindo text-white">
                 <h4 class="modal-title"><i class="fas fa-folder-open"></i> Expediente y Plan de Pagos</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
               </div>
               
             <div class="modal-body">

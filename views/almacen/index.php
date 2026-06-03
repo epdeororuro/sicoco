@@ -11,7 +11,7 @@
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <span class="float-right"> 
-               <button type="button" id="btnNuevoRegistro" class="btn btn-primary btn-lm" data-toggle="modal" data-target="#ModalAlmacenTienda">
+               <button type="button" id="btnNuevoRegistro" class="btn btn-guindo font-weight-bold shadow-sm" data-toggle="modal" data-target="#ModalAlmacenTienda">
                 <i class="fas fa-plus-circle"></i> 
                  Nuevo Registro
                </button>
@@ -28,7 +28,7 @@
       <div class="container-fluid">
         <div class="row">
           <div class="col-12">
-            <div class="card">
+            <div class="card card-outline card-guindo">
              
               <!-- /.cargar el listado de la tabla -->
               <div class="card-body" id="listado">
@@ -82,9 +82,9 @@
 
             <!-- Modal content-->
             <div class="modal-content">
-              <div class="modal-header">
+              <div class="modal-header bg-guindo text-white">
                 <h4 class="modal-title" id="titulo">Registro de Almacén/Tiendas</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
               </div>
               
               <div class="modal-body">

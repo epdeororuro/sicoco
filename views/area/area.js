@@ -40,11 +40,7 @@ function ListarArea() {
       {"data": "REFERENCIA"},
       {"data": "UBICACION"},
       {"defaultContent": boton_editar+" "+boton_eliminar}
-    ],
-    dom: 'Bfrtip',
-    buttons: [
-      'copy', 'excel', 'pdf', 'print'
-    ]       
+    ]
   }); 
 }
 
@@ -69,7 +65,6 @@ $(document).ready(function(){
   $("#btnNuevoRegistro").on('click', function(e){
     e.preventDefault();
     $("#titulo").html("Nuevo Registro de Áreas y Ubicación");
-    $("#header_modal_area").removeClass("bg-warning text-dark").addClass("bg-primary text-white");
     $("#OpcionEditar").hide();
     $("#OpcionNuevo").show("slow");
     LimpiarCamposArea();
@@ -79,7 +74,6 @@ $(document).ready(function(){
   $(document).on('click', '.EditarArea', function(e){
     e.preventDefault();
     $("#titulo").html("Modificar Registro");
-    $("#header_modal_area").removeClass("bg-primary text-white").addClass("bg-warning text-dark");
     $("#OpcionNuevo").hide();
     $("#OpcionEditar").show("slow");
 

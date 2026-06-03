@@ -135,6 +135,27 @@ public function reactivar($argumento)
 	echo $respuesta;
 	exit();	
 }
+
+public function cambiar_clave()
+{
+    if(isset($_POST['txt_nueva_clave']) && !empty($_POST['txt_nueva_clave'])) {
+        $cadena = $this->usuario_session->getCurrentUser();
+        $idusuario = $cadena['idmiembro'];
+        $nueva_clave = password_hash($_POST['txt_nueva_clave'], PASSWORD_BCRYPT);
+        
+        $this->usuario->set("idusuario", $idusuario);
+        $this->usuario->set("clave", $nueva_clave);
+        
+        if($this->usuario->cambiar_clave()) {
+            echo json_encode(['status' => 'success', 'message' => 'Su contraseña ha sido actualizada correctamente.']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'No se pudo actualizar la contraseña.']);
+        }
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'La contraseña no puede estar vacía.']);
+    }
+    exit();
+}
 	
 } // fin clase
 ?>

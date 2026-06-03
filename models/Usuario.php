@@ -77,6 +77,13 @@
 			$datos = $this->con->ConsultaRetorno($sql);
 			return $datos;
 		}
+
+		public function cambiar_clave()
+		{
+			$sql = "UPDATE usuarios SET PASS = ? WHERE IDUSUARIO = ?";
+			$stmt = $this->con->conexion->prepare($sql);
+			return $stmt->execute([$this->clave, $this->idusuario]);
+		}
 		
 	}
 

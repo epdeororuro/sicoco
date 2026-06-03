@@ -67,11 +67,7 @@ function ListarCatalogo(){
       }
 
       //{"defaultContent": boton_editar+" "+boton_eliminar}
-      ],
-       dom: 'Bfrtip',
-        buttons: [
-            'excel', 'pdf', 'print'
-        ]        
+      ]
     }); 
 } // fin de funcion catalogo
 
@@ -98,7 +94,6 @@ $(document).ready(function(){
   $("#btnNuevoRegistro").on('click', function(e){
     e.preventDefault();
     $("#titulo").html("Nuevo Registro de Servicios");
-    $("#header_modal_catalogo").removeClass("bg-warning text-dark").addClass("bg-primary text-white");
     $("#OpcionEditar").hide();
     $("#OpcionNuevo").show("slow");
     LimpiarCamposCatalogo();
@@ -108,7 +103,6 @@ $(document).ready(function(){
   $(document).on('click', '.EditarCatalogo', function(e){
     e.preventDefault();
     $("#titulo").html("Modificar Registro");
-    $("#header_modal_catalogo").removeClass("bg-primary text-white").addClass("bg-warning text-dark");
     $("#OpcionNuevo").hide();
     $("#OpcionEditar").show("slow");
 

@@ -53,9 +53,9 @@
 <div id="ModalCumplimiento" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-guindo text-white">
                 <h4 class="modal-title"><i class="fas fa-shield-alt"></i> Cobro: Garantía de Cumplimiento de Contrato</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="FormCumplimiento">
