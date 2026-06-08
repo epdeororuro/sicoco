@@ -259,6 +259,16 @@ public function edit()
 public function delete($argumento)
 {  
 	$this->contrato->set("idcontrato", $argumento);	
+	
+	// Buscar si tiene un PDF asociado y eliminar el archivo físico del servidor
+	$datosContrato = $this->contrato->obtener_contrato_completo();
+	if (!empty($datosContrato) && !empty($datosContrato[0]['ARCHIVO_PDF'])) {
+		$ruta_pdf = 'views/contrato/pdf/' . $datosContrato[0]['ARCHIVO_PDF'];
+		if (file_exists($ruta_pdf)) {
+			unlink($ruta_pdf);
+		}
+	}
+
 	$datos=$this->contrato->del();
 	$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
 	if ($respuesta == '1') {
