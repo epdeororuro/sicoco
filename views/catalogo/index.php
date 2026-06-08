@@ -119,7 +119,7 @@
                 </form>
               </div>
               <div class="modal-footer" id="OpcionNuevo">
-                <button type="button" class="btn btn-success btn-lg submitBtn" id="btn_InsertCatalogo" name="btn_InsertCatalogo" data-dismiss="modal">
+                <button type="button" class="btn btn-success btn-lg submitBtn" id="btn_InsertCatalogo" name="btn_InsertCatalogo">
                   <span><i class="fas fa-save"></i></span>
                   Registrar
                 </button>
@@ -129,7 +129,7 @@
 
               <div class="modal-footer" id="OpcionEditar">
                 <button type="button" class="btn btn-success btn-lg submitBtn" 
-                  id="btn_EditarCatalogo" name="btn_EditarCatalogo" data-dismiss="modal">
+                  id="btn_EditarCatalogo" name="btn_EditarCatalogo">
                   <span><i class="fas fa-save"></i></span>
                   Guardar Cambios                   
                 </button>

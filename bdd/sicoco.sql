@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 03-06-2026 a las 22:25:17
+-- Tiempo de generación: 08-06-2026 a las 17:12:24
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -524,7 +524,8 @@ INSERT INTO `areaubicacion` (`IDAREA`, `REFERENCIA`, `UBICACION`) VALUES
 (6, 'BODEGA', 'DISPERSO'),
 (7, 'SERVICIO BÁSICO', 'INFRAESTRUCTURA DEL EDIFICIO'),
 (8, 'CARRILES OESTE', 'EXTERIOR'),
-(9, 'CARRILES ESTE', 'EXTERIOR');
+(9, 'CARRILES ESTE', 'EXTERIOR'),
+(11, 'STAND2', 'AFUERA');
 
 -- --------------------------------------------------------
 
@@ -571,7 +572,11 @@ INSERT INTO `catalogo` (`IDCATALOGO`, `IDAREA`, `DESCRIPCION`, `ALQUILER`, `ESTA
 (1, 6, '1', 200, 'DISPONIBLE'),
 (2, 6, '2', 200, 'DISPONIBLE'),
 (3, 6, '3', 200, 'DISPONIBLE'),
-(4, 6, '4', 200, 'DISPONIBLE');
+(4, 6, '4', 200, 'DISPONIBLE'),
+(5, 1, '1', 600, 'DISPONIBLE'),
+(6, 1, 'STAND 1', 600, 'DISPONIBLE'),
+(7, 1, '2', 700, 'DISPONIBLE'),
+(8, 1, 'STAND 3', 700, 'DISPONIBLE');
 
 -- --------------------------------------------------------
 
@@ -649,6 +654,13 @@ CREATE TABLE `garantias_cumplimiento` (
   `USUARIO` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `garantias_cumplimiento`
+--
+
+INSERT INTO `garantias_cumplimiento` (`IDGARANTIA`, `CITE_ADJUDICACION`, `CI_POSTULANTE`, `NOMBRE_POSTULANTE`, `IDCATALOGO`, `MONTO`, `FECHA_COBRO`, `FECHA_DEVOLUCION`, `ESTADO`, `IDARRIENDO`, `USUARIO`) VALUES
+(1, '123/2026', '7403044', 'REYNALDO JESUS FLORES JAILLITA', 1, 200.00, '2026-06-08 10:36:32', NULL, 'RETENIDA', NULL, 'wil.arroyo');
+
 -- --------------------------------------------------------
 
 --
@@ -676,7 +688,10 @@ INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FEC
 (4, 7, '907075', '2026-06-02 14:52:40', '2026-06-02 14:57:40', 'USADO', '::1'),
 (5, 7, '279673', '2026-06-03 09:11:55', '2026-06-03 09:16:55', 'USADO', '::1'),
 (6, 7, '835785', '2026-06-03 10:23:01', '2026-06-03 10:28:01', 'USADO', '::1'),
-(7, 7, '335323', '2026-06-03 13:09:54', '2026-06-03 13:14:54', 'USADO', '::1');
+(7, 7, '335323', '2026-06-03 13:09:54', '2026-06-03 13:14:54', 'USADO', '::1'),
+(8, 7, '265385', '2026-06-08 09:28:32', '2026-06-08 09:33:32', 'USADO', '::1'),
+(9, 7, '725737', '2026-06-08 09:28:32', '2026-06-08 09:33:32', 'PENDIENTE', '::1'),
+(10, 7, '880885', '2026-06-08 11:06:55', '2026-06-08 11:11:55', 'USADO', '::1');
 
 -- --------------------------------------------------------
 
@@ -791,6 +806,7 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`IDUSUARIO`, `NOMBRE`, `CEL`, `USR`, `PASS`, `FECHA_ALTA`, `FECHA_BAJA`, `ACTIVO`, `IDROL`) VALUES
+(0, 'MILTON TORREZ ', '', 'miltorrez', '$2y$10$9JF9KjGZEabxEkebAsTR5OWFOx7CUv8nT8HgUYAQ5WG0C5Xyw621m', '2026-06-08 10:15:07', NULL, 'SI', 4),
 (4, 'ERIKA ALEJANDRA JORGE SOTO', '', 'erika.jorge', '123', '2023-11-27 17:42:16', '2026-05-25 15:11:09', 'NO', 4),
 (6, 'WILFREDO ARROYO ALEJANDRO', '', 'wili.arroyo', '123', '2023-11-27 23:02:42', '2023-11-27 23:54:17', 'NO', 2),
 (7, 'WILFREDO ARROYO ALEJANDRO', '60408150', 'wil.arroyo', '$2y$10$faCDW1RQFp0YRARRP375HOynlk/EHh6ZW9KHQDQWiaHAjLiP/3fCC', '2023-11-28 20:55:46', '2026-05-18 08:38:23', 'SI', 1),
@@ -1040,7 +1056,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `areaubicacion`
 --
 ALTER TABLE `areaubicacion`
-  MODIFY `IDAREA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `IDAREA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `arriendos`
@@ -1052,7 +1068,7 @@ ALTER TABLE `arriendos`
 -- AUTO_INCREMENT de la tabla `catalogo`
 --
 ALTER TABLE `catalogo`
-  MODIFY `IDCATALOGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `IDCATALOGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `clientes`
@@ -1064,13 +1080,13 @@ ALTER TABLE `clientes`
 -- AUTO_INCREMENT de la tabla `garantias_cumplimiento`
 --
 ALTER TABLE `garantias_cumplimiento`
-  MODIFY `IDGARANTIA` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IDGARANTIA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `log_accesos`
 --
 ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`

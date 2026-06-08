@@ -106,7 +106,7 @@
                     </form>
               </div>
               <div class="modal-footer" id="OpcionNuevo">
-                <button type="button" class="btn btn-success btn-lg submitBtn" id="btn_InsertArea" name="btn_InsertArea" data-dismiss="modal">
+                <button type="button" class="btn btn-success btn-lg submitBtn" id="btn_InsertArea" name="btn_InsertArea">
                   <span><i class="fas fa-save"></i></span>
                   Registrar
                 </button>
@@ -116,7 +116,7 @@
 
               <div class="modal-footer" id="OpcionEditar">
                 <button type="button" class="btn btn-success btn-lg submitBtn" 
-                  id="btn_EditarArea" name="btn_EditarArea" data-dismiss="modal">
+                  id="btn_EditarArea" name="btn_EditarArea">
                   <span><i class="fas fa-save"></i></span>
                   Guardar Cambios                   
                 </button>

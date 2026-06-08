@@ -1,6 +1,7 @@
 // *********funciones Catalogo********
 function Insert_Catalogo(){
   AccionAjax(base_url+'catalogo/add', $("#FormCatalogo").serialize(), ListarCatalogo, 'Registro Insertado Con Éxito');
+  $('#ModalCatalogo').modal('hide');
 } // final funcion Insert_CATALOGO
 
 function LimpiarCamposCatalogo(){
@@ -12,6 +13,7 @@ document.getElementsByName("txt_alquiler")[0].value = "0";
 
 function Editar_Catalogo(){
   AccionAjax(base_url+'catalogo/edit', $("#FormCatalogo").serialize(), ListarCatalogo, 'Registro Modificado Con Éxito');
+  $('#ModalCatalogo').modal('hide');
 } // final funcion EDITAR catalogo
 
 function EliminarCatalogo(id)
@@ -27,9 +29,10 @@ function LlenarAreas()
     type:'POST',
     dataType: 'json',
     success: function(e){
-        $(e).each(function(i, v){ // indice, valor
-                       $("#SelBuscarArea").append('<option value="' + v.IDAREA + '">' + v.DISTRIBUCION + '</option>');
-                               });
+        var datos = e.data ? e.data : e;
+        $(datos).each(function(i, v){ // indice, valor
+             $("#SelBuscarArea").append('<option value="' + v.IDAREA + '">' + v.DISTRIBUCION + '</option>');
+        });
      }
 });  
 } // final funcion Llenar_Areas combobox
@@ -44,7 +47,7 @@ function ListarCatalogo(){
    "autoWidth": false,
       "ajax":{
         "url": base_url+'catalogo/listar',
-        "dataSrc":""
+        "dataSrc": function(json) { return json.data ? json.data : json; }
       },
       "columns":[
       {
@@ -81,12 +84,24 @@ $(document).ready(function(){
   // Evento: Botón Registrar
   $("#btn_InsertCatalogo").on('click', function(e){
     e.preventDefault();
+    if(!$('#FormCatalogo')[0].checkValidity()) {
+        $('#FormCatalogo')[0].reportValidity();
+        return;
+    }
+    if($('#SelBuscarArea').val() == "0" || !$('#SelBuscarArea').val()) {
+        Swal.fire('Atención', 'Debe seleccionar una Categoría / Área', 'warning');
+        return;
+    }
     Insert_Catalogo();
   });
 
   // Evento: Botón Guardar Cambios (Editar)
   $("#btn_EditarCatalogo").on('click', function(e){
     e.preventDefault();
+    if(!$('#FormCatalogo')[0].checkValidity()) {
+        $('#FormCatalogo')[0].reportValidity();
+        return;
+    }
     Editar_Catalogo();
   });
 

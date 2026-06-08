@@ -50,7 +50,21 @@ class Conexion {
     public function consultaRetorno($sql) {
         try {
             $stmt = $this->conexion->query($sql);
-            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            if (!$stmt) return [];
+            
+            $result = [];
+            // Iterar sobre todos los paquetes devueltos por el Procedimiento Almacenado
+            do {
+                // Solo intentar extraer si el paquete actual es una tabla de resultados (ej. SELECT)
+                if ($stmt->columnCount() > 0) {
+                    $rowset = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                    if (!empty($rowset)) {
+                        $result = $rowset;
+                    }
+                }
+            } while ($stmt->nextRowset());
+            
+            return $result;
         } catch (\PDOException $e) {
             die("Error en consulta retorno: " . $e->getMessage());
         }

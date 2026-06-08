@@ -30,52 +30,94 @@
 			$sql = "SELECT u.*, r.DESCRIPCION as ROL_DESCRIPCION FROM usuarios u
 			LEFT JOIN roles r ON u.IDROL = r.IDROL
 			ORDER BY u.ACTIVO, u.IDROL, u.NOMBRE";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$stmt = $this->con->conexion->query($sql);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function lst_roles(){
 			$sql = "SELECT IDROL, DESCRIPCION FROM roles ORDER BY DESCRIPCION";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$stmt = $this->con->conexion->query($sql);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function add(){
-			$sql="CALL SP_INSERT_USUARIO ('{$this->nombre}', '{$this->usuario}', '{$this->clave}', '{$this->idrol}')";
-			$datos=$this->con->consultaRetorno($sql);
-			return $datos;			
+			try {
+				$sql = "SELECT COUNT(*) FROM usuarios WHERE USR = ?";
+				$stmt = $this->con->conexion->prepare($sql);
+				$stmt->execute([$this->usuario]);
+				if ($stmt->fetchColumn() > 0) {
+					return 'Error, el Nombre de Usuario debe ser diferente';
+				}
+				
+				$sql_ins = "INSERT INTO usuarios (NOMBRE, USR, PASS, IDROL) VALUES (UPPER(?), ?, ?, ?)";
+				$stmt_ins = $this->con->conexion->prepare($sql_ins);
+				$stmt_ins->execute([$this->nombre, $this->usuario, $this->clave, $this->idrol]);
+				
+				return '1';
+			} catch (\PDOException $e) {
+				return 'Error al registrar el usuario en la BD';
+			}
 		}
 
 		public function del()
 		{
-			$sql="call SP_DEL_USUARIO('{$this->idusuario}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			try {
+				$sql="DELETE FROM usuarios WHERE IDUSUARIO = ?";
+				$stmt = $this->con->conexion->prepare($sql);
+				$stmt->execute([$this->idusuario]);
+				return '1';
+			} catch (\PDOException $e) {
+				return 'Error, El registro tiene historial de dependencias.';
+			}
 		}
 
 		public function baja()
 		{
-			$sql="call SP_BAJA_USUARIO('{$this->idusuario}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			try {
+				$sql="UPDATE usuarios SET ACTIVO='NO', FECHA_BAJA=current_timestamp() WHERE IDUSUARIO = ?";
+				$stmt = $this->con->conexion->prepare($sql);
+				$stmt->execute([$this->idusuario]);
+				return '1';
+			} catch (\PDOException $e) {
+				return 'Error al dar de baja el usuario';
+			}
 		}
 
 		public function reactivar()
 		{
-			$sql = "UPDATE usuarios SET ACTIVO='SI', FECHA_BAJA=NULL WHERE IDUSUARIO='{$this->idusuario}'";
-			$retorno = $this->con->ConsultaSimple($sql);
-			if ($retorno == 1) {
-				return array(array('OP' => '1'));
-			} else {
-				return array(array('OP' => 'Error al reactivar el usuario'));
+			try {
+				$sql = "UPDATE usuarios SET ACTIVO='SI', FECHA_BAJA=NULL WHERE IDUSUARIO=?";
+				$stmt = $this->con->conexion->prepare($sql);
+				$stmt->execute([$this->idusuario]);
+				return '1';
+			} catch (\PDOException $e) {
+				return 'Error al reactivar el usuario';
 			}
 		}
 
 		public function edit(){
-			$sql="CALL SP_MODIFICAR_USUARIO
-			      ({$this->idusuario},'{$this->nombre}', '{$this->usuario}','{$this->clave}', '{$this->idrol}');";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			try {
+				$sql = "SELECT COUNT(*) FROM usuarios WHERE USR = ? AND IDUSUARIO != ?";
+				$stmt = $this->con->conexion->prepare($sql);
+				$stmt->execute([$this->usuario, $this->idusuario]);
+				if ($stmt->fetchColumn() > 0) {
+					return 'Error, el Nombre de Usuario debe ser diferente';
+				}
+
+				if (!empty($this->clave)) {
+					$sql_upd = "UPDATE usuarios SET NOMBRE = UPPER(?), USR = ?, PASS = ?, IDROL = ? WHERE IDUSUARIO = ?";
+					$stmt_upd = $this->con->conexion->prepare($sql_upd);
+					$stmt_upd->execute([$this->nombre, $this->usuario, $this->clave, $this->idrol, $this->idusuario]);
+				} else {
+					$sql_upd = "UPDATE usuarios SET NOMBRE = UPPER(?), USR = ?, IDROL = ? WHERE IDUSUARIO = ?";
+					$stmt_upd = $this->con->conexion->prepare($sql_upd);
+					$stmt_upd->execute([$this->nombre, $this->usuario, $this->idrol, $this->idusuario]);
+				}
+				
+					return '1';
+			} catch (\PDOException $e) {
+				return 'Error al actualizar el usuario en la BD';
+			}
 		}
 
 		public function cambiar_clave()

@@ -2,6 +2,7 @@
 
 function Insert_Area() {
   AccionAjax(base_url+'area/add', $("#FormArea").serialize(), ListarArea, 'Registro Insertado Con Éxito');
+  $('#ModalArea').modal('hide');
 }
 
 function LimpiarCamposArea() {
@@ -11,6 +12,7 @@ function LimpiarCamposArea() {
 
 function Editar_Area() {
   AccionAjax(base_url+'area/edit', $("#FormArea").serialize(), ListarArea, 'Registro Modificado Con Éxito');
+  $('#ModalArea').modal('hide');
 }
 
 function EliminarArea(id) {
@@ -28,7 +30,7 @@ function ListarArea() {
     "autoWidth": false,
     "ajax": {
       "url": base_url+'area/listar',
-      "dataSrc": ""
+      "dataSrc": function(json) { return json.data ? json.data : json; }
     },
     "columns": [
       {
@@ -52,12 +54,20 @@ $(document).ready(function(){
   // Evento: Botón Registrar
   $("#btn_InsertArea").on('click', function(e){
     e.preventDefault();
+    if(!$('#FormArea')[0].checkValidity()) {
+        $('#FormArea')[0].reportValidity();
+        return;
+    }
     Insert_Area();
   });
 
   // Evento: Botón Guardar Cambios (Editar)
   $("#btn_EditarArea").on('click', function(e){
     e.preventDefault();
+    if(!$('#FormArea')[0].checkValidity()) {
+        $('#FormArea')[0].reportValidity();
+        return;
+    }
     Editar_Area();
   });
 

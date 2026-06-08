@@ -62,8 +62,9 @@ public function add()
 				$this->usuario->set("idrol", $_POST['txt_idrol']);
 								
 				$datos=$this->usuario->add();	
-				$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
-	        	echo $respuesta;
+	        	if (ob_get_length()) ob_clean();
+				$respuesta = is_array($datos) ? (isset($datos[0]['OP']) ? $datos[0]['OP'] : '1') : $datos;
+	        	echo trim((string)$respuesta);
 	        	exit();
 			}
 		}
@@ -71,7 +72,8 @@ public function add()
 			{
 				$respuesta="Error al enviar los Datos";
 			}
-   	      echo $respuesta;
+   	      if (ob_get_length()) ob_clean();
+   	      echo trim((string)$respuesta);
    	      exit();
 	}
 
@@ -82,7 +84,6 @@ public function edit()
 			if (empty($_POST['txt_idusuario'])||
 				empty($_POST['txt_nombre'])||
 				empty($_POST['txt_usuario'])||
-				empty($_POST['txt_clave'])||
 				empty($_POST['txt_idrol']))
 			{
 				$respuesta="Debe Completar los Datos, Todos los Campos son Obligatorios";				
@@ -92,12 +93,17 @@ public function edit()
 				$this->usuario->set("idusuario", $_POST['txt_idusuario']);
 				$this->usuario->set("nombre", $_POST['txt_nombre']);
 				$this->usuario->set("usuario", $_POST['txt_usuario']);
-				$this->usuario->set("clave", password_hash($_POST['txt_clave'], PASSWORD_BCRYPT));
+				if (!empty($_POST['txt_clave'])) {
+				    $this->usuario->set("clave", password_hash($_POST['txt_clave'], PASSWORD_BCRYPT));
+				} else {
+				    $this->usuario->set("clave", "");
+				}
 				$this->usuario->set("idrol", $_POST['txt_idrol']);
 				
 	        	$datos=$this->usuario->edit();	
-				$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
-	        	echo $respuesta;
+	        	if (ob_get_length()) ob_clean();
+				$respuesta = is_array($datos) ? (isset($datos[0]['OP']) ? $datos[0]['OP'] : '1') : $datos;
+	        	echo trim((string)$respuesta);
 	        	exit();
 			}
 		}
@@ -105,7 +111,8 @@ public function edit()
 			{
 				$respuesta="Error al enviar los Datos";
 			}
-   	      echo $respuesta;
+   	      if (ob_get_length()) ob_clean();
+   	      echo trim((string)$respuesta);
    	      exit();
 	}
 
@@ -113,8 +120,9 @@ public function delete($argumento)
 {  $respuesta="valor inicial";
 	$this->usuario->set("idusuario", $argumento);	
 	$datos=$this->usuario->del();
-	$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
-	echo $respuesta;
+	if (ob_get_length()) ob_clean();
+	$respuesta = is_array($datos) ? (isset($datos[0]['OP']) ? $datos[0]['OP'] : '1') : $datos;
+	echo trim((string)$respuesta);
 	exit();	
 }
 
@@ -122,8 +130,9 @@ public function baja($argumento)
 {  $respuesta="valor inicial";
 	$this->usuario->set("idusuario", $argumento);	
 	$datos=$this->usuario->baja();
-	$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
-	echo $respuesta;
+	if (ob_get_length()) ob_clean();
+	$respuesta = is_array($datos) ? (isset($datos[0]['OP']) ? $datos[0]['OP'] : '1') : $datos;
+	echo trim((string)$respuesta);
 	exit();	
 }
 
@@ -131,8 +140,9 @@ public function reactivar($argumento)
 {  $respuesta="valor inicial";
 	$this->usuario->set("idusuario", $argumento);	
 	$datos=$this->usuario->reactivar();
-	$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
-	echo $respuesta;
+	if (ob_get_length()) ob_clean();
+	$respuesta = is_array($datos) ? (isset($datos[0]['OP']) ? $datos[0]['OP'] : '1') : $datos;
+	echo trim((string)$respuesta);
 	exit();	
 }
 

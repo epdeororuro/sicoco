@@ -51,8 +51,9 @@ public function add()
 			 $this->area->set("ubicacion", $_POST['txt_ubicacion']);
 								
 			 $datos=$this->area->add();	
-			 $respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
-	         echo $respuesta;
+			 $respuesta = is_array($datos) ? (empty($datos) ? '1' : (isset($datos[0]) && is_array($datos[0]) ? array_values($datos[0])[0] : array_values($datos)[0])) : (($datos === null || $datos === '' || $datos === true) ? '1' : $datos);
+	         if (ob_get_length()) ob_clean();
+	         echo trim((string)$respuesta);
 	         exit();
 			}
 		}
@@ -60,7 +61,8 @@ public function add()
 			{
 				$respuesta="Error al enviar los Datos";
 			}
-   	      echo $respuesta;
+   	      if (ob_get_length()) ob_clean();
+   	      echo trim((string)$respuesta);
    	      exit();
 	}
 
@@ -81,8 +83,9 @@ public function edit()
 			 $this->area->set("ubicacion", $_POST['txt_ubicacion']);
 				
 	         $datos=$this->area->edit();	
-			 $respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
-	          echo $respuesta;
+			 $respuesta = is_array($datos) ? (empty($datos) ? '1' : (isset($datos[0]) && is_array($datos[0]) ? array_values($datos[0])[0] : array_values($datos)[0])) : (($datos === null || $datos === '' || $datos === true) ? '1' : $datos);
+	          if (ob_get_length()) ob_clean();
+	          echo trim((string)$respuesta);
 	          exit();
 			}
 		}
@@ -90,7 +93,8 @@ public function edit()
 			{
 				$respuesta="Error al enviar los Datos";
 			}
-   	      echo $respuesta;
+   	      if (ob_get_length()) ob_clean();
+   	      echo trim((string)$respuesta);
    	      exit();
 	}
 
@@ -98,8 +102,9 @@ public function delete($argumento)
 {  $respuesta="valor inicial";
 	$this->area->set("idarea", $argumento);	
 	$datos=$this->area->del();
-	$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
-	echo $respuesta;
+	$respuesta = is_array($datos) ? (empty($datos) ? '1' : (isset($datos[0]) && is_array($datos[0]) ? array_values($datos[0])[0] : array_values($datos)[0])) : (($datos === null || $datos === '' || $datos === true) ? '1' : $datos);
+	if (ob_get_length()) ob_clean();
+	echo trim((string)$respuesta);
 	exit();
 }
 	
