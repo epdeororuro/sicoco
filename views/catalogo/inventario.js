@@ -60,10 +60,10 @@ function RetirarCategoria(id, operacion)
               ListarCategoriaEnsamble();
             break;
           }
-          Swal.fire(msj,'Presione Ok para continuar', 'success');   
+          Swal.fire(msj,'', 'success');   
         }
         else
-           Swal.fire(e,'Presione Ok para continuar', 'error');
+           Swal.fire(e,'', 'error');
       }
   });
 } // fin eliminar categoria

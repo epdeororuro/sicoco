@@ -270,7 +270,7 @@ $(document).ready(function(){
           html: '<span class="text-danger font-weight-bold">¡ADVERTENCIA IRREVERSIBLE!</span><br><br>Esta acción finalizará <b>TODOS</b> los contratos vigentes (Pasarán a estado histórico) y <b>LIBERARÁ</b> todas las tiendas y espacios en el Catálogo para la nueva gestión.',
           icon: 'warning',
           showCancelButton: true,
-          confirmButtonColor: '#d33',
+          confirmButtonColor: '#28a745',
           cancelButtonColor: '#6c757d',
           confirmButtonText: '<i class="fas fa-calendar-times"></i> Sí, Ejecutar Cierre Anual',
           cancelButtonText: 'Cancelar'
@@ -353,7 +353,7 @@ $(document).ready(function(){
           icon: 'question',
           showCancelButton: true,
           confirmButtonColor: '#28a745',
-          cancelButtonColor: '#d33',
+          cancelButtonColor: '#6c757d',
           confirmButtonText: 'Sí, Pagar Todo!'
       }).then((result) => {
           if (result.isConfirmed) {
@@ -371,7 +371,7 @@ $(document).ready(function(){
                               text: 'Los pagos se agruparon y guardaron exitosamente.',
                               icon: 'success',
                               showCancelButton: true,
-                              confirmButtonColor: '#3085d6',
+                              confirmButtonColor: '#28a745',
                               cancelButtonColor: '#6c757d',
                               confirmButtonText: '<i class="fas fa-print"></i> Imprimir Recibo',
                               cancelButtonText: 'Cerrar'
@@ -713,8 +713,8 @@ $(document).on('click', '.EliminarContrato', function(e){
     text: registro+" / Esta operación NO podrá Revertirse",
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
+    confirmButtonColor: '#28a745',
+    cancelButtonColor: '#6c757d',
     confirmButtonText: 'Eliminar el Registro!'
   }).then((result) => {
     if (result.isConfirmed) {
@@ -732,8 +732,8 @@ $(document).on('click', '.ConfirmarContrato', function(e){
     text: registro+" / Esta operación NO podrá Revertirse",
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
+    confirmButtonColor: '#28a745',
+    cancelButtonColor: '#6c757d',
     confirmButtonText: 'Confirmar Contrato!'
   }).then((result) => {
     if (result.isConfirmed) {

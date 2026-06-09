@@ -117,7 +117,7 @@
           }
         ?>
         <span class="d-block text-white" style="font-size: 0.85rem;"><i class="fas fa-user-tie"></i> <?php echo strtoupper($nombreMostrar); ?></span>
-        <small class="text-warning font-weight-bold" style="font-size: 0.75rem;"><i class="fas fa-stopwatch"></i> Expira en: <span id="session_timer">30:00</span></small>
+        <small class="text-warning font-weight-bold" style="font-size: 0.75rem;"><span id="session_timer"></span></small>
       </div>
 
      
@@ -316,8 +316,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
           <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Actualizar</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
         </div>
       </form>
     </div>

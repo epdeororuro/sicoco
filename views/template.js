@@ -73,7 +73,7 @@ var sessionTicker = setInterval(function() {
     clearInterval(sessionTicker);
     Swal.fire({
         title: '¡Sesión Expirada!', text: 'Tu sesión ha finalizado por inactividad de ' + tiempoLimiteMinutos + ' minutos.', icon: 'warning',
-        allowOutsideClick: false, allowEscapeKey: false, confirmButtonColor: '#d33', confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Volver a Iniciar Sesión'
+        allowOutsideClick: false, allowEscapeKey: false, confirmButtonColor: '#28a745', confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Volver a Iniciar Sesión'
     }).then(() => { window.location.href = base_url + 'login/logout'; });
   }
 }, 1000);

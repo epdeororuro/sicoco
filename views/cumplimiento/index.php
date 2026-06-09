@@ -99,7 +99,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="btn_GuardarCumplimiento"><i class="fas fa-print"></i> Retener e Imprimir Recibo</button>
+                <button type="button" class="btn btn-success" id="btn_GuardarCumplimiento"><i class="fas fa-print"></i> Guardar e imprimir recibo</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
             </div>
         </div>

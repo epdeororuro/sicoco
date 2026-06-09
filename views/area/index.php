@@ -111,7 +111,7 @@
                   Registrar
                 </button>
                 
-                <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal">Salir</button>
+                <button type="button" class="btn btn-secondary btn-lg" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
               </div>
 
               <div class="modal-footer" id="OpcionEditar">
@@ -121,7 +121,7 @@
                   Guardar Cambios                   
                 </button>
                 
-                <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal">Salir</button>
+                <button type="button" class="btn btn-secondary btn-lg" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
               </div>
 
 

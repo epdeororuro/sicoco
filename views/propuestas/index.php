@@ -91,8 +91,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="btn_GuardarPropuesta">Procesar Cobro e Imprimir</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btn_GuardarPropuesta"><i class="fas fa-save"></i> Guardar e Imprimir</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
             </div>
         </div>
     </div>

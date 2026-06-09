@@ -1,20 +1,17 @@
 <?php
-use Models\Propuesta as Propuesta;
-use Models\Contrato as Contrato; // Reutilizamos su modelo para traer las áreas y el catálogo
+use Models\Propuestas as Propuestas;
 use Config\sessionController as SessionController;
 
 class propuestasController
 {
     private $propuesta;
-    private $contrato;
     private $usuario_session;
 
     public function __construct()
     {
         $this->usuario_session = new SessionController();
         if ($this->usuario_session->verifica()) {
-            $this->propuesta = new Propuesta();
-            $this->contrato = new Contrato();
+            $this->propuesta = new Propuestas();
         } else {
             header('Location:'. URL . "login");
             exit();
@@ -28,22 +25,40 @@ class propuestasController
         try {
             $datos = $this->propuesta->lst();
             if (ob_get_length()) ob_clean();
+            header('Content-Type: application/json');
             echo json_encode(['status' => 'success', 'data' => $datos]);
         } catch (\Exception $e) {
             if (ob_get_length()) ob_clean();
+            header('Content-Type: application/json');
             echo json_encode(['status' => 'error', 'data' => [], 'message' => $e->getMessage()]);
         }
         exit();
     }
 
-    // Reutilizamos métodos del modelo contrato para llenar los selects del Modal
     public function listar_areas() {
-        echo json_encode(['status' => 'success', 'data' => $this->contrato->lst_areas()]);
+        try {
+            $datos = $this->propuesta->lst_areas();
+            if (ob_get_length()) ob_clean();
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'success', 'data' => $datos]);
+        } catch (\Exception $e) {
+            if (ob_get_length()) ob_clean();
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'data' => [], 'message' => $e->getMessage()]);
+        }
         exit();
     }
     public function listar_catalogo_por_area($idarea = null) {
-        $this->contrato->set("idarea", $idarea);
-        echo json_encode(['status' => 'success', 'data' => $this->contrato->lst_catalogo_por_area()]);
+        try {
+            $datos = $this->propuesta->lst_catalogo_por_area($idarea);
+            if (ob_get_length()) ob_clean();
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'success', 'data' => $datos]);
+        } catch (\Exception $e) {
+            if (ob_get_length()) ob_clean();
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'data' => [], 'message' => $e->getMessage()]);
+        }
         exit();
     }
 
@@ -59,6 +74,7 @@ class propuestasController
             
             $id_insertado = $this->propuesta->add();
             if (ob_get_length()) ob_clean(); // Limpiar buffers para asegurar JSON puro
+            header('Content-Type: application/json');
             if ($id_insertado) {
                 echo json_encode(['status' => 'success', 'idpropuesta' => $id_insertado, 'message' => 'Garantía cobrada con éxito']);
             } else {
@@ -78,9 +94,11 @@ class propuestasController
             
             if ($this->propuesta->edit()) {
                 if (ob_get_length()) ob_clean();
+                header('Content-Type: application/json');
                 echo json_encode(['status' => 'success', 'message' => 'Garantía modificada con éxito']);
             } else {
                 if (ob_get_length()) ob_clean();
+                header('Content-Type: application/json');
                 echo json_encode(['status' => 'error', 'message' => 'Ocurrió un error al modificar la garantía en la BD']);
             }
         }
@@ -91,6 +109,7 @@ class propuestasController
     {
         $this->propuesta->set("idpropuesta", $argumento);
         if (ob_get_length()) ob_clean(); // Limpiar buffers para asegurar JSON puro
+        header('Content-Type: application/json');
         if ($this->propuesta->devolver()) {
             echo json_encode(['status' => 'success']);
         } else {

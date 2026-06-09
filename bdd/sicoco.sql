@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 08-06-2026 a las 17:12:24
+-- Tiempo de generación: 09-06-2026 a las 21:28:01
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -524,8 +524,7 @@ INSERT INTO `areaubicacion` (`IDAREA`, `REFERENCIA`, `UBICACION`) VALUES
 (6, 'BODEGA', 'DISPERSO'),
 (7, 'SERVICIO BÁSICO', 'INFRAESTRUCTURA DEL EDIFICIO'),
 (8, 'CARRILES OESTE', 'EXTERIOR'),
-(9, 'CARRILES ESTE', 'EXTERIOR'),
-(11, 'STAND2', 'AFUERA');
+(9, 'CARRILES ESTE', 'EXTERIOR');
 
 -- --------------------------------------------------------
 
@@ -569,14 +568,13 @@ CREATE TABLE `catalogo` (
 --
 
 INSERT INTO `catalogo` (`IDCATALOGO`, `IDAREA`, `DESCRIPCION`, `ALQUILER`, `ESTADO`) VALUES
-(1, 6, '1', 200, 'DISPONIBLE'),
-(2, 6, '2', 200, 'DISPONIBLE'),
-(3, 6, '3', 200, 'DISPONIBLE'),
-(4, 6, '4', 200, 'DISPONIBLE'),
-(5, 1, '1', 600, 'DISPONIBLE'),
+(1, 6, 'BODEGA 2', 200, 'DISPONIBLE'),
+(3, 6, 'BODEGA 3', 200, 'DISPONIBLE'),
+(4, 6, 'BODEGA 4', 200, 'DISPONIBLE'),
 (6, 1, 'STAND 1', 600, 'DISPONIBLE'),
-(7, 1, '2', 700, 'DISPONIBLE'),
-(8, 1, 'STAND 3', 700, 'DISPONIBLE');
+(7, 1, 'STAND 4', 700, 'DISPONIBLE'),
+(8, 1, 'STAND 3', 700, 'DISPONIBLE'),
+(10, 6, 'BODEGA 1', 600, 'DISPONIBLE');
 
 -- --------------------------------------------------------
 
@@ -691,7 +689,16 @@ INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FEC
 (7, 7, '335323', '2026-06-03 13:09:54', '2026-06-03 13:14:54', 'USADO', '::1'),
 (8, 7, '265385', '2026-06-08 09:28:32', '2026-06-08 09:33:32', 'USADO', '::1'),
 (9, 7, '725737', '2026-06-08 09:28:32', '2026-06-08 09:33:32', 'PENDIENTE', '::1'),
-(10, 7, '880885', '2026-06-08 11:06:55', '2026-06-08 11:11:55', 'USADO', '::1');
+(10, 7, '880885', '2026-06-08 11:06:55', '2026-06-08 11:11:55', 'USADO', '::1'),
+(11, 7, '108329', '2026-06-08 13:17:58', '2026-06-08 13:22:58', 'USADO', '::1'),
+(12, 7, '618393', '2026-06-08 13:17:58', '2026-06-08 13:22:58', 'PENDIENTE', '::1'),
+(13, 7, '504474', '2026-06-09 09:13:13', '2026-06-09 09:18:13', 'USADO', '::1'),
+(14, 7, '993324', '2026-06-09 09:13:14', '2026-06-09 09:18:14', 'PENDIENTE', '::1'),
+(15, 7, '487003', '2026-06-09 09:55:36', '2026-06-09 10:00:36', 'USADO', '::1'),
+(16, 7, '136158', '2026-06-09 10:38:39', '2026-06-09 10:43:39', 'USADO', '::1'),
+(17, 7, '519563', '2026-06-09 11:51:18', '2026-06-09 11:56:18', 'USADO', '::1'),
+(18, 7, '856805', '2026-06-09 13:13:03', '2026-06-09 13:18:03', 'USADO', '::1'),
+(19, 7, '711596', '2026-06-09 14:50:13', '2026-06-09 14:55:13', 'USADO', '::1');
 
 -- --------------------------------------------------------
 
@@ -754,13 +761,6 @@ CREATE TABLE `propuestas` (
   `USUARIO` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `propuestas`
---
-
-INSERT INTO `propuestas` (`IDPROPUESTA`, `CI_POSTULANTE`, `NOMBRE_POSTULANTE`, `IDCATALOGO`, `MONTO`, `FECHA_COBRO`, `FECHA_DEVOLUCION`, `ESTADO`, `USUARIO`) VALUES
-(0, '7403044', 'REYNALDO JESUS FLORES JAILLITA', 1, 100.00, '2026-06-02 16:17:32', NULL, 'RETENIDA', 'wil.arroyo');
-
 -- --------------------------------------------------------
 
 --
@@ -806,12 +806,23 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`IDUSUARIO`, `NOMBRE`, `CEL`, `USR`, `PASS`, `FECHA_ALTA`, `FECHA_BAJA`, `ACTIVO`, `IDROL`) VALUES
-(0, 'MILTON TORREZ ', '', 'miltorrez', '$2y$10$9JF9KjGZEabxEkebAsTR5OWFOx7CUv8nT8HgUYAQ5WG0C5Xyw621m', '2026-06-08 10:15:07', NULL, 'SI', 4),
-(4, 'ERIKA ALEJANDRA JORGE SOTO', '', 'erika.jorge', '123', '2023-11-27 17:42:16', '2026-05-25 15:11:09', 'NO', 4),
+(1, 'MILTON TORREZ ', '', 'miltorrez', '$2y$10$9JF9KjGZEabxEkebAsTR5OWFOx7CUv8nT8HgUYAQ5WG0C5Xyw621m', '2026-06-08 10:15:07', '2026-06-08 12:29:09', 'NO', 4),
+(4, 'ERIKA ALEJANDRA JORGE SOTO', '', 'erika.jorge', '123', '2023-11-27 17:42:16', '2026-06-09 12:16:07', 'NO', 4),
 (6, 'WILFREDO ARROYO ALEJANDRO', '', 'wili.arroyo', '123', '2023-11-27 23:02:42', '2023-11-27 23:54:17', 'NO', 2),
 (7, 'WILFREDO ARROYO ALEJANDRO', '60408150', 'wil.arroyo', '$2y$10$faCDW1RQFp0YRARRP375HOynlk/EHh6ZW9KHQDQWiaHAjLiP/3fCC', '2023-11-28 20:55:46', '2026-05-18 08:38:23', 'SI', 1),
 (8, 'ALBERTO VARGAS CONDORI', '', 'alberto.vargas', '123', '2023-11-28 20:56:50', '2023-12-05 04:22:16', 'NO', 3),
-(9, 'ALEJANDRA SANDY LAURA', '', 'ale.sandy', '$2y$10$LLhIErX2M1N1yVfgUp/1K.qn9mYn4IRmOkHUqadsa1ms/bXBaarlm', '2024-03-23 17:02:03', '2026-05-18 13:57:19', 'NO', 4);
+(9, 'ALEJANDRA SANDY LAURA', '', 'ale.sandy', '$2y$10$LLhIErX2M1N1yVfgUp/1K.qn9mYn4IRmOkHUqadsa1ms/bXBaarlm', '2024-03-23 17:02:03', '2026-05-18 13:57:19', 'NO', 4),
+(10, 'ANA MARINA', '', 'Anamar', '$2y$10$Li/3Q411UC8x40b9YA/xB.ikdeD1O0eRSZWXq0eSO8hJXpdDaoat2', '2026-06-08 11:59:27', NULL, 'SI', 4),
+(11, 'JHUDIT PEREZ', '', 'JPEREZ', '$2y$10$wtSdoKD3lqHVX0bxjn.RQOiMOxK9SQoqj5KkL/ZKbX9u47nQgGlqq', '2026-06-08 12:28:30', '2026-06-08 12:29:07', 'NO', 4),
+(12, 'PEDOR', '', 'ASDSS', '$2y$10$zGUPHKOj6cpJtiVNvNN9fO2Rt3Q8z2aTHZZeZO.IazF15j3ziqTnW', '2026-06-08 12:28:52', '2026-06-08 12:29:00', 'NO', 1),
+(13, '123', '', '123', '$2y$10$xNRcJJBrAy0BuqZdkXU7S.fuw6IAhBsqb5M19PM.DmPJfBXuxpbSK', '2026-06-08 12:29:48', '2026-06-08 13:18:25', 'NO', 4),
+(14, '123123', '', '1232', '$2y$10$BRTrQtDfMFzXPB3p33LFHuVKQ1ehWLVyYZyWzqY1Weuwe3zp/g.Kq', '2026-06-08 13:19:18', '2026-06-08 13:47:46', 'NO', 1),
+(15, 'REAS1', '', '123as', '$2y$10$3mnuXhxVc782viwvqtbG7.4tmr4RYZNyZlXw3DWTXPyHstRW1klg6', '2026-06-08 13:54:51', '2026-06-08 14:50:09', 'NO', 4),
+(16, 'YGF', '', '13hgg', '$2y$10$qkhk0Cp05BwRJVLPyWe15eE6CDx5odg8//E/8NnJTHCENFSdeNZd2', '2026-06-08 14:23:30', NULL, 'SI', 4),
+(17, '41234', '', 'asdass1', '$2y$10$rdqBUqyIO5GBo5bch8CN8eskhFFHR/kYsjq.X/FD7XdRNjgj1/QEG', '2026-06-08 14:50:20', '2026-06-08 14:50:50', 'NO', 4),
+(18, '4123', '', '1312asd', '$2y$10$lZTLb1XGzYAy/aZOIUN.POZtf8mowMaKFaxluNGaIN7w/dXywLxva', '2026-06-08 15:23:08', '2026-06-08 15:23:55', 'NO', 4),
+(19, '12414', '', '312312', '$2y$10$4/a1mDTAv3IUorWiSH9RPul7anuaQpLK5j4Z6G98UdeJJgy/e6Vfm', '2026-06-08 15:36:51', '2026-06-08 15:37:04', 'NO', 4),
+(20, 'JOSE JOSE', '', '123asdad', '$2y$10$UmTJkQzU25loY/bzFdbDDe7ZzilPh7AHpHSCpwT.9coDLdS.pkpkO', '2026-06-09 10:55:38', NULL, 'SI', 4);
 
 -- --------------------------------------------------------
 
@@ -1056,7 +1067,7 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `areaubicacion`
 --
 ALTER TABLE `areaubicacion`
-  MODIFY `IDAREA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `IDAREA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `arriendos`
@@ -1068,7 +1079,7 @@ ALTER TABLE `arriendos`
 -- AUTO_INCREMENT de la tabla `catalogo`
 --
 ALTER TABLE `catalogo`
-  MODIFY `IDCATALOGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `IDCATALOGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `clientes`
@@ -1086,13 +1097,25 @@ ALTER TABLE `garantias_cumplimiento`
 -- AUTO_INCREMENT de la tabla `log_accesos`
 --
 ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`
 --
 ALTER TABLE `pagos`
   MODIFY `IDPAGO` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `propuestas`
+--
+ALTER TABLE `propuestas`
+  MODIFY `IDPROPUESTA` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `usuarios`
+--
+ALTER TABLE `usuarios`
+  MODIFY `IDUSUARIO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- Restricciones para tablas volcadas

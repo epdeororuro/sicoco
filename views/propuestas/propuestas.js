@@ -1,22 +1,48 @@
 var url_accion = base_url + 'propuestas/add';
 
 $(document).ready(function() {
-    $('#SelArea, #SelItemCatalogo').select2({ dropdownParent: $('#ModalPropuesta') });
-    LlenarArea();
     ListarPropuestas();
 
+    $('#SelArea, #SelItemCatalogo').select2({ dropdownParent: $('#ModalPropuesta') });
+
+    // EVENTO 1: Carga de Áreas cuando se ABRE el modal (Clon exacto de Cumplimiento)
+    $('#ModalPropuesta').on('show.bs.modal', function (e) {
+        // Solo limpiar y cargar si el modal fue abierto por el botón "Nuevo"
+        if (e.relatedTarget) {
+            $('#FormPropuesta')[0].reset();
+            if($('#txt_idpropuesta').length > 0) $('#txt_idpropuesta').val('');
+            url_accion = base_url + 'propuestas/add';
+            
+            $('#SelArea').empty().append('<option value="0">-- Seleccione un Área --</option>').trigger('change.select2');
+            $('#SelItemCatalogo').empty().append('<option value="0">-- Primero seleccione Área --</option>').prop('disabled', true).trigger('change.select2');
+            
+            $.ajax({
+                url: base_url + 'propuestas/listar_areas',
+                type: 'GET',
+                success: function(resp) {
+                    var datos = typeof resp === 'string' ? JSON.parse(resp).data : resp.data;
+                    $(datos).each(function(i, v) { 
+                        $('#SelArea').append('<option value="' + v.IDAREA + '">' + v.DISTRIBUCION + '</option>'); 
+                    });
+                    $('#SelArea').trigger('change.select2');
+                }
+            });
+        }
+    });
+
+    // EVENTO 2: Cuando cambia el Área, cargar el Catálogo
     $("#SelArea").on("change", function() {
         var idarea = $(this).val();
         var $selectCatalogo = $("#SelItemCatalogo");
-        $selectCatalogo.empty().append('<option value="0">-- Seleccione un Espacio / Servicio --</option>');
+        
         if (idarea && idarea != "0") {
-            $selectCatalogo.prop('disabled', false);
+            $selectCatalogo.empty().append('<option value="0">-- Cargando... --</option>').prop('disabled', false);
             $.ajax({
                 url: base_url + 'propuestas/listar_catalogo_por_area/' + idarea,
-                type: 'POST',
-                dataType: 'json',
-                success: function(e) {
-                    var datos = e.data ? e.data : e;
+                type: 'GET',
+                success: function(resp) {
+                    var datos = typeof resp === 'string' ? JSON.parse(resp).data : resp.data;
+                    $selectCatalogo.empty().append('<option value="0">-- Seleccione un Espacio / Servicio --</option>');
                     $(datos).each(function(i, v) {
                         $selectCatalogo.append('<option value="' + v.IDCATALOGO + '">' + v.BESPACIO + '</option>');
                     });
@@ -24,10 +50,12 @@ $(document).ready(function() {
                 }
             });
         } else {
+            $selectCatalogo.empty().append('<option value="0">-- Primero seleccione Área --</option>');
             $selectCatalogo.prop('disabled', true).trigger('change.select2');
         }
     });
 
+    // EVENTO 3: Guardar el Registro
     $('#btn_GuardarPropuesta').on('click', function(e) {
         e.preventDefault();
         if(!$('#FormPropuesta')[0].checkValidity()) {
@@ -51,10 +79,6 @@ $(document).ready(function() {
             success: function(resp) {
                 if(resp.status === 'success') {
                     $('#ModalPropuesta').modal('hide');
-                    $('#FormPropuesta')[0].reset();
-                    $('#txt_idpropuesta').val('');
-                    url_accion = base_url + 'propuestas/add';
-                    $('#SelArea').val('0').trigger('change.select2');
                     $('#TablaPropuestas').DataTable().ajax.reload();
                     
                     if (resp.idpropuesta) {
@@ -67,22 +91,11 @@ $(document).ready(function() {
                         Swal.fire('¡Éxito!', resp.message, 'success');
                     }
                 } else { Swal.fire('Error en el Registro', resp.message, 'error'); }
-            },
-            error: function(xhr) {
-                Swal.fire('Error de Comunicación', 'El servidor devolvió un formato incorrecto.', 'error');
-                console.error(xhr.responseText);
             }
         });
     });
 
-    $('#ModalPropuesta').on('hidden.bs.modal', function () {
-        $('#FormPropuesta')[0].reset();
-        if($('#txt_idpropuesta').length > 0) $('#txt_idpropuesta').val('');
-        url_accion = base_url + 'propuestas/add';
-        $('#SelArea').val('0').trigger('change.select2');
-        $('#SelItemCatalogo').empty().append('<option value="0">-- Seleccione un Espacio / Servicio --</option>').prop('disabled', true);
-    });
-
+    // EVENTO 4: Abrir modal en modo Edición
     $(document).on('click', '.EditarPropuesta', function(e) {
         e.preventDefault();
         var id = $(this).data('id');
@@ -102,27 +115,41 @@ $(document).ready(function() {
         
         url_accion = base_url + 'propuestas/edit';
         
-        $('#SelArea').val(idarea).trigger('change.select2');
-        
-        var $selectCatalogo = $("#SelItemCatalogo");
-        $selectCatalogo.empty().append('<option value="0">-- Cargando... --</option>').prop('disabled', false);
+        // Cargar Áreas y luego preseleccionar
         $.ajax({
-            url: base_url + 'propuestas/listar_catalogo_por_area/' + idarea,
-            type: 'POST',
-            dataType: 'json',
-            success: function(catResp) {
-                var datos = catResp.data ? catResp.data : catResp;
-                $selectCatalogo.empty().append('<option value="0">-- Seleccione un Espacio / Servicio --</option>');
-                $(datos).each(function(i, v) {
-                    $selectCatalogo.append('<option value="' + v.IDCATALOGO + '">' + v.BESPACIO + '</option>');
+            url: base_url + 'propuestas/listar_areas',
+            type: 'GET',
+            success: function(resp) {
+                var datos = typeof resp === 'string' ? JSON.parse(resp).data : resp.data;
+                $('#SelArea').empty().append('<option value="0">-- Seleccione un Área --</option>');
+                $(datos).each(function(i, v) { $('#SelArea').append('<option value="' + v.IDAREA + '">' + v.DISTRIBUCION + '</option>'); });
+                
+                // Una vez cargadas, asignamos el ID del área y NO disparamos "change" global para evitar colisión
+                $('#SelArea').val(idarea).trigger('change.select2');
+                
+                // Cargamos el catálogo manualmente
+                var $selectCatalogo = $("#SelItemCatalogo");
+                $selectCatalogo.empty().append('<option value="0">-- Cargando... --</option>').prop('disabled', false);
+                $.ajax({
+                    url: base_url + 'propuestas/listar_catalogo_por_area/' + idarea,
+                    type: 'GET',
+                    success: function(respCat) {
+                        var datosCat = typeof respCat === 'string' ? JSON.parse(respCat).data : respCat.data;
+                        $selectCatalogo.empty().append('<option value="0">-- Seleccione un Espacio / Servicio --</option>');
+                        $(datosCat).each(function(i, v) {
+                            $selectCatalogo.append('<option value="' + v.IDCATALOGO + '">' + v.BESPACIO + '</option>');
+                        });
+                        // Preseleccionar Catálogo
+                        $selectCatalogo.val(idcatalogo).trigger('change.select2');
+                    }
                 });
-                $selectCatalogo.val(idcatalogo).trigger('change.select2');
             }
         });
 
         $('#ModalPropuesta').modal('show');
     });
     
+    // EVENTO 5: Devolver Garantía
     $(document).on('click', '.DevolverGarantia', function(e) {
         e.preventDefault();
         var id = $(this).data('id');
@@ -138,28 +165,12 @@ $(document).ready(function() {
                             Swal.fire('¡Devuelta!', 'La garantía ha sido registrada como devuelta.', 'success');
                             $('#TablaPropuestas').DataTable().ajax.reload();
                         } else { Swal.fire('Error', resp.message, 'error'); }
-                    },
-                    error: function(xhr) {
-                        Swal.fire('Error de Comunicación', 'Problema al procesar la devolución.', 'error');
-                        console.error(xhr.responseText);
                     }
                 });
             }
         });
     });
 });
-
-function LlenarArea() {
-    $.ajax({
-        url: base_url + 'propuestas/listar_areas', type: 'POST', dataType: 'json',
-        success: function(e) {
-            var datos = e.data ? e.data : e;
-            $("#SelArea").empty().append('<option value="0">-- Seleccione un Área --</option>');
-            $(datos).each(function(i, v) { $("#SelArea").append('<option value="' + v.IDAREA + '">' + v.DISTRIBUCION + '</option>'); });
-            $("#SelArea").trigger('change.select2');
-        }
-    });
-}
 
 function ListarPropuestas() {
     $("#TablaPropuestas").DataTable({ "responsive": true, "destroy": true, "order": [[0, "desc"]], "autoWidth": false,

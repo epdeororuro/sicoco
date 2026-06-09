@@ -1,6 +1,6 @@
 // *********funciones Catalogo********
 function Insert_Catalogo(){
-  AccionAjax(base_url+'catalogo/add', $("#FormCatalogo").serialize(), ListarCatalogo, 'Registro Insertado Con Éxito');
+  AccionAjax(base_url+'catalogo/add', $("#FormCatalogo").serialize(), ListarCatalogo, 'Espacio registrado con éxito');
   $('#ModalCatalogo').modal('hide');
 } // final funcion Insert_CATALOGO
 
@@ -12,13 +12,13 @@ document.getElementsByName("txt_alquiler")[0].value = "0";
 }
 
 function Editar_Catalogo(){
-  AccionAjax(base_url+'catalogo/edit', $("#FormCatalogo").serialize(), ListarCatalogo, 'Registro Modificado Con Éxito');
+  AccionAjax(base_url+'catalogo/edit', $("#FormCatalogo").serialize(), ListarCatalogo, 'Espacio modificado con éxito');
   $('#ModalCatalogo').modal('hide');
 } // final funcion EDITAR catalogo
 
 function EliminarCatalogo(id)
 {
-  AccionAjax(base_url+'catalogo/delete/'+id, null, ListarCatalogo, 'Registro Eliminado con Éxito');
+  AccionAjax(base_url+'catalogo/delete/'+id, null, ListarCatalogo, 'Espacio eliminado con éxito');
 } // fin eliminar catalogo
 
 function LlenarAreas()
@@ -79,7 +79,9 @@ $(document).ready(function(){
   // Cargar datos iniciales
   ListarCatalogo();    
   LlenarAreas();
-  $("#SelBuscarArea").select2();
+  $("#SelBuscarArea").select2({
+    dropdownParent: $('#ModalCatalogo')
+  });
 
   // Evento: Botón Registrar
   $("#btn_InsertCatalogo").on('click', function(e){
@@ -136,8 +138,8 @@ $(document).ready(function(){
       text: registro+" / Esta operación NO podrá Revertirse",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#6c757d',
       confirmButtonText: 'Sí, Eliminar!'
     }).then((result) => {
       if (result.isConfirmed) { EliminarCatalogo($(this).parents("tr").find(".id-row").text()); }

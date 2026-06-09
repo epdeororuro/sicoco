@@ -1,7 +1,7 @@
 //***** funciones de area *****
 
 function Insert_Area() {
-  AccionAjax(base_url+'area/add', $("#FormArea").serialize(), ListarArea, 'Registro Insertado Con Éxito');
+  AccionAjax(base_url+'area/add', $("#FormArea").serialize(), ListarArea, 'Área registrado Con éxito');
   $('#ModalArea').modal('hide');
 }
 
@@ -11,17 +11,17 @@ function LimpiarCamposArea() {
 }
 
 function Editar_Area() {
-  AccionAjax(base_url+'area/edit', $("#FormArea").serialize(), ListarArea, 'Registro Modificado Con Éxito');
+  AccionAjax(base_url+'area/edit', $("#FormArea").serialize(), ListarArea, 'Área modificado con éxito');
   $('#ModalArea').modal('hide');
 }
 
 function EliminarArea(id) {
-  AccionAjax(base_url+'area/delete/'+id, null, ListarArea, 'Registro Eliminado con Éxito');
+  AccionAjax(base_url+'area/delete/'+id, null, ListarArea, 'Área eliminado con éxito');
 }
 
 function ListarArea() {
-  var boton_editar="<button type='button' class='EditarArea btn btn-warning btn-sm' data-toggle='modal' data-target='#ModalArea' title='Editar'><i class='fas fa-edit'></i></button>";
-  var boton_eliminar="<button type='button' class='EliminarArea btn btn-danger btn-sm' title='Eliminar'><i class='fas fa-trash'></i></button>";
+  var boton_editar="<button type='button' class='EditarArea btn btn-warning btn-sm' data-toggle='modal' data-target='#ModalArea' title='Editar área'><i class='fas fa-edit'></i></button>";
+  var boton_eliminar="<button type='button' class='EliminarArea btn btn-danger btn-sm' title='Eliminar área'><i class='fas fa-trash'></i></button>";
   
   $("#TablaArea").DataTable({     
     "responsive": true,
@@ -101,9 +101,10 @@ $(document).ready(function(){
       text: registro+" / Esta operación NO podrá Revertirse",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sí, Eliminar!'
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: '<i class="fas fa-trash"></i> Sí, Eliminar',
+      cancelButtonText: '<i class="fas fa-times"></i> Cancelar'
     }).then((result) => {
       if (result.isConfirmed) { EliminarArea($(this).parents("tr").find(".id-row").text()); }
     });

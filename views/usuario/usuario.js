@@ -19,27 +19,27 @@ function Editar_Usuario(){
 
 function ReactivarUsuario(id)
 {
-  AccionAjax(base_url+'usuario/reactivar/'+id, null, ListarUsuario, 'El Usuario fue reactivado con éxito');
+  AccionAjax(base_url+'usuario/reactivar/'+id, null, ListarUsuario, 'Usuario reactivado con éxito');
 } // fin reactivar Usuario
 
 function BajaUsuario(id)
 {
-  AccionAjax(base_url+'usuario/baja/'+id, null, ListarUsuario, 'El Usuario fue inactivado con éxito');
+  AccionAjax(base_url+'usuario/baja/'+id, null, ListarUsuario, 'Usuario inactivado con éxito');
 } // fin baja  Usuario
 
 
 function EliminarUsuario(id)
 {
-  AccionAjax(base_url+'usuario/delete/'+id, null, ListarUsuario, 'Registro Eliminado con Éxito');
+  AccionAjax(base_url+'usuario/delete/'+id, null, ListarUsuario, 'Registro eliminado con éxito');
 } // fin eliminar Usuario
 
 function ListarUsuario(){
   var user_rol = $("#user_rol_sesion").val();
   var id_usuario_sesion = $("#id_usuario_sesion").val();
 
-  var boton_editar="<button type='button' class='EditarUsuario btn btn-warning btn-sm' data-toggle='modal' data-target='#ModalUsuario' ><i class='fas fa-edit'></i></button>";
-  var boton_baja="<button type='button' class='BajaUsuario btn btn-danger btn-sm' title='Inactivar'><i class='fas fa-trash'></i></button>";
-  var boton_reactivar="<button type='button' class='ReactivarUsuario btn btn-success btn-sm' title='Reactivar'><i class='fas fa-check'></i></button>";
+  var boton_editar="<button type='button' class='EditarUsuario btn btn-warning btn-sm mx-1' data-toggle='modal' data-target='#ModalUsuario' title='Editar usuario'><i class='fas fa-edit'></i></button>";
+  var boton_baja="<button type='button' class='BajaUsuario btn btn-danger btn-sm mx-1' title='Inactivar usuario'><i class='fas fa-user-slash'></i></button>";
+  var boton_reactivar="<button type='button' class='ReactivarUsuario btn btn-success btn-sm mx-1' title='Reactivar usuario'><i class='fas fa-user-check'></i></button>";
   $("#TablaUsuario").DataTable({     
  
    "responsive":true,
@@ -71,16 +71,13 @@ function ListarUsuario(){
       {"data": "ACTIVO",
          "render": function ( data, type, row, meta ) {
           if (data=='SI') {
-            var acciones = boton_editar;
+            var acciones = "<div class='text-center text-nowrap'>" + boton_editar;
             if (row.IDUSUARIO != id_usuario_sesion) {
-              acciones += " " + boton_baja;
+              acciones += boton_baja;
             }
-            return acciones;
+            return acciones + "</div>";
           } else {
-            if(user_rol === 'AD' || user_rol === 'ADM') {
-                return boton_reactivar;
-            }
-            return "<span class='badge badge-danger'>Inactivo</span>";
+            return "<div class='text-center text-nowrap'><span class='badge badge-danger mr-2'>Inactivo</span>" + boton_reactivar + "</div>";
           }
           }
       }
@@ -157,8 +154,9 @@ $(document).ready(function(){
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#28a745',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Reactivar Usuario!'
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: '<i class="fas fa-check"></i> Sí, Reactivar',
+      cancelButtonText: '<i class="fas fa-times"></i> Cancelar'
     }).then((result) => {
       if (result.isConfirmed) { ReactivarUsuario($(this).parents("tr").find(".id-row").text()); }
     });
@@ -173,9 +171,10 @@ $(document).ready(function(){
       text: registro+" / El usuario perderá acceso al sistema temporalmente",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#f39c12',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, Inactivar!'
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: '<i class="fas fa-user-slash"></i> Sí, Inactivar',
+      cancelButtonText: '<i class="fas fa-times"></i> Cancelar'
     }).then((result) => {
       if (result.isConfirmed) { BajaUsuario($(this).parents("tr").find(".id-row").text()); }
     });
