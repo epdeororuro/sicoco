@@ -1,7 +1,7 @@
 //***** funciones de usuario
 
 function Insert_Usuario(){
-  AccionAjax(base_url+'usuario/add', $("#FormUsuario").serialize(), ListarUsuario, 'Registro Insertado Con Éxito');
+  AccionAjax(base_url+'usuario/add', $("#FormUsuario").serialize(), ListarUsuario, 'Usuario registrado con éxito');
 } // final funcion Insert_Usuario
 
 function LimpiarCamposUsuario()
@@ -14,17 +14,17 @@ function LimpiarCamposUsuario()
 } // fin LimpiarCamposUusario()
 
 function Editar_Usuario(){
-  AccionAjax(base_url+'usuario/edit', $("#FormUsuario").serialize(), ListarUsuario, 'Registro Modificado Con Éxito');
+  AccionAjax(base_url+'usuario/edit', $("#FormUsuario").serialize(), ListarUsuario, 'Usuario modificado con éxito');
 } // final funcion Editar_Usuario
 
 function ReactivarUsuario(id)
 {
-  AccionAjax(base_url+'usuario/reactivar/'+id, null, ListarUsuario, 'El Usuario fue Reactivado con Éxito');
+  AccionAjax(base_url+'usuario/reactivar/'+id, null, ListarUsuario, 'El Usuario fue reactivado con éxito');
 } // fin reactivar Usuario
 
 function BajaUsuario(id)
 {
-  AccionAjax(base_url+'usuario/baja/'+id, null, ListarUsuario, 'El Usuario fue Inactivado con Éxito');
+  AccionAjax(base_url+'usuario/baja/'+id, null, ListarUsuario, 'El Usuario fue inactivado con éxito');
 } // fin baja  Usuario
 
 
