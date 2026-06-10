@@ -52,8 +52,9 @@ class cumplimientoController {
             $this->cumplimiento->monto = $this->cumplimiento->obtener_precio_catalogo($_POST['SelItemCatalogo']);
             $this->cumplimiento->usuario = $cadena['nombre'];
             
-            if($this->cumplimiento->add()) {
-                echo json_encode(['status' => 'success', 'message' => 'Garantía de Cumplimiento Registrada con Éxito']);
+            $id_insertado = $this->cumplimiento->add();
+            if($id_insertado) {
+                echo json_encode(['status' => 'success', 'idgarantia' => $id_insertado, 'message' => 'Garantía de Cumplimiento Registrada con Éxito']);
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Error al registrar']);
             }
@@ -61,10 +62,34 @@ class cumplimientoController {
         exit();
     }
 
-    public function comprobante_ingreso($id) {
-        if ($id === 'ultimo') {
-            $id = $this->cumplimiento->obtener_ultimo_id();
+    public function edit() {
+        if($_POST){
+            if (empty($_POST['txt_idgarantia']) || empty($_POST['txt_cite']) || empty($_POST['txt_ci']) || empty($_POST['txt_nombre']) || empty($_POST['SelItemCatalogo']) || $_POST['SelItemCatalogo'] == '0') {
+                echo json_encode(['status' => 'error', 'message' => 'Complete todos los campos obligatorios.']);
+                exit();
+            }
+            
+            $this->cumplimiento->idgarantia = $_POST['txt_idgarantia'];
+            $this->cumplimiento->cite = strtoupper($_POST['txt_cite']);
+            $this->cumplimiento->ci = $_POST['txt_ci'];
+            $this->cumplimiento->nombre = strtoupper($_POST['txt_nombre']);
+            $this->cumplimiento->idcatalogo = $_POST['SelItemCatalogo'];
+            $this->cumplimiento->monto = $this->cumplimiento->obtener_precio_catalogo($_POST['SelItemCatalogo']);
+            
+            if($this->cumplimiento->edit()) {
+                echo json_encode(['status' => 'success', 'message' => 'Garantía Modificada con Éxito']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Error al modificar el registro']);
+            }
         }
+        exit();
+    }
+
+    public function comprobante_ingreso() {
+        if (!isset($_POST['idgarantia'])) {
+            die("Error: ID de recibo no especificado.");
+        }
+        $id = $_POST['idgarantia'];
 
         $this->cumplimiento->idgarantia = $id;
         $datos = $this->cumplimiento->obtener_datos_recibo();

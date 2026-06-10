@@ -15,7 +15,7 @@ class Cumplimiento {
     }
 
     public function lst(){
-        $sql = "SELECT g.*, c.DESCRIPCION as ITEM, a.REFERENCIA, a.UBICACION, 
+        $sql = "SELECT g.*, c.IDAREA, c.DESCRIPCION as ITEM, a.REFERENCIA, a.UBICACION, 
                 IFNULL(arr.CONTRATO, 'SIN CONTRATO') AS NRO_CONTRATO
                 FROM garantias_cumplimiento g 
                 INNER JOIN catalogo c ON g.IDCATALOGO = c.IDCATALOGO 
@@ -26,9 +26,18 @@ class Cumplimiento {
     }
     
     public function add(){
-        $sql = "INSERT INTO garantias_cumplimiento (CITE_ADJUDICACION, CI_POSTULANTE, NOMBRE_POSTULANTE, IDCATALOGO, MONTO, USUARIO) VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO garantias_cumplimiento (CITE_ADJUDICACION, CI_POSTULANTE, NOMBRE_POSTULANTE, IDCATALOGO, MONTO, USUARIO) VALUES (UPPER(?), ?, UPPER(?), ?, ?, ?)";
         $stmt = $this->con->conexion->prepare($sql);
-        return $stmt->execute([$this->cite, $this->ci, $this->nombre, $this->idcatalogo, $this->monto, $this->usuario]);
+        if ($stmt->execute([$this->cite, $this->ci, $this->nombre, $this->idcatalogo, $this->monto, $this->usuario])) {
+            return $this->con->conexion->lastInsertId();
+        }
+        return false;
+    }
+
+    public function edit(){
+        $sql = "UPDATE garantias_cumplimiento SET CITE_ADJUDICACION = UPPER(?), CI_POSTULANTE = ?, NOMBRE_POSTULANTE = UPPER(?), IDCATALOGO = ?, MONTO = ? WHERE IDGARANTIA = ?";
+        $stmt = $this->con->conexion->prepare($sql);
+        return $stmt->execute([$this->cite, $this->ci, $this->nombre, $this->idcatalogo, $this->monto, $this->idgarantia]);
     }
 
     public function lst_areas(){
