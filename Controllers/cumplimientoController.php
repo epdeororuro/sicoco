@@ -82,7 +82,21 @@ class cumplimientoController {
         $this->dibujar_recibo($pdf, $datos, 145, 'COPIA - INTERESADO');
 
         if (ob_get_length()) ob_clean();
-        $pdf->Output('I', 'Comprobante_Ingreso_Cumplimiento_'.$datos['IDGARANTIA'].'.pdf');
+        
+        $pdf_b64 = base64_encode($pdf->Output('S'));
+        $url = URL;
+        echo "<!DOCTYPE html>
+<html lang='es'>
+<head>
+    <meta charset='UTF-8'>
+    <title>SICOCO</title>
+    <link rel='icon' href='{$url}img/logos/favicon.ico' type='image/x-icon'>
+    <style>body,html{margin:0;padding:0;height:100%;overflow:hidden;background-color:#525659;} iframe{width:100%;height:100%;border:none;}</style>
+</head>
+<body>
+    <iframe src='data:application/pdf;base64,{$pdf_b64}'></iframe>
+</body>
+</html>";
         exit();
     }
 

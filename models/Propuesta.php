@@ -1,6 +1,6 @@
 <?php namespace Models;
 
-class Propuestas {
+class Propuesta {
     private $con;
     public $idpropuesta;
     public $ci_postulante;
@@ -17,12 +17,13 @@ class Propuestas {
     }
 
     public function lst(){
-        $sql = "SELECT p.*, a.IDAREA, CONCAT(a.REFERENCIA, ' - ', a.UBICACION, ' / ', c.DESCRIPCION) AS ESPACIO 
+        $sql = "SELECT p.*, c.IDAREA, CONCAT(IFNULL(a.REFERENCIA, 'S/D'), ' - ', IFNULL(a.UBICACION, 'S/D'), ' / ', IFNULL(c.DESCRIPCION, 'ÍTEM NO ENCONTRADO')) AS ESPACIO 
                 FROM propuestas p 
-                INNER JOIN catalogo c ON p.IDCATALOGO = c.IDCATALOGO 
-                INNER JOIN areaubicacion a ON c.IDAREA = a.IDAREA 
+                LEFT JOIN catalogo c ON p.IDCATALOGO = c.IDCATALOGO 
+                LEFT JOIN areaubicacion a ON c.IDAREA = a.IDAREA 
                 ORDER BY p.IDPROPUESTA DESC";
-        return $this->con->conexion->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $stmt = $this->con->conexion->query($sql);
+        return $stmt ? $stmt->fetchAll(\PDO::FETCH_ASSOC) : [];
     }
     
     public function add(){
@@ -53,7 +54,8 @@ class Propuestas {
 
     public function lst_areas(){
         $sql = "SELECT IDAREA, DISTRIBUCION FROM v_areas ORDER BY DISTRIBUCION";
-        return $this->con->conexion->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $stmt = $this->con->conexion->query($sql);
+        return $stmt ? $stmt->fetchAll(\PDO::FETCH_ASSOC) : [];
     }
 
     public function lst_catalogo_por_area($idarea){
@@ -64,20 +66,14 @@ class Propuestas {
     }
     
     public function obtener_recibo(){
-        $sql = "SELECT p.*, CONCAT(a.REFERENCIA, ' - ', a.UBICACION, ' / ', c.DESCRIPCION) AS ESPACIO 
+        // Código para obtener datos del recibo, idéntico al que ya tenías.
+        $sql = "SELECT p.*, CONCAT(IFNULL(a.REFERENCIA, 'S/D'), ' - ', IFNULL(a.UBICACION, 'S/D'), ' / ', IFNULL(c.DESCRIPCION, 'ÍTEM NO ENCONTRADO')) AS ESPACIO 
                 FROM propuestas p 
-                INNER JOIN catalogo c ON p.IDCATALOGO = c.IDCATALOGO 
-                INNER JOIN areaubicacion a ON c.IDAREA = a.IDAREA 
+                LEFT JOIN catalogo c ON p.IDCATALOGO = c.IDCATALOGO 
+                LEFT JOIN areaubicacion a ON c.IDAREA = a.IDAREA 
                 WHERE p.IDPROPUESTA = ?";
         $stmt = $this->con->conexion->prepare($sql);
         $stmt->execute([$this->idpropuesta]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
-
-    public function obtener_ultimo_id() {
-        $sql = "SELECT MAX(IDPROPUESTA) as ultimo FROM propuestas";
-        $resultado = $this->con->conexion->query($sql)->fetch(\PDO::FETCH_ASSOC);
-        return $resultado['ultimo'];
-    }
 }
-?>

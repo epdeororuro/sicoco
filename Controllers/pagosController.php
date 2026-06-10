@@ -126,7 +126,21 @@ public function add()
 	    $this->dibujar_recibo($pdf, $datos, 145, 'COPIA - ARCHIVO');
 
 	    if (ob_get_length()) ob_clean();
-	    $pdf->Output('I', 'Recibo_Pago_Nro_'.$idpago.'.pdf');
+	    
+	    $pdf_b64 = base64_encode($pdf->Output('S'));
+	    $url = URL;
+	    echo "<!DOCTYPE html>
+			<html lang='es'>
+			<head>
+				<meta charset='UTF-8'>
+				<title>SICOCO</title>
+				<link rel='icon' href='{$url}img/logos/favicon.ico' type='image/x-icon'>
+				<style>body,html{margin:0;padding:0;height:100%;overflow:hidden;background-color:#525659;} iframe{width:100%;height:100%;border:none;}</style>
+			</head>
+			<body>
+				<iframe src='data:application/pdf;base64,{$pdf_b64}'></iframe>
+			</body>
+			</html>";
 	    exit();
 	}
 
@@ -263,7 +277,21 @@ public function add()
 	        $pdf->SetFont('Arial', 'B', 12);
 	        $pdf->Cell(0, 20, utf8_decode('No se registraron cobros en el periodo seleccionado.'), 0, 1, 'C');
 	        if (ob_get_length()) ob_clean();
-	        $pdf->Output('I', 'Reporte_Ingresos_'.$fecha_inicio.'_al_'.$fecha_fin.'.pdf');
+	        
+	        $pdf_b64 = base64_encode($pdf->Output('S'));
+	        $url = URL;
+	        echo "<!DOCTYPE html>
+<html lang='es'>
+<head>
+    <meta charset='UTF-8'>
+    <title>SICOCO</title>
+    <link rel='icon' href='{$url}img/logos/favicon.ico' type='image/x-icon'>
+    <style>body,html{margin:0;padding:0;height:100%;overflow:hidden;background-color:#525659;} iframe{width:100%;height:100%;border:none;}</style>
+</head>
+<body>
+    <iframe src='data:application/pdf;base64,{$pdf_b64}'></iframe>
+</body>
+</html>";
 	        exit();
 	    }
 
@@ -331,7 +359,21 @@ public function add()
 	    $pdf->Cell(95, 4, utf8_decode('Aprobado por (Gerencia)'), 0, 1, 'C');
 
 	    if (ob_get_length()) ob_clean();
-	    $pdf->Output('I', 'Reporte_Ingresos_'.$fecha_inicio.'_al_'.$fecha_fin.'.pdf');
+	    
+	    $pdf_b64 = base64_encode($pdf->Output('S'));
+	    $url = URL;
+	    echo "<!DOCTYPE html>
+<html lang='es'>
+<head>
+    <meta charset='UTF-8'>
+    <title>SICOCO</title>
+    <link rel='icon' href='{$url}img/logos/favicon.ico' type='image/x-icon'>
+    <style>body,html{margin:0;padding:0;height:100%;overflow:hidden;background-color:#525659;} iframe{width:100%;height:100%;border:none;}</style>
+</head>
+<body>
+    <iframe src='data:application/pdf;base64,{$pdf_b64}'></iframe>
+</body>
+</html>";
 	    exit();
 	}
 
@@ -451,7 +493,21 @@ public function add()
 	    $this->dibujar_recibo_multiple($pdf, $datos_base, 145, 'COPIA - ARCHIVO');
 
 	    if (ob_get_length()) ob_clean();
-	    $pdf->Output('I', 'Recibo_Pagos_'.$datos_base['RECIBO_NRO'].'.pdf');
+	    
+	    $pdf_b64 = base64_encode($pdf->Output('S'));
+	    $url = URL;
+	    echo "<!DOCTYPE html>
+<html lang='es'>
+<head>
+    <meta charset='UTF-8'>
+    <title>SICOCO</title>
+    <link rel='icon' href='{$url}img/logos/favicon.ico' type='image/x-icon'>
+    <style>body,html{margin:0;padding:0;height:100%;overflow:hidden;background-color:#525659;} iframe{width:100%;height:100%;border:none;}</style>
+</head>
+<body>
+    <iframe src='data:application/pdf;base64,{$pdf_b64}'></iframe>
+</body>
+</html>";
 	    exit();
 	}
 

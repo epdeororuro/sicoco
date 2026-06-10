@@ -18,7 +18,7 @@
     <div class="container-fluid">
         <div class="card card-outline card-guindo">
             <div class="card-body">
-                <table id="TablaPropuestas" class="table table-bordered table-striped table-hover table-sm">
+                <table id="TablaPropuesta" class="table table-bordered table-striped table-hover table-sm">
                  <thead class="bg-guindo">
                   <tr>
                     <th>Nro</th>
@@ -57,6 +57,7 @@
             </div>
             <div class="modal-body">
                 <form id="FormPropuesta">
+                    <input type="hidden" name="txt_idpropuesta" id="txt_idpropuesta">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
@@ -97,4 +98,4 @@
         </div>
     </div>
 </div>
-<script src="<?php echo URL; ?>views/propuestas/propuestas.js"></script>
+<script src="<?php echo URL; ?>views/propuesta/propuesta.js"></script>

@@ -19,7 +19,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sicoco - Empresa Pública Departamental de Oruro</title>
+  <title>SICOCO - Empresa Pública Departamental de Oruro</title>
   <link rel="icon" href="img/logos/favicon.ico" type="image/x-icon">
   <!-- Google Font: Source Sans Pro -->
   
@@ -180,7 +180,7 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a class="nav-link" href="<?php echo URL; ?>propuestas">
+              <a class="nav-link" href="<?php echo URL; ?>propuesta">
                   <i class="fas fa-hand-holding-usd fa-lg"></i>
                   <p>Garantías Propuestas</p>
                 </a>
@@ -324,8 +324,6 @@
   </div>
 </div>
 
-<!-- jQuery -->
-<script src="<?php echo URL; ?>views/template/plugins/jquery/jquery-3.6.0.min.js"></script>
 <script src="<?php echo URL; ?>views/template/plugins/sweetalert2/sweetalert2.all.min.js"></script>
 <script> const base_url='<?php echo URL;?>';</script>
 <script src="<?php echo URL; ?>views/template/global/funciones.js"></script>

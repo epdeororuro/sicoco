@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 09-06-2026 a las 21:28:01
+-- Tiempo de generación: 10-06-2026 a las 16:42:42
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -698,7 +698,9 @@ INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FEC
 (16, 7, '136158', '2026-06-09 10:38:39', '2026-06-09 10:43:39', 'USADO', '::1'),
 (17, 7, '519563', '2026-06-09 11:51:18', '2026-06-09 11:56:18', 'USADO', '::1'),
 (18, 7, '856805', '2026-06-09 13:13:03', '2026-06-09 13:18:03', 'USADO', '::1'),
-(19, 7, '711596', '2026-06-09 14:50:13', '2026-06-09 14:55:13', 'USADO', '::1');
+(19, 7, '711596', '2026-06-09 14:50:13', '2026-06-09 14:55:13', 'USADO', '::1'),
+(20, 7, '663301', '2026-06-10 09:21:48', '2026-06-10 09:26:48', 'USADO', '::1'),
+(21, 7, '584498', '2026-06-10 09:22:12', '2026-06-10 09:27:12', 'USADO', '::1');
 
 -- --------------------------------------------------------
 
@@ -760,6 +762,13 @@ CREATE TABLE `propuestas` (
   `ESTADO` varchar(20) NOT NULL DEFAULT 'RETENIDA',
   `USUARIO` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `propuestas`
+--
+
+INSERT INTO `propuestas` (`IDPROPUESTA`, `CI_POSTULANTE`, `NOMBRE_POSTULANTE`, `IDCATALOGO`, `MONTO`, `FECHA_COBRO`, `FECHA_DEVOLUCION`, `ESTADO`, `USUARIO`) VALUES
+(1, '7403044', 'REYNALDO JESUS FLORES JAILLITA', 2, 100.00, '2026-06-10 10:41:21', NULL, 'RETENIDA', 'wil.arroyo');
 
 -- --------------------------------------------------------
 
@@ -1097,7 +1106,7 @@ ALTER TABLE `garantias_cumplimiento`
 -- AUTO_INCREMENT de la tabla `log_accesos`
 --
 ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`
@@ -1109,7 +1118,7 @@ ALTER TABLE `pagos`
 -- AUTO_INCREMENT de la tabla `propuestas`
 --
 ALTER TABLE `propuestas`
-  MODIFY `IDPROPUESTA` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IDPROPUESTA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
