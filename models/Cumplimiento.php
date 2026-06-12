@@ -40,6 +40,12 @@ class Cumplimiento {
         return $stmt->execute([$this->cite, $this->ci, $this->nombre, $this->idcatalogo, $this->monto, $this->idgarantia]);
     }
 
+    public function devolver(){
+        $sql = "UPDATE garantias_cumplimiento SET ESTADO = 'DEVUELTA', FECHA_DEVOLUCION = CURRENT_TIMESTAMP WHERE IDGARANTIA = ?";
+        $stmt = $this->con->conexion->prepare($sql);
+        return $stmt->execute([$this->idgarantia]);
+    }
+
     public function lst_areas(){
         $sql = "SELECT IDAREA, DISTRIBUCION FROM v_areas ORDER BY DISTRIBUCION";
         return $this->con->conexion->query($sql)->fetchAll(\PDO::FETCH_ASSOC);

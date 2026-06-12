@@ -29,5 +29,11 @@ class Inicio {
         $res = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         return array_reverse($res); // Invertimos el orden para que el gráfico vaya de más antiguo a más reciente (Izquierda a Derecha)
     }
+
+    public function get_estado_espacios(){
+        $sql = "SELECT ESTADO, COUNT(*) as cantidad FROM catalogo GROUP BY ESTADO";
+        $stmt = $this->con->conexion->query($sql);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }
 ?>

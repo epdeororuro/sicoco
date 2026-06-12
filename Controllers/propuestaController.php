@@ -122,7 +122,7 @@ class propuestaController
         $pdf->SetDrawColor(150, 150, 150);
         for($i = 10; $i < 200; $i += 5) { $pdf->Line($i, 135, $i+2, 135); }
 
-        $this->dibujar_recibo($pdf, $d, 145, 'COPIA - ARCHIVO');
+        $this->dibujar_recibo($pdf, $d, 145, 'COPIA - CAJA EPDEOR');
 
         if (ob_get_length()) ob_clean();
         
@@ -154,7 +154,7 @@ class propuestaController
         if (file_exists($img_der)) $pdf->Image($img_der, 175, $y, 20);
 
         $es_devolucion = ($datos['ESTADO'] === 'DEVUELTA');
-        $titulo = $es_devolucion ? 'COMPROBANTE DE EGRESO - DEVOLUCIÓN DE GARANTÍA' : 'COMPROBANTE DE INGRESO - GARANTÍA DE PROPUESTA';
+        $titulo = $es_devolucion ? 'COMPROBANTE DE EGRESO - GARANTÍA DE PROPUESTA' : 'COMPROBANTE DE INGRESO - GARANTÍA DE PROPUESTA';
         $fecha_mostrar = ($es_devolucion && !empty($datos['FECHA_DEVOLUCION'])) ? $datos['FECHA_DEVOLUCION'] : $datos['FECHA_COBRO'];
 
         $pdf->SetFont('Arial', 'B', 10); $pdf->SetXY(45, $y + 11); $pdf->Cell(120, 5, utf8_decode($titulo), 0, 1, 'C');

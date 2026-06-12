@@ -137,6 +137,52 @@ $(document).ready(function(){
         form.submit();
         document.body.removeChild(form);
     });
+
+    // Devolver Garantía
+    $(document).on('click', '.DevolverGarantia', function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        Swal.fire({
+            title: '¿Confirmar Devolución?', text: 'Se registrará la devolución de la garantía.', icon: 'question',
+            showCancelButton: true, confirmButtonColor: '#28a745', cancelButtonColor: '#6c757d', confirmButtonText: 'Sí, Devolver'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: base_url + 'cumplimiento/devolver/' + id, type: 'POST', dataType: 'json',
+                    success: function(resp) {
+                        if(resp.status === 'success') {
+                            Swal.fire({
+                                title: '¡Garantía Devuelta!', 
+                                text: 'Se registró el egreso. ¿Desea imprimir el comprobante de devolución?', 
+                                icon: 'success',
+                                showCancelButton: true,
+                                confirmButtonColor: '#17a2b8',
+                                cancelButtonColor: '#6c757d',
+                                confirmButtonText: '<i class="fas fa-print"></i> Imprimir Egreso',
+                                cancelButtonText: 'Cerrar'
+                            }).then((res) => {
+                                $('#TablaCumplimiento').DataTable().ajax.reload();
+                                if (res.isConfirmed) {
+                                    var form = document.createElement('form');
+                                    form.method = 'POST';
+                                    form.action = base_url + 'cumplimiento/comprobante_ingreso';
+                                    form.target = '_blank';
+                                    var input = document.createElement('input');
+                                    input.type = 'hidden';
+                                    input.name = 'idgarantia';
+                                    input.value = id;
+                                    form.appendChild(input);
+                                    document.body.appendChild(form);
+                                    form.submit();
+                                    document.body.removeChild(form);
+                                }
+                            });
+                        } else { Swal.fire('Error', resp.message, 'error'); }
+                    }
+                });
+            }
+        });
+    });
 });
 
 function LlenarArea() {
@@ -162,15 +208,18 @@ function ListarCumplimiento() {
             {"data": null, "render": function(data, type, row) { return row.NOMBRE_POSTULANTE + " <br><small>CI: " + row.CI_POSTULANTE + "</small>"; }},
             {"data": null, "render": function(data, type, row) { return "<strong>" + row.ITEM + "</strong><br><small>" + row.REFERENCIA + " - " + row.UBICACION + "</small>"; }},
             {"data": "MONTO", "render": function(data) { return "<strong class='text-success'>Bs. " + parseFloat(data).toFixed(2) + "</strong>"; }},
-            {"data": "FECHA_COBRO"},
-            {"data": "ESTADO", "render": function(data, type, row) { if(data === 'RETENIDA') return '<span class="badge badge-warning"><i class="fas fa-lock"></i> RETENIDA (Falta Contrato)</span>'; if(data === 'ENLAZADA') return '<span class="badge badge-success"><i class="fas fa-link"></i> ENLAZADA AL CONTRATO</span><br><small class="text-muted">' + row.NRO_CONTRATO + '</small>'; return '<span class="badge badge-secondary">' + data + '</span>'; }},
+            {"data": null, "render": function(data, type, row) { return row.FECHA_COBRO || 'S/D'; }},
+            {"data": "ESTADO", "render": function(data, type, row) { if(data === 'RETENIDA') return '<span class="badge badge-warning"><i class="fas fa-lock"></i> RETENIDA (Falta Contrato)</span>'; if(data === 'ENLAZADA') return '<span class="badge badge-info"><i class="fas fa-link"></i> ENLAZADA AL CONTRATO</span><br><small class="text-muted">' + row.NRO_CONTRATO + '</small>'; if(data === 'DEVUELTA') return '<span class="badge badge-success"><i class="fas fa-unlock"></i> DEVUELTA</span>'; return '<span class="badge badge-secondary">' + data + '</span>'; }},
             {"data": null, "render": function(data, type, row) { 
                 var btn_print = "<button class='ImprimirRecibo btn btn-info btn-sm mx-1' data-id='" + row.IDGARANTIA + "' title='Imprimir Recibo'><i class='fas fa-print'></i></button>";
-                var btn_edit = "";
+                var btn_edit = "", btn_devolver = "";
+                if(row.ESTADO === 'RETENIDA' || row.ESTADO === 'ENLAZADA') { 
+                    btn_devolver = "<button class='DevolverGarantia btn btn-success btn-sm mx-1' data-id='" + row.IDGARANTIA + "' title='Devolver'><i class='fas fa-hand-holding-usd'></i></button>"; 
+                }
                 if(row.ESTADO === 'RETENIDA') { 
                     btn_edit = "<button class='EditarCumplimiento btn btn-warning btn-sm mx-1' data-id='" + row.IDGARANTIA + "' data-cite='" + row.CITE_ADJUDICACION + "' data-ci='" + row.CI_POSTULANTE + "' data-nombre='" + row.NOMBRE_POSTULANTE + "' data-idcatalogo='" + row.IDCATALOGO + "' data-idarea='" + row.IDAREA + "' title='Editar'><i class='fas fa-edit'></i></button>";
                 } 
-                return "<div class='text-center text-nowrap'>" + btn_edit + btn_print + "</div>"; 
+                return "<div class='text-center text-nowrap'>" + btn_edit + btn_print + btn_devolver + "</div>"; 
             }}
         ]
     }); 

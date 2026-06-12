@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-06-2026 a las 16:42:42
+-- Tiempo de generación: 12-06-2026 a las 20:34:16
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -549,6 +549,13 @@ CREATE TABLE `arriendos` (
   `ARCHIVO_PDF` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `arriendos`
+--
+
+INSERT INTO `arriendos` (`IDARRIENDO`, `IDUSUARIO`, `IDCLIENTE`, `ACTIVIDAD`, `RAZONSOCIAL`, `CONTRATO`, `FECHA_SUSCRIPCION`, `FECHA_INICIO`, `TIEMPOCONTRATO`, `MONTO`, `OBSERVACIONES`, `VIGENTE`, `FECHA_REGISTRO`, `ARCHIVO_PDF`) VALUES
+(2, 7, 10, 'ROPA', 'SIN DATO', '1232/2026', '2026-06-12', '2026-06-12', 7, 200, 'SIN OBSERVACIÓN', 'PR', '2026-06-12 14:25:30', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -630,7 +637,7 @@ CREATE TABLE `detalle` (
 --
 
 INSERT INTO `detalle` (`IDDETALLE`, `IDCATALOGO`, `IDARRIENDO`, `ALQUILER_NOMINAL`) VALUES
-(1, 1, 1, 200);
+(1, 1, 2, 200);
 
 -- --------------------------------------------------------
 
@@ -657,7 +664,8 @@ CREATE TABLE `garantias_cumplimiento` (
 --
 
 INSERT INTO `garantias_cumplimiento` (`IDGARANTIA`, `CITE_ADJUDICACION`, `CI_POSTULANTE`, `NOMBRE_POSTULANTE`, `IDCATALOGO`, `MONTO`, `FECHA_COBRO`, `FECHA_DEVOLUCION`, `ESTADO`, `IDARRIENDO`, `USUARIO`) VALUES
-(1, '123/2026', '7403044', 'REYNALDO JESUS FLORES JAILLITA', 1, 200.00, '2026-06-08 10:36:32', NULL, 'RETENIDA', NULL, 'wil.arroyo');
+(1, '123/2026', '87456487', 'REYNALDO JESUS FLORES JAILLITA', 1, 200.00, '2026-06-12 11:42:47', '2026-06-12 12:03:21', 'DEVUELTA', NULL, 'wil.arroyo'),
+(2, '123/2026', '87456487', 'REYNALDO JESUS FLORES JAILLITA', 10, 600.00, '2026-06-12 13:10:57', '2026-06-12 13:11:01', 'DEVUELTA', NULL, 'wil.arroyo');
 
 -- --------------------------------------------------------
 
@@ -700,7 +708,14 @@ INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FEC
 (18, 7, '856805', '2026-06-09 13:13:03', '2026-06-09 13:18:03', 'USADO', '::1'),
 (19, 7, '711596', '2026-06-09 14:50:13', '2026-06-09 14:55:13', 'USADO', '::1'),
 (20, 7, '663301', '2026-06-10 09:21:48', '2026-06-10 09:26:48', 'USADO', '::1'),
-(21, 7, '584498', '2026-06-10 09:22:12', '2026-06-10 09:27:12', 'USADO', '::1');
+(21, 7, '584498', '2026-06-10 09:22:12', '2026-06-10 09:27:12', 'USADO', '::1'),
+(22, 7, '337200', '2026-06-10 12:06:16', '2026-06-10 12:11:16', 'USADO', '::1'),
+(23, 7, '625481', '2026-06-10 13:08:40', '2026-06-10 13:13:40', 'USADO', '::1'),
+(24, 7, '617142', '2026-06-10 15:20:45', '2026-06-10 15:25:45', 'USADO', '::1'),
+(25, 7, '880893', '2026-06-10 16:12:56', '2026-06-10 16:17:56', 'USADO', '::1'),
+(26, 7, '132965', '2026-06-12 08:19:35', '2026-06-12 08:24:35', 'USADO', '::1'),
+(27, 7, '782786', '2026-06-12 11:39:23', '2026-06-12 11:44:23', 'USADO', '::1'),
+(28, 7, '897547', '2026-06-12 13:05:27', '2026-06-12 13:10:27', 'USADO', '::1');
 
 -- --------------------------------------------------------
 
@@ -745,6 +760,13 @@ CREATE TABLE `pagos` (
   `USR` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `pagos`
+--
+
+INSERT INTO `pagos` (`IDPAGO`, `IDARRIENDO`, `PERIODO`, `MONTO`, `FECHA_PAGO`, `PENDIENTE`, `NRO_RECIBO`, `USR`) VALUES
+(1, 2, 'GARANTIA', 200.00, NULL, 'SI', NULL, NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -768,7 +790,13 @@ CREATE TABLE `propuestas` (
 --
 
 INSERT INTO `propuestas` (`IDPROPUESTA`, `CI_POSTULANTE`, `NOMBRE_POSTULANTE`, `IDCATALOGO`, `MONTO`, `FECHA_COBRO`, `FECHA_DEVOLUCION`, `ESTADO`, `USUARIO`) VALUES
-(1, '7403044', 'REYNALDO JESUS FLORES JAILLITA', 2, 100.00, '2026-06-10 10:41:21', NULL, 'RETENIDA', 'wil.arroyo');
+(1, '7403044', 'REYNALDO JESUS FLORES JAILLITA', 10, 100.00, '2026-06-10 12:13:45', '2026-06-10 13:18:57', 'DEVUELTA', 'wil.arroyo'),
+(2, '7403044', 'REYNALDO JESUS FLORES JAILLITA', 1, 100.00, '2026-06-10 13:24:59', '2026-06-10 14:41:10', 'DEVUELTA', 'wil.arroyo'),
+(3, '87456487', 'RAMIRO FLORES RODRIGUEZ', 3, 100.00, '2026-06-10 13:25:56', '2026-06-10 13:54:33', 'DEVUELTA', 'wil.arroyo'),
+(4, '7300312', 'JESUS FLORES JAILLITA', 1, 100.00, '2026-06-10 13:55:00', '2026-06-12 13:10:44', 'DEVUELTA', 'wil.arroyo'),
+(5, '3054611', 'BENJAMIN FLORES', 4, 100.00, '2026-06-10 14:15:47', NULL, 'RETENIDA', 'wil.arroyo'),
+(6, '30542584', 'MARITZA JAILLITA', 1, 100.00, '2026-06-10 15:23:08', NULL, 'RETENIDA', 'wil.arroyo'),
+(7, '30542584', 'MARITZA JAILLITA', 1, 100.00, '2026-06-12 11:42:59', NULL, 'RETENIDA', 'wil.arroyo');
 
 -- --------------------------------------------------------
 
@@ -1082,7 +1110,7 @@ ALTER TABLE `areaubicacion`
 -- AUTO_INCREMENT de la tabla `arriendos`
 --
 ALTER TABLE `arriendos`
-  MODIFY `IDARRIENDO` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IDARRIENDO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `catalogo`
@@ -1097,28 +1125,34 @@ ALTER TABLE `clientes`
   MODIFY `IDCLIENTE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
+-- AUTO_INCREMENT de la tabla `detalle`
+--
+ALTER TABLE `detalle`
+  MODIFY `IDDETALLE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT de la tabla `garantias_cumplimiento`
 --
 ALTER TABLE `garantias_cumplimiento`
-  MODIFY `IDGARANTIA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `IDGARANTIA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `log_accesos`
 --
 ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`
 --
 ALTER TABLE `pagos`
-  MODIFY `IDPAGO` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IDPAGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `propuestas`
 --
 ALTER TABLE `propuestas`
-  MODIFY `IDPROPUESTA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `IDPROPUESTA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`

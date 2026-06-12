@@ -123,7 +123,7 @@ public function add()
 	        $pdf->Line($i, 135, $i+2, 135);
 	    }
 
-	    $this->dibujar_recibo($pdf, $datos, 145, 'COPIA - ARCHIVO');
+	    $this->dibujar_recibo($pdf, $datos, 145, 'COPIA - CAJA EPDEOR');
 
 	    if (ob_get_length()) ob_clean();
 	    
@@ -148,12 +148,8 @@ public function add()
 	{
 	    $meses = ['01'=>'Enero', '02'=>'Febrero', '03'=>'Marzo', '04'=>'Abril', '05'=>'Mayo', '06'=>'Junio', '07'=>'Julio', '08'=>'Agosto', '09'=>'Septiembre', '10'=>'Octubre', '11'=>'Noviembre', '12'=>'Diciembre'];
 	    
-	    if ($datos['PERIODO'] === 'GARANTIA') {
-	        $mes_texto = 'GARANTÍA DE CUMPLIMIENTO';
-	    } else {
-	        $partes = explode('-', $datos['PERIODO']);
-	        $mes_texto = $meses[$partes[1]] . ' de ' . $partes[0];
-	    }
+	    $partes = explode('-', $datos['PERIODO']);
+	    $mes_texto = $meses[$partes[1]] . ' de ' . $partes[0];
 
 	    // RUTAS A TUS IMÁGENES
 	    $img_izq = ROOT . 'img/logos/logo_1.jpg'; 
@@ -232,6 +228,9 @@ public function add()
 
 	public function imprimir_cierre($fecha_inicio = null)
 	{
+	    if(isset($_GET['inicio']) && $_GET['inicio'] != '') {
+	        $fecha_inicio = $_GET['inicio'];
+	    }
 	    $fecha_fin = isset($_GET['fin']) ? $_GET['fin'] : null;
 
 	    if(!$fecha_inicio) {
@@ -490,7 +489,7 @@ public function add()
 	        $pdf->Line($i, 135, $i+2, 135);
 	    }
 
-	    $this->dibujar_recibo_multiple($pdf, $datos_base, 145, 'COPIA - ARCHIVO');
+	    $this->dibujar_recibo_multiple($pdf, $datos_base, 145, 'COPIA - CAJA EPDEOR');
 
 	    if (ob_get_length()) ob_clean();
 	    
@@ -519,12 +518,8 @@ public function add()
         if (isset($datos['PERIODOS_ARRAY'])) {
             $arr = [];
             foreach($datos['PERIODOS_ARRAY'] as $p) {
-                if ($p === 'GARANTIA') {
-                    $arr[] = 'GARANTÍA';
-                } else {
-                    $partes = explode('-', $p);
-                    $arr[] = $meses[$partes[1]] . '/' . $partes[0];
-                }
+                $partes = explode('-', $p);
+                $arr[] = $meses[$partes[1]] . '/' . $partes[0];
             }
             if(count($arr) > 3) {
                 $text_periodos = $arr[0] . ' al ' . end($arr);
@@ -532,12 +527,8 @@ public function add()
                 $text_periodos = implode(', ', $arr);
             }
         } else {
-            if ($datos['PERIODO'] === 'GARANTIA') {
-                $text_periodos = 'GARANTÍA DE CUMPLIMIENTO';
-            } else {
-                $partes = explode('-', $datos['PERIODO']);
-                $text_periodos = $meses[$partes[1]] . ' de ' . $partes[0];
-            }
+            $partes = explode('-', $datos['PERIODO']);
+            $text_periodos = $meses[$partes[1]] . ' de ' . $partes[0];
         }
 
         // Reutilizamos toda la estructura gráfica de tu recibo (Solo cambiamos el contenido textual)

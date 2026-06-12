@@ -115,7 +115,7 @@ function ListarDetalle(idarriendo){
         }       
       },
       "createdRow": function(row, data, dataIndex) {
-          if (data.PENDIENTE === 'SI' && data.PERIODO !== 'GARANTIA') {
+          if (data.PENDIENTE === 'SI') {
               var hoy = new Date();
               var partes = data.PERIODO.split('-');
               if (partes.length === 2 && (parseInt(partes[0]) < hoy.getFullYear() || (parseInt(partes[0]) === hoy.getFullYear() && parseInt(partes[1]) < (hoy.getMonth() + 1)))) {
@@ -132,7 +132,6 @@ function ListarDetalle(idarriendo){
           return "<i class='fas fa-check text-success'></i>";
       }},
       {"data": "PERIODO", "render": function(data) {
-          if(data === 'GARANTIA') return '<span class="badge badge-info"><i class="fas fa-shield-alt"></i> GARANTÍA</span>';
           var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
           if(data && data.includes('-')) {
               var mesIndex = parseInt(data.split('-')[1]) - 1;
@@ -144,7 +143,6 @@ function ListarDetalle(idarriendo){
       {"data": "MONTO"},
       {"data": "PENDIENTE", "render": function(data, type, row) {
           if (data === 'SI') {
-              if (row.PERIODO === 'GARANTIA') return '<span class="badge badge-danger"><i class="fas fa-exclamation-circle"></i> REQUISITO</span>';
               var hoy = new Date();
               var partes = row.PERIODO.split('-');
               if (partes.length === 2 && (parseInt(partes[0]) < hoy.getFullYear() || (parseInt(partes[0]) === hoy.getFullYear() && parseInt(partes[1]) < (hoy.getMonth() + 1)))) {
@@ -156,7 +154,6 @@ function ListarDetalle(idarriendo){
       }},
       {"data": null, "render": function(data, type, row) {
           if(row.PENDIENTE === 'SI') {
-              if (row.PERIODO === 'GARANTIA') return "<span class='text-danger font-weight-bold'><i class='fas fa-shield-alt'></i> Requisito de Firma</span>";
               var hoy = new Date();
               var partes = row.PERIODO.split('-');
               if (partes.length === 2 && (parseInt(partes[0]) < hoy.getFullYear() || (parseInt(partes[0]) === hoy.getFullYear() && parseInt(partes[1]) < (hoy.getMonth() + 1)))) {
@@ -766,7 +763,7 @@ function ListarContrato(){
       {"data": "RAZONSOCIAL"},
       {"data": "CONTRATO", "render": function(data, type, row) {
           var estado = row.VIGENTE === 'PR' ? 
-              '<br><span class="badge badge-warning mt-1"><i class="fas fa-clock"></i> Adjudicado (Falta Garantía)</span>' : 
+              '<br><span class="badge badge-warning mt-1"><i class="fas fa-clock"></i> Pre-Registro (Sin Confirmar)</span>' : 
               '<br><span class="badge badge-success mt-1"><i class="fas fa-check-circle"></i> Vigente</span>';
           return "<strong>" + data + "</strong>" + estado;
       }},

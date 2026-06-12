@@ -48,5 +48,18 @@ class inicioController
         }
         exit();
     }
+
+    public function cargar_grafico_espacios()
+    {
+        try {
+            $datos = $this->inicio->get_estado_espacios();
+            if (ob_get_length()) ob_clean();
+            echo json_encode(['status' => 'success', 'data' => $datos]);
+        } catch (\Exception $e) {
+            if (ob_get_length()) ob_clean();
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+        exit();
+    }
 }
 ?>

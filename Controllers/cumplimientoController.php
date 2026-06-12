@@ -85,6 +85,19 @@ class cumplimientoController {
         exit();
     }
 
+    public function devolver($argumento)
+    {
+        $this->cumplimiento->idgarantia = $argumento;
+        if (ob_get_length()) ob_clean();
+        header('Content-Type: application/json');
+        if ($this->cumplimiento->devolver()) {
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'No se pudo registrar la devolución.']);
+        }
+        exit();
+    }
+
     public function comprobante_ingreso() {
         if (!isset($_POST['idgarantia'])) {
             die("Error: ID de recibo no especificado.");
@@ -101,10 +114,10 @@ class cumplimientoController {
         $pdf->AddPage();
         $pdf->SetAutoPageBreak(false);
 
-        $this->dibujar_recibo($pdf, $datos, 10, 'ORIGINAL - CAJA');
+        $this->dibujar_recibo($pdf, $datos, 10, 'ORIGINAL - CLIENTE');
         $pdf->SetDrawColor(150, 150, 150);
         for($i = 10; $i < 200; $i += 5) { $pdf->Line($i, 135, $i+2, 135); }
-        $this->dibujar_recibo($pdf, $datos, 145, 'COPIA - INTERESADO');
+        $this->dibujar_recibo($pdf, $datos, 145, 'COPIA - CAJA EPDEOR');
 
         if (ob_get_length()) ob_clean();
         
@@ -132,10 +145,15 @@ class cumplimientoController {
         if (file_exists($img_izq)) $pdf->Image($img_izq, 15, $y, 35);
         if (file_exists($img_cen)) $pdf->Image($img_cen, 75, $y, 60);
         if (file_exists($img_der)) $pdf->Image($img_der, 175, $y, 20);
-        $pdf->SetFont('Arial', 'B', 10); $pdf->SetXY(45, $y + 11); $pdf->Cell(120, 5, utf8_decode('COMPROBANTE DE INGRESO - GARANTÍA DE CUMPLIMIENTO'), 0, 1, 'C');
+
+        $es_devolucion = (isset($datos['ESTADO']) && $datos['ESTADO'] === 'DEVUELTA');
+        $titulo = $es_devolucion ? 'COMPROBANTE DE EGRESO - GARANTÍA DE CUMPLIMIENTO' : 'COMPROBANTE DE INGRESO - GARANTÍA DE CUMPLIMIENTO';
+        $fecha_mostrar = ($es_devolucion && !empty($datos['FECHA_DEVOLUCION'])) ? $datos['FECHA_DEVOLUCION'] : $datos['FECHA_COBRO'];
+
+        $pdf->SetFont('Arial', 'B', 10); $pdf->SetXY(45, $y + 11); $pdf->Cell(120, 5, utf8_decode($titulo), 0, 1, 'C');
         $pdf->SetFont('Arial', 'B', 8); $pdf->SetXY(160, $y + 25); $pdf->Cell(40, 5, utf8_decode($copia), 0, 1, 'R');
         $pdf->SetFont('Arial', 'B', 10); $pdf->SetXY(15, $y + 30); $pdf->Cell(90, 6, utf8_decode('COMPROBANTE NRO: ' . str_pad($datos['IDGARANTIA'], 6, '0', STR_PAD_LEFT)), 0, 0, 'L');
-        $pdf->SetFont('Arial', '', 10); $pdf->Cell(90, 6, utf8_decode('Fecha y Hora: ' . date('d/m/Y H:i', strtotime($datos['FECHA_COBRO']))), 0, 1, 'R'); $pdf->Ln(5);
+        $pdf->SetFont('Arial', '', 10); $pdf->Cell(90, 6, utf8_decode('Fecha y Hora: ' . date('d/m/Y H:i', strtotime($fecha_mostrar))), 0, 1, 'R'); $pdf->Ln(5);
         $pdf->SetFillColor(240, 240, 240);
         $pdf->SetX(15); $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Adjudicado:'), 1, 0, 'L', true); $pdf->SetFont('Arial', '', 9); $pdf->Cell(95, 7, utf8_decode(' ' . $datos['NOMBRE_POSTULANTE']), 1, 0, 'L');
         $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(20, 7, utf8_decode(' CI:'), 1, 0, 'L', true); $pdf->SetFont('Arial', '', 9); $pdf->Cell(35, 7, utf8_decode(' ' . $datos['CI_POSTULANTE']), 1, 1, 'L');
