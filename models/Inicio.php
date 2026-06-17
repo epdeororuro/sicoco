@@ -18,16 +18,22 @@ class Inicio {
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
-    public function get_chart_ingresos(){
-        // Trae los ingresos de los últimos 6 meses agrupados
+    public function get_chart_ingresos($anio = null){
+        if (!$anio) $anio = date('Y');
         $sql = "SELECT DATE_FORMAT(FECHA_PAGO, '%Y-%m') as mes, SUM(MONTO) as total 
                 FROM pagos 
-                WHERE PENDIENTE='NO' 
+                WHERE PENDIENTE='NO' AND YEAR(FECHA_PAGO) = ?
                 GROUP BY mes 
-                ORDER BY mes DESC LIMIT 6";
+                ORDER BY mes ASC";
+        $stmt = $this->con->conexion->prepare($sql);
+        $stmt->execute([$anio]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function get_anios_pagos(){
+        $sql = "SELECT DISTINCT YEAR(FECHA_PAGO) as anio FROM pagos WHERE PENDIENTE='NO' AND FECHA_PAGO IS NOT NULL ORDER BY anio DESC";
         $stmt = $this->con->conexion->query($sql);
-        $res = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-        return array_reverse($res); // Invertimos el orden para que el gráfico vaya de más antiguo a más reciente (Izquierda a Derecha)
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function get_estado_espacios(){

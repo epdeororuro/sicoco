@@ -145,6 +145,12 @@ public function add()
 			}
 			else 
 			{
+				// 0. Barrera de Seguridad: Verificar deudas anteriores
+				if ($this->contrato->verificar_mora_cliente($_POST['txt_cedula'])) {
+					echo json_encode(['status' => 'error', 'message' => 'BLOQUEO ESTRICTO: El Arrendatario registra Cuentas por Cobrar (Deudas) de gestiones anteriores. Debe regularizar su situación antes de firmar nuevos contratos.']);
+					exit();
+				}
+
 				$cadena= $this->usuario_session->getCurrentUser(); // saca el idusuario que se encuentra en la sesion
 				$this->contrato->set("idusuario", $cadena['idmiembro']); 
 				
@@ -224,6 +230,12 @@ public function edit()
 			}
 			else 
 			{ 
+				// 0. Barrera de Seguridad: Verificar deudas anteriores
+				if ($this->contrato->verificar_mora_cliente($_POST['txt_cedula'])) {
+					echo json_encode(['status' => 'error', 'message' => 'BLOQUEO ESTRICTO: El Arrendatario registra Cuentas por Cobrar (Deudas) de gestiones anteriores. Debe regularizar su situación.']);
+					exit();
+				}
+
 				$this->contrato->set("idcontrato", $_POST['txt_idcontrato']);
 				$this->contrato->set("idcatalogo", $_POST['SelItemCatalogo']);
 				$this->contrato->set("cedula", $_POST['txt_cedula']);
@@ -347,6 +359,26 @@ public function confirmar($argumento)
 			echo json_encode(['status' => 'error', 'message' => 'Datos incompletos para subir el archivo']);
 		}
 		exit();
+	}
+
+	public function cierre_gestion()
+	{
+	    try {
+	        $datos = $this->contrato->cierre_gestion();
+	        $respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : 'Error';
+	        
+	        if (ob_get_length()) ob_clean();
+	        
+	        if ($respuesta == '1') {
+	            echo json_encode(['status' => 'success', 'message' => 'Cierre de Gestión ejecutado correctamente. Catálogo liberado.']);
+	        } else {
+	            echo json_encode(['status' => 'error', 'message' => $respuesta]);
+	        }
+	    } catch (\Exception $e) {
+	        if (ob_get_length()) ob_clean();
+	        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+	    }
+	    exit();
 	}
 	
 } // fin clase

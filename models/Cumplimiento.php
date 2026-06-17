@@ -82,5 +82,16 @@ class Cumplimiento {
         $resultado = $this->con->conexion->query($sql)->fetch(\PDO::FETCH_ASSOC);
         return $resultado['ultimo'];
     }
+
+    public function verificar_mora_cliente($cedula) {
+        $sql = "SELECT COUNT(*) as moroso 
+                FROM arriendos a 
+                INNER JOIN clientes c ON a.IDCLIENTE = c.IDCLIENTE 
+                WHERE c.CEDULA = ? AND a.VIGENTE = 'CXC'";
+        $stmt = $this->con->conexion->prepare($sql);
+        $stmt->execute([$cedula]);
+        $res = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return ($res['moroso'] > 0);
+    }
 }
 ?>

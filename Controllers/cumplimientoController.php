@@ -44,6 +44,14 @@ class cumplimientoController {
                 exit();
             }
             
+            // 0. Barrera de Seguridad: Verificar deudas anteriores
+            if ($this->cumplimiento->verificar_mora_cliente($_POST['txt_ci'])) {
+                if (ob_get_length()) ob_clean();
+                header('Content-Type: application/json');
+                echo json_encode(['status' => 'error', 'message' => 'BLOQUEO ESTRICTO: El adjudicado registra Cuentas por Cobrar (Deudas) de gestiones anteriores. Debe regularizar su situación.']);
+                exit();
+            }
+
             $cadena = $this->usuario_session->getCurrentUser();
             $this->cumplimiento->cite = strtoupper($_POST['txt_cite']);
             $this->cumplimiento->ci = $_POST['txt_ci'];
@@ -69,6 +77,14 @@ class cumplimientoController {
                 exit();
             }
             
+            // 0. Barrera de Seguridad: Verificar deudas anteriores
+            if ($this->cumplimiento->verificar_mora_cliente($_POST['txt_ci'])) {
+                if (ob_get_length()) ob_clean();
+                header('Content-Type: application/json');
+                echo json_encode(['status' => 'error', 'message' => 'BLOQUEO ESTRICTO: El adjudicado registra Cuentas por Cobrar (Deudas) de gestiones anteriores. Debe regularizar su situación.']);
+                exit();
+            }
+
             $this->cumplimiento->idgarantia = $_POST['txt_idgarantia'];
             $this->cumplimiento->cite = strtoupper($_POST['txt_cite']);
             $this->cumplimiento->ci = $_POST['txt_ci'];

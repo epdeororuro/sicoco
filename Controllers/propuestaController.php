@@ -47,6 +47,14 @@ class propuestaController
     public function add()
     {
         if($_POST) {
+            // 0. Barrera de Seguridad: Verificar deudas anteriores
+            if ($this->propuesta->verificar_mora_cliente($_POST['txt_ci'])) {
+                if (ob_get_length()) ob_clean();
+                header('Content-Type: application/json');
+                echo json_encode(['status' => 'error', 'message' => 'BLOQUEO ESTRICTO: El postulante registra Cuentas por Cobrar (Deudas) de gestiones anteriores. Debe regularizar su situación.']);
+                exit();
+            }
+
             $cadena = $this->usuario_session->getCurrentUser();
             $usr = isset($cadena['nombre']) ? $cadena['nombre'] : 'Sistema';
             
@@ -70,6 +78,14 @@ class propuestaController
     public function edit()
     {
         if($_POST) {
+            // 0. Barrera de Seguridad: Verificar deudas anteriores
+            if ($this->propuesta->verificar_mora_cliente($_POST['txt_ci'])) {
+                if (ob_get_length()) ob_clean();
+                header('Content-Type: application/json');
+                echo json_encode(['status' => 'error', 'message' => 'BLOQUEO ESTRICTO: El postulante registra Cuentas por Cobrar (Deudas) de gestiones anteriores. Debe regularizar su situación.']);
+                exit();
+            }
+
             $this->propuesta->set("idpropuesta", $_POST['txt_idpropuesta']);
             $this->propuesta->set("ci_postulante", $_POST['txt_ci']);
             $this->propuesta->set("nombre_postulante", $_POST['txt_nombre']);

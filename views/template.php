@@ -216,6 +216,13 @@
                   <p>Historial de Pagos</p>
                 </a>
               </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="<?php echo URL; ?>cuentascobrar">
+                  <i class="fas fa-balance-scale fa-lg"></i>
+                  <p>Cuentas por Cobrar</p>
+                </a>
+              </li>
             </ul>
           </li>
                    

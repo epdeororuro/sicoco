@@ -165,7 +165,7 @@ public function add()
 	    $pdf->Cell(120, 6, utf8_decode(''), 0, 1, 'C');
 	    $pdf->SetFont('Arial', 'B', 10);
 	    $pdf->SetXY(45, $y + 11);
-	    $pdf->Cell(120, 5, utf8_decode('COMPROBANTE DE PAGO DE ARRENDAMIENTO'), 0, 1, 'C');
+	    $pdf->Cell(120, 5, utf8_decode('COMPROBANTE DE PAGO DE ARRENDAMIENTO - DEUDA'), 0, 1, 'C');
 
 	    $pdf->SetFont('Arial', 'B', 8);
 	    $pdf->SetXY(160, $y + 25);
@@ -217,6 +217,10 @@ public function add()
             $this->pagos->set("nro_recibo", str_pad($idpago, 6, '0', STR_PAD_LEFT));
             
 	        $this->pagos->registrar_pago();
+            
+            // Disparador de Liberación Automática
+            $this->pagos->verificar_y_liberar_contrato_por_pago($idpago);
+
 	        if (ob_get_length()) ob_clean();
 	        echo json_encode(['status' => 'success', 'message' => 'Pago realizado correctamente']);
 	    } catch (\Exception $e) {
@@ -432,6 +436,10 @@ public function add()
 	                $this->pagos->set("nro_recibo", $nro_recibo);
 	                $this->pagos->registrar_pago();
 	            }
+
+	            // Disparador de Liberación Automática (Usamos el último ID del bloque para verificar)
+	            $this->pagos->verificar_y_liberar_contrato_por_pago(end($ids));
+
 	            if (ob_get_length()) ob_clean();
 	            echo json_encode(['status' => 'success', 'message' => 'Pagos realizados correctamente']);
 	        } catch (\Exception $e) {
@@ -545,7 +553,7 @@ public function add()
 	    $pdf->Cell(120, 6, utf8_decode(''), 0, 1, 'C');
 	    $pdf->SetFont('Arial', 'B', 10);
 	    $pdf->SetXY(45, $y + 11);
-	    $pdf->Cell(120, 5, utf8_decode('COMPROBANTE DE PAGO DE ARRENDAMIENTO'), 0, 1, 'C');
+	    $pdf->Cell(120, 5, utf8_decode('COMPROBANTE DE PAGO DE ARRENDAMIENTO - DEUDA'), 0, 1, 'C');
 
 	    $pdf->SetFont('Arial', 'B', 8);
 	    $pdf->SetXY(160, $y + 25);

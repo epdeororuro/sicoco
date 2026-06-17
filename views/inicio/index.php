@@ -69,8 +69,11 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="card card-outline card-primary shadow-sm">
-                    <div class="card-header border-0">
-                        <h3 class="card-title"><i class="fas fa-chart-bar text-primary"></i> Ingresos de los Últimos 6 Meses</h3>
+                    <div class="card-header border-0 d-flex justify-content-between align-items-center">
+                        <h3 class="card-title"><i class="fas fa-chart-bar text-primary"></i> Ingresos Mensuales</h3>
+                        <select id="filtroAnio" class="form-control form-control-sm w-auto">
+                            <option value="<?php echo date('Y'); ?>"><?php echo date('Y'); ?></option>
+                        </select>
                     </div>
                     <div class="card-body">
                         <div class="chart">

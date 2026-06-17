@@ -107,6 +107,31 @@
 			return true;
 		}
 
+		public function verificar_y_liberar_contrato_por_pago($idpago) {
+			// 1. Encontrar a qué contrato pertenece el pago recién hecho
+			$sql = "SELECT IDARRIENDO FROM pagos WHERE IDPAGO = ?";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$idpago]);
+			$res = $stmt->fetch(\PDO::FETCH_ASSOC);
+			
+			if ($res) {
+				$idarriendo = $res['IDARRIENDO'];
+				
+				// 2. Contar si todavía quedan pagos pendientes en ese contrato
+				$sql2 = "SELECT COUNT(*) as pendientes FROM pagos WHERE IDARRIENDO = ? AND PENDIENTE = 'SI'";
+				$stmt2 = $this->con->conexion->prepare($sql2);
+				$stmt2->execute([$idarriendo]);
+				$res2 = $stmt2->fetch(\PDO::FETCH_ASSOC);
+				
+				// 3. Si no debe nada y su estado era Cuentas por Cobrar (CXC), lo liberamos pasándolo a Finalizado (FIN)
+				if ($res2['pendientes'] == 0) {
+					$sql3 = "UPDATE arriendos SET VIGENTE = 'FIN' WHERE IDARRIENDO = ? AND VIGENTE = 'CXC'";
+					$stmt3 = $this->con->conexion->prepare($sql3);
+					$stmt3->execute([$idarriendo]);
+				}
+			}
+		}
+
 		public function cierre_caja_diario($fecha_inicio, $fecha_fin) {
 			$sql = "SELECT IFNULL(p.NRO_RECIBO, LPAD(p.IDPAGO, 6, '0')) AS NRO_RECIBO, 
 						   MAX(p.FECHA_PAGO) AS HORA, 

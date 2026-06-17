@@ -39,7 +39,21 @@ class inicioController
     public function cargar_grafico()
     {
         try {
-            $datos = $this->inicio->get_chart_ingresos();
+            $anio = isset($_GET['anio']) ? $_GET['anio'] : date('Y');
+            $datos = $this->inicio->get_chart_ingresos($anio);
+            if (ob_get_length()) ob_clean();
+            echo json_encode(['status' => 'success', 'data' => $datos]);
+        } catch (\Exception $e) {
+            if (ob_get_length()) ob_clean();
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+        exit();
+    }
+
+    public function cargar_anios()
+    {
+        try {
+            $datos = $this->inicio->get_anios_pagos();
             if (ob_get_length()) ob_clean();
             echo json_encode(['status' => 'success', 'data' => $datos]);
         } catch (\Exception $e) {

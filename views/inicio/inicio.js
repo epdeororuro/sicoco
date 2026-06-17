@@ -3,12 +3,16 @@ var chartEspacios = null;
 
 $(document).ready(function() {
     cargarKPIs();
-    cargarGrafico();
+    cargarAnios();
     cargarGraficoEspacios();
 
     // Cerrar el modal automáticamente al pedir el reporte
     $('#formCierreCaja').on('submit', function() {
         $('#ModalCierreCaja').modal('hide');
+    });
+
+    $('#filtroAnio').on('change', function() {
+        cargarGrafico($(this).val());
     });
 });
 
@@ -29,28 +33,55 @@ function cargarKPIs() {
     });
 }
 
-function cargarGrafico() {
+function cargarAnios() {
     $.ajax({
-        url: base_url + 'inicio/cargar_grafico',
+        url: base_url + 'inicio/cargar_anios',
+        type: 'GET',
+        dataType: 'json',
+        success: function(resp) {
+            if(resp.status === 'success' && resp.data.length > 0) {
+                var $select = $('#filtroAnio');
+                $select.empty();
+                $(resp.data).each(function(i, v) {
+                    $select.append('<option value="' + v.anio + '">' + v.anio + '</option>');
+                });
+                var currentYear = (new Date()).getFullYear();
+                if ($select.find('option[value="' + currentYear + '"]').length > 0) {
+                    $select.val(currentYear);
+                } else {
+                    $select.val(resp.data[0].anio);
+                }
+                cargarGrafico($select.val());
+            } else {
+                cargarGrafico((new Date()).getFullYear());
+            }
+        }
+    });
+}
+
+function cargarGrafico(anio) {
+    if (!anio) anio = (new Date()).getFullYear();
+    $.ajax({
+        url: base_url + 'inicio/cargar_grafico?anio=' + anio,
         type: 'GET',
         dataType: 'json',
         success: function(resp) {
             if(resp.status === 'success') {
-                var meses = [];
-                var totales = [];
-                
                 var nombresMeses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                var totales = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
                 $(resp.data).each(function(i, v) {
                     var partes = v.mes.split('-');
                     var mesIndex = parseInt(partes[1]) - 1;
-                    var nombreMes = nombresMeses[mesIndex] + ' ' + partes[0];
-                    
-                    meses.push(nombreMes);
-                    totales.push(parseFloat(v.total));
+                    totales[mesIndex] = parseFloat(v.total);
                 });
                 
-                dibujarChart(meses, totales);
+                var mesesEtiquetas = [];
+                for(var i = 0; i < 12; i++) {
+                    mesesEtiquetas.push(nombresMeses[i] + ' ' + anio);
+                }
+
+                dibujarChart(mesesEtiquetas, totales);
             }
         }
     });
