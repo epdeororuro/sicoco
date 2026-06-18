@@ -223,6 +223,13 @@
                   <p>Cuentas por Cobrar</p>
                 </a>
               </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="<?php echo URL; ?>estorno">
+                  <i class="fas fa-balance-scale fa-lg"></i>
+                  <p>Estornos</p>
+                </a>
+              </li>
             </ul>
           </li>
                    
@@ -242,11 +249,19 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="#" class="nav-link">
-                  <i class="fa fa-truck fa-lg"></i>
-                  <p>Movimiento de Salida</p>
+                <a href="<?php echo URL; ?>egreso" class="nav-link">
+                  <i class="fas fa-hand-holding-usd fa-lg"></i>
+                  <p>Egresos (Devoluciones)</p>
                 </a>
               </li>
+              <?php if((isset($currentUser['rol']) && $currentUser['rol'] == 1) || (isset($currentUser['cargo']) && $currentUser['cargo'] == 1)): // Restricción para Administradores ?>
+              <li class="nav-item">
+                <a href="<?php echo URL; ?>estorno" class="nav-link">
+                  <i class="fas fa-ban fa-lg text-danger"></i>
+                  <p>Anular Recibos (Estornos)</p>
+                </a>
+              </li>
+              <?php endif; ?>
             </ul>
           </li>
 

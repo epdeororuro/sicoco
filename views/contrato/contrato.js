@@ -344,20 +344,61 @@ $(document).ready(function(){
       var idpagos_str = ids.join(',');
       var texto_meses = periodos.length > 1 ? periodos[0] + ' al ' + periodos[periodos.length - 1] : periodos[0];
 
+      // --- Nuevo Modal de Swal con Formulario ---
       Swal.fire({
-          title: '¿Confirmar Cobro Múltiple?',
-          text: 'Se registrará el cobro de ' + periodos.length + ' mes(es) (' + texto_meses + ') por un total de Bs. ' + total.toFixed(2),
+          title: 'Confirmar Cobro y Facturación',
           icon: 'question',
+          html: `
+              <p class="mb-3">Se registrará el cobro de <strong>${periodos.length} mes(es)</strong> (${texto_meses}) por un total de <strong>Bs. ${total.toFixed(2)}</strong>.</p>
+              <hr>
+              <div class="text-left">
+                  <div class="form-group">
+                      <label for="swal_metodo_pago"><strong>Método de Pago:</strong></label>
+                      <select id="swal_metodo_pago" class="form-control">
+                          <option value="EFECTIVO" selected>Efectivo</option>
+                          <option value="TRANSFERENCIA">Transferencia Bancaria</option>
+                          <option value="DEPOSITO">Depósito Bancario</option>
+                          <option value="QR">Pago por QR</option>
+                      </select>
+                  </div>
+                  <div class="form-group" id="swal_div_comprobante" style="display:none;">
+                      <label for="swal_nro_comprobante"><strong>Nro. de Transacción/Comprobante:</strong></label>
+                      <input type="text" id="swal_nro_comprobante" class="form-control" placeholder="Ej: 845123">
+                  </div>
+                  <div class="form-group">
+                      <label for="swal_nro_factura"><strong>Nro. de Factura SIAT (Opcional):</strong></label>
+                      <input type="text" id="swal_nro_factura" class="form-control" placeholder="Ej: 10258">
+                  </div>
+              </div>
+          `,
           showCancelButton: true,
           confirmButtonColor: '#28a745',
           cancelButtonColor: '#6c757d',
-          confirmButtonText: 'Sí, Pagar Todo!'
+          confirmButtonText: 'Sí, Cobrar y Registrar',
+          didOpen: () => {
+              $('#swal_metodo_pago').on('change', function() {
+                  if ($(this).val() === 'EFECTIVO') {
+                      $('#swal_div_comprobante').hide();
+                  } else {
+                      $('#swal_div_comprobante').show();
+                  }
+              });
+          },
+          preConfirm: () => {
+              return {
+                  metodo_pago: $('#swal_metodo_pago').val(),
+                  nro_comprobante: $('#swal_nro_comprobante').val(),
+                  nro_factura_siat: $('#swal_nro_factura').val()
+              }
+          }
       }).then((result) => {
-          if (result.isConfirmed) {
+          if (result.isConfirmed && result.value) {
+              var postData = result.value;
+              postData.idpagos = idpagos_str;
               $.ajax({
                   url: base_url + 'pagos/realizar_pago_multiple',
                   type: 'POST',
-                  data: { idpagos: idpagos_str },
+                  data: postData,
                   dataType: 'json',
                   success: function(resp) {
                       if(resp.status === 'success') {

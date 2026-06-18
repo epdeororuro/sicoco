@@ -11,6 +11,9 @@
 		private $contactos;
 		private $direccion;
 		private $nro_recibo;
+		private $metodo_pago;
+		private $nro_comprobante;
+		private $nro_factura_siat;
 		private $con;
 
 		public function __construct(){
@@ -63,7 +66,7 @@
 		}
 
 		public function obtener_datos_recibo(){
-			$sql = "SELECT p.IDPAGO, p.PERIODO, p.MONTO, p.FECHA_PAGO, p.USR,
+			$sql = "SELECT p.IDPAGO, p.NRO_RECIBO, p.PERIODO, p.MONTO, p.FECHA_PAGO, p.USR, p.METODO_PAGO, p.NRO_COMPROBANTE, p.NRO_FACTURA_SIAT, p.ESTADO_RECIBO, p.MOTIVO_ANULACION,
 			               a.CONTRATO, a.ACTIVIDAD,
 			               c.NOMBRE_COMPLETO AS CLIENTE, c.CEDULA
 			        FROM pagos p
@@ -77,7 +80,7 @@
 
 		public function obtener_datos_recibos_multiples($ids){
 			$inQuery = implode(',', array_fill(0, count($ids), '?'));
-			$sql = "SELECT p.IDPAGO, p.PERIODO, p.MONTO, p.FECHA_PAGO, p.USR,
+			$sql = "SELECT p.IDPAGO, p.NRO_RECIBO, p.PERIODO, p.MONTO, p.FECHA_PAGO, p.USR, p.METODO_PAGO, p.NRO_COMPROBANTE, p.NRO_FACTURA_SIAT, p.ESTADO_RECIBO, p.MOTIVO_ANULACION,
 			               a.CONTRATO, a.ACTIVIDAD,
 			               c.NOMBRE_COMPLETO AS CLIENTE, c.CEDULA
 			        FROM pagos p
@@ -88,6 +91,20 @@
 			$stmt = $this->con->conexion->prepare($sql);
 			$stmt->execute($ids);
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		}
+
+		public function obtener_siguiente_recibo() {
+			// Incrementamos el correlativo transaccionalmente
+			$sql_update = "UPDATE correlativos SET ULTIMO_RECIBO = ULTIMO_RECIBO + 1 WHERE ID = 1";
+			$this->con->conexion->exec($sql_update);
+			
+			// Extraemos el nuevo valor asignado
+			$sql_select = "SELECT ULTIMO_RECIBO FROM correlativos WHERE ID = 1";
+			$stmt = $this->con->conexion->query($sql_select);
+			$row = $stmt->fetch(\PDO::FETCH_ASSOC);
+			
+			// Devolvemos el número formateado de 6 dígitos
+			return str_pad($row['ULTIMO_RECIBO'], 6, '0', STR_PAD_LEFT);
 		}
 
 		public function plan_pagos(){
@@ -101,9 +118,9 @@
 		}
 
 		public function registrar_pago(){
-			$sql = "UPDATE pagos SET PENDIENTE = 'NO', FECHA_PAGO = NOW(), USR = ?, NRO_RECIBO = ? WHERE IDPAGO = ?";
+			$sql = "UPDATE pagos SET PENDIENTE = 'NO', FECHA_PAGO = NOW(), USR = ?, NRO_RECIBO = ?, METODO_PAGO = ?, NRO_COMPROBANTE = ?, NRO_FACTURA_SIAT = ?, ESTADO_RECIBO = 'ACTIVO', MOTIVO_ANULACION = NULL WHERE IDPAGO = ?";
 			$stmt = $this->con->conexion->prepare($sql);
-			$stmt->execute([$this->usr, $this->nro_recibo, $this->idpago]);
+			$stmt->execute([$this->usr, $this->nro_recibo, $this->metodo_pago, $this->nro_comprobante, $this->nro_factura_siat, $this->idpago]);
 			return true;
 		}
 
@@ -133,36 +150,82 @@
 		}
 
 		public function cierre_caja_diario($fecha_inicio, $fecha_fin) {
-			$sql = "SELECT IFNULL(p.NRO_RECIBO, LPAD(p.IDPAGO, 6, '0')) AS NRO_RECIBO, 
-						   MAX(p.FECHA_PAGO) AS HORA, 
-						   SUM(p.MONTO) AS TOTAL,
-						   GROUP_CONCAT(p.PERIODO ORDER BY p.PERIODO ASC SEPARATOR ', ') AS PERIODOS, 
-						   c.NOMBRE_COMPLETO AS CLIENTE, 
-						   a.CONTRATO, 
-						   p.USR AS CAJERO
-					FROM pagos p
-					INNER JOIN arriendos a ON p.IDARRIENDO = a.IDARRIENDO
-					INNER JOIN clientes c ON a.IDCLIENTE = c.IDCLIENTE
-					WHERE p.PENDIENTE = 'NO' AND DATE(p.FECHA_PAGO) BETWEEN ? AND ?
-					GROUP BY IFNULL(p.NRO_RECIBO, LPAD(p.IDPAGO, 6, '0')), c.NOMBRE_COMPLETO, a.CONTRATO, p.USR
-					ORDER BY p.USR ASC, MAX(p.FECHA_PAGO) ASC";
+			$sql = "SELECT p.NRO_RECIBO, 
+			               MAX(p.FECHA_PAGO) AS HORA, 
+			               SUM(p.MONTO) AS TOTAL,
+			               'ACTIVO' AS ESTADO_RECIBO,
+			               GROUP_CONCAT(p.PERIODO ORDER BY p.PERIODO ASC SEPARATOR ', ') AS PERIODOS, 
+			               c.NOMBRE_COMPLETO AS CLIENTE, 
+			               a.CONTRATO, 
+			               p.USR AS CAJERO
+			        FROM pagos p
+			        INNER JOIN arriendos a ON p.IDARRIENDO = a.IDARRIENDO
+			        INNER JOIN clientes c ON a.IDCLIENTE = c.IDCLIENTE
+			        WHERE p.PENDIENTE = 'NO' AND p.NRO_RECIBO IS NOT NULL AND DATE(p.FECHA_PAGO) BETWEEN ? AND ?
+			        GROUP BY p.NRO_RECIBO, c.NOMBRE_COMPLETO, a.CONTRATO, p.USR
+			        
+			        UNION ALL
+			        
+			        SELECT NRO_RECIBO, 
+			               FECHA_COBRO AS HORA, 
+			               0 AS TOTAL, 
+			               'ANULADO' AS ESTADO_RECIBO,
+			               PERIODOS_COBRADOS AS PERIODOS, 
+			               CLIENTE, 
+			               CONTRATO, 
+			               CAJERO_ORIGINAL AS CAJERO
+			        FROM log_estornos
+			        WHERE DATE(FECHA_COBRO) BETWEEN ? AND ?
+			        
+			        ORDER BY CAJERO ASC, HORA ASC";
 			$stmt = $this->con->conexion->prepare($sql);
-			$stmt->execute([$fecha_inicio, $fecha_fin]);
+			$stmt->execute([$fecha_inicio, $fecha_fin, $fecha_inicio, $fecha_fin]);
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function historial_caja() {
-			$sql = "SELECT IFNULL(p.NRO_RECIBO, LPAD(p.IDPAGO, 6, '0')) AS NRO_RECIBO, MAX(p.FECHA_PAGO) AS FECHA, SUM(p.MONTO) AS TOTAL,
-						   GROUP_CONCAT(p.PERIODO ORDER BY p.PERIODO ASC SEPARATOR ', ') AS PERIODOS, 
-						   c.NOMBRE_COMPLETO AS CLIENTE, a.CONTRATO, p.USR AS CAJERO
-					FROM pagos p
-					INNER JOIN arriendos a ON p.IDARRIENDO = a.IDARRIENDO
-					INNER JOIN clientes c ON a.IDCLIENTE = c.IDCLIENTE
-					WHERE p.PENDIENTE = 'NO'
-					GROUP BY IFNULL(p.NRO_RECIBO, LPAD(p.IDPAGO, 6, '0')), c.NOMBRE_COMPLETO, a.CONTRATO, p.USR
-					ORDER BY MAX(p.FECHA_PAGO) DESC";
+			$sql = "SELECT p.NRO_RECIBO, MAX(p.FECHA_PAGO) AS FECHA, SUM(p.MONTO) AS TOTAL, 'ACTIVO' AS ESTADO_RECIBO, '' AS MOTIVO_ANULACION,
+			               GROUP_CONCAT(p.PERIODO ORDER BY p.PERIODO ASC SEPARATOR ', ') AS PERIODOS, 
+			               c.NOMBRE_COMPLETO AS CLIENTE, a.CONTRATO, p.USR AS CAJERO
+			        FROM pagos p
+			        INNER JOIN arriendos a ON p.IDARRIENDO = a.IDARRIENDO
+			        INNER JOIN clientes c ON a.IDCLIENTE = c.IDCLIENTE
+			        WHERE p.PENDIENTE = 'NO' AND p.NRO_RECIBO IS NOT NULL
+			        GROUP BY p.NRO_RECIBO, c.NOMBRE_COMPLETO, a.CONTRATO, p.USR
+			        
+			        UNION ALL
+			        
+			        SELECT NRO_RECIBO, FECHA_COBRO AS FECHA, MONTO_TOTAL AS TOTAL, 'ANULADO' AS ESTADO_RECIBO, MOTIVO AS MOTIVO_ANULACION,
+			               PERIODOS_COBRADOS AS PERIODOS, CLIENTE, CONTRATO, CAJERO_ORIGINAL AS CAJERO
+			        FROM log_estornos
+			        
+			        ORDER BY FECHA DESC";
 			$stmt = $this->con->conexion->query($sql);
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		}
+
+		public function resumen_caja_consolidado($inicio, $fin) {
+			$res = [ 'ingreso_alquileres' => 0, 'ingreso_garantias' => 0, 'egresos_garantias' => 0, 'total_efectivo' => 0 ];
+
+			// 1. Ingresos Alquileres
+			$stmt1 = $this->con->conexion->prepare("SELECT IFNULL(SUM(MONTO), 0) as total FROM pagos WHERE PENDIENTE='NO' AND DATE(FECHA_PAGO) BETWEEN ? AND ?");
+			$stmt1->execute([$inicio, $fin]);
+			$res['ingreso_alquileres'] = $stmt1->fetch(\PDO::FETCH_ASSOC)['total'];
+
+			// 2. Ingresos Garantías (Nuevas propuestas y cumplimientos cobrados)
+			$stmt2 = $this->con->conexion->prepare("SELECT (SELECT IFNULL(SUM(MONTO),0) FROM garantias_propuesta WHERE DATE(FECHA_COBRO) BETWEEN ? AND ?) + (SELECT IFNULL(SUM(MONTO),0) FROM garantias_cumplimiento WHERE DATE(FECHA_COBRO) BETWEEN ? AND ?) AS total");
+			$stmt2->execute([$inicio, $fin, $inicio, $fin]);
+			$res['ingreso_garantias'] = $stmt2->fetch(\PDO::FETCH_ASSOC)['total'];
+
+			// 3. Egresos Garantías (Devoluciones registradas)
+			$stmt3 = $this->con->conexion->prepare("SELECT (SELECT IFNULL(SUM(MONTO),0) FROM garantias_propuesta WHERE ESTADO='DEVUELTA' AND DATE(FECHA_DEVOLUCION) BETWEEN ? AND ?) + (SELECT IFNULL(SUM(MONTO),0) FROM garantias_cumplimiento WHERE ESTADO='DEVUELTA' AND DATE(FECHA_DEVOLUCION) BETWEEN ? AND ?) AS total");
+			$stmt3->execute([$inicio, $fin, $inicio, $fin]);
+			$res['egresos_garantias'] = $stmt3->fetch(\PDO::FETCH_ASSOC)['total'];
+
+			// 4. Fórmula Matemática Consolidada
+			$res['total_efectivo'] = ($res['ingreso_alquileres'] + $res['ingreso_garantias']) - $res['egresos_garantias'];
+			
+			return $res;
 		}
 
 		public function obtener_ids_por_recibo() {

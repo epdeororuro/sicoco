@@ -160,6 +160,15 @@ public function add()
 	    if (file_exists($img_cen)) $pdf->Image($img_cen, 75, $y, 60);
 	    if (file_exists($img_der)) $pdf->Image($img_der, 175, $y, 25);
 
+	    // --- MARCA DE AGUA DE SEGURIDAD PARA ANULACIONES ---
+	    if (isset($datos['ESTADO_RECIBO']) && $datos['ESTADO_RECIBO'] === 'ANULADO') {
+	        $pdf->SetFont('Arial', 'B', 45);
+	        $pdf->SetTextColor(255, 200, 200);
+	        $pdf->SetXY(20, $y + 35);
+	        $pdf->Cell(170, 20, utf8_decode('*** ANULADO ***'), 0, 1, 'C');
+	        $pdf->SetTextColor(0, 0, 0); // Restaurar a negro
+	    }
+
 	    $pdf->SetFont('Arial', 'B', 14);
 	    $pdf->SetXY(45, $y + 5);
 	    $pdf->Cell(120, 6, utf8_decode(''), 0, 1, 'C');
@@ -173,7 +182,8 @@ public function add()
 
 	    $pdf->SetFont('Arial', 'B', 10);
 	    $pdf->SetXY(15, $y + 30);
-	    $pdf->Cell(90, 6, utf8_decode('RECIBO NRO: ' . str_pad($datos['IDPAGO'], 6, '0', STR_PAD_LEFT)), 0, 0, 'L');
+	    $nro = !empty($datos['NRO_RECIBO']) ? $datos['NRO_RECIBO'] : str_pad($datos['IDPAGO'], 6, '0', STR_PAD_LEFT);
+	    $pdf->Cell(90, 6, utf8_decode('RECIBO NRO: ' . $nro), 0, 0, 'L');
 	    $pdf->SetFont('Arial', '', 10);
 	    $pdf->Cell(90, 6, utf8_decode('Fecha y Hora: ' . date('d/m/Y H:i', strtotime($datos['FECHA_PAGO']))), 0, 1, 'R');
 	    $pdf->Ln(2);
@@ -192,6 +202,16 @@ public function add()
 
 	    $pdf->SetX(15); $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Corresponde a:'), 1, 0, 'L', true);
 	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(150, 7, utf8_decode(' MES DE ' . strtoupper($mes_texto)), 1, 1, 'L');
+	    
+		// --- NUEVA SECCIÓN: DETALLES DE PAGO Y FACTURACIÓN ---
+		$pdf->SetX(15); $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Método de Pago:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(60, 7, utf8_decode(' ' . $datos['METODO_PAGO']), 1, 0, 'L');
+		$pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Nro. Factura SIAT:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(55, 7, utf8_decode(' ' . $datos['NRO_FACTURA_SIAT']), 1, 1, 'L');
+		if($datos['METODO_PAGO'] !== 'EFECTIVO' && !empty($datos['NRO_COMPROBANTE'])) {
+			$pdf->SetX(15); $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Nro. Transacción:'), 1, 0, 'L', true);
+			$pdf->SetFont('Arial', '', 9); $pdf->Cell(150, 7, utf8_decode(' ' . $datos['NRO_COMPROBANTE']), 1, 1, 'L');
+		}
 	    $pdf->Ln(5);
 
 	    $pdf->SetX(15); $pdf->SetFont('Arial', 'B', 11); $pdf->Cell(140, 10, utf8_decode(' TOTAL PAGADO:'), 1, 0, 'R', true);
@@ -209,12 +229,18 @@ public function add()
 	public function realizar_pago($idpago)
 	{
 	    try {
+			// La data de pago viene por POST desde el nuevo Swal
 	        $this->pagos->set("idpago", $idpago);
             $cadena = $this->usuario_session->getCurrentUser();
 	        $this->pagos->set("usr", $cadena['nombre']);
             
-            // Asignar número de recibo también para cobros individuales (botón de 1 solo mes)
-            $this->pagos->set("nro_recibo", str_pad($idpago, 6, '0', STR_PAD_LEFT));
+            // Obtenemos el nuevo número de recibo usando la tabla correlativos
+            $this->pagos->set("nro_recibo", $this->pagos->obtener_siguiente_recibo());
+
+			// Nuevos campos FASE 2
+			$this->pagos->set("metodo_pago", isset($_POST['metodo_pago']) ? $_POST['metodo_pago'] : 'EFECTIVO');
+			$this->pagos->set("nro_comprobante", isset($_POST['nro_comprobante']) ? $_POST['nro_comprobante'] : null);
+			$this->pagos->set("nro_factura_siat", isset($_POST['nro_factura_siat']) ? $_POST['nro_factura_siat'] : null);
             
 	        $this->pagos->registrar_pago();
             
@@ -331,7 +357,13 @@ public function add()
 	        $pdf->SetFont('Arial', '', 8);
 	        $pdf->Cell(18, 6, $d['NRO_RECIBO'], 1, 0, 'C');
 	        $pdf->Cell(12, 6, date('H:i', strtotime($d['HORA'])), 1, 0, 'C');
-	        $pdf->Cell(70, 6, utf8_decode(substr($d['CLIENTE'], 0, 38)), 1, 0, 'L');
+	        if ($d['ESTADO_RECIBO'] == 'ANULADO') {
+	            $pdf->SetTextColor(255, 0, 0);
+	            $pdf->Cell(70, 6, utf8_decode('*** ANULADO *** ' . substr($d['CLIENTE'], 0, 20)), 1, 0, 'L');
+	            $pdf->SetTextColor(0, 0, 0);
+	        } else {
+	            $pdf->Cell(70, 6, utf8_decode(substr($d['CLIENTE'], 0, 38)), 1, 0, 'L');
+	        }
 	        $pdf->Cell(25, 6, utf8_decode($d['CONTRATO']), 1, 0, 'C');
 	        $pdf->Cell(40, 6, utf8_decode(substr($d['PERIODOS'], 0, 23)), 1, 0, 'C');
 	        $pdf->Cell(30, 6, number_format($d['TOTAL'], 2), 1, 1, 'R');
@@ -347,11 +379,40 @@ public function add()
 	    $pdf->Cell(30, 6, number_format($subtotal_cajero, 2), 1, 1, 'R', true);
 	    $pdf->Ln(5);
 
-	    // GRAN TOTAL DEL DÍA
+	    // TOTAL DE INGRESOS POR ALQUILERES DE LA TABLA
 	    $pdf->SetFillColor(200, 255, 200);
 	    $pdf->SetFont('Arial', 'B', 12);
-	    $pdf->Cell(165, 8, utf8_decode('GRAN TOTAL RECAUDADO EN EL DÍA: '), 1, 0, 'R', true);
+	    $pdf->Cell(165, 8, utf8_decode('TOTAL INGRESOS POR ALQUILERES: '), 1, 0, 'R', true);
 	    $pdf->Cell(30, 8, 'Bs. ' . number_format($gran_total, 2), 1, 1, 'R', true);
+
+	    // -------------------------------------------------------------
+	    // ARQUEO CONSOLIDADO (Alquileres + Garantías - Devoluciones)
+	    // -------------------------------------------------------------
+	    $resumen = $this->pagos->resumen_caja_consolidado($fecha_inicio, $fecha_fin);
+
+	    $pdf->Ln(10);
+	    $pdf->SetFont('Arial', 'B', 12);
+	    $pdf->Cell(0, 8, utf8_decode('ARQUEO FÍSICO CONSOLIDADO DE CAJA'), 0, 1, 'C');
+	    $pdf->SetFont('Arial', 'B', 10);
+
+	    $pdf->SetX(45);
+	    $pdf->SetFillColor(240, 240, 240);
+	    $pdf->Cell(90, 6, utf8_decode('(+) Ingresos por Alquileres:'), 1, 0, 'L', true);
+	    $pdf->Cell(40, 6, number_format($resumen['ingreso_alquileres'], 2), 1, 1, 'R');
+
+	    $pdf->SetX(45);
+	    $pdf->Cell(90, 6, utf8_decode('(+) Ingresos por Garantías (Nuevas):'), 1, 0, 'L', true);
+	    $pdf->Cell(40, 6, number_format($resumen['ingreso_garantias'], 2), 1, 1, 'R');
+
+	    $pdf->SetX(45);
+	    $pdf->Cell(90, 6, utf8_decode('(-) Egresos Varios (Devolución Garantías):'), 1, 0, 'L', true);
+	    $pdf->Cell(40, 6, number_format($resumen['egresos_garantias'], 2), 1, 1, 'R');
+
+	    $pdf->SetX(45);
+	    $pdf->SetFillColor(150, 200, 150);
+	    $pdf->SetFont('Arial', 'B', 11);
+	    $pdf->Cell(90, 8, utf8_decode('(=) TOTAL EFECTIVO FÍSICO EN CAJA:'), 1, 0, 'L', true);
+	    $pdf->Cell(40, 8, 'Bs. ' . number_format($resumen['total_efectivo'], 2), 1, 1, 'R', true);
 
 	    // Firmas de Conformidad
 	    $pdf->Ln(20);
@@ -401,7 +462,44 @@ public function add()
 	    if(!$nro_recibo) {
 	        die("Error: Número de recibo no especificado.");
 	    }
+
+	    // 1. Verificar si el recibo está ANULADO (Lo buscamos en la bóveda)
+	    $db = new \Models\Conexion();
+	    $stmt = $db->conexion->prepare("SELECT * FROM log_estornos WHERE NRO_RECIBO = ?");
+	    $stmt->execute([$nro_recibo]);
+	    $log = $stmt->fetch(\PDO::FETCH_ASSOC);
 	    
+	    if ($log) {
+	        $datos_base = [
+	            'RECIBO_NRO' => $log['NRO_RECIBO'],
+	            'FECHA_PAGO' => $log['FECHA_COBRO'],
+	            'CLIENTE' => $log['CLIENTE'],
+	            'CEDULA' => $log['CEDULA'],
+	            'CONTRATO' => $log['CONTRATO'],
+	            'ACTIVIDAD' => $log['ACTIVIDAD'],
+	            'MONTO' => $log['MONTO_TOTAL'],
+	            'USR' => $log['CAJERO_ORIGINAL'],
+	            'ESTADO_RECIBO' => 'ANULADO',
+	            'METODO_PAGO' => $log['METODO_PAGO'],
+	            'NRO_COMPROBANTE' => $log['NRO_COMPROBANTE'],
+	            'NRO_FACTURA_SIAT' => $log['NRO_FACTURA_SIAT'],
+	            'TEXTO_PERIODOS_MANUAL' => $log['PERIODOS_COBRADOS']
+	        ];
+	        require_once ROOT . "libs/fpdf/fpdf.php";
+	        $pdf = new \FPDF('P', 'mm', 'Letter');
+	        $pdf->AddPage();
+	        $pdf->SetAutoPageBreak(false);
+	        $this->dibujar_recibo_multiple($pdf, $datos_base, 10, 'ORIGINAL - CLIENTE');
+	        $pdf->SetDrawColor(150, 150, 150);
+	        for($i = 10; $i < 200; $i += 5) $pdf->Line($i, 135, $i+2, 135);
+	        $this->dibujar_recibo_multiple($pdf, $datos_base, 145, 'COPIA - CAJA EPDEOR');
+	        if (ob_get_length()) ob_clean();
+	        $pdf_b64 = base64_encode($pdf->Output('S'));
+	        echo "<!DOCTYPE html><html lang='es'><head><style>body,html{margin:0;padding:0;height:100%;overflow:hidden;background-color:#525659;} iframe{width:100%;height:100%;border:none;}</style></head><body><iframe src='data:application/pdf;base64,{$pdf_b64}'></iframe></body></html>";
+	        exit();
+	    }
+	    
+	    // 2. Si no está anulado, fluye normalmente
 	    $this->pagos->set("nro_recibo", $nro_recibo);
 	    $pagos = $this->pagos->obtener_ids_por_recibo();
 	    
@@ -424,16 +522,28 @@ public function add()
 	    if(isset($_POST['idpagos'])) {
 	        try {
 	            $ids = explode(',', $_POST['idpagos']);
+				if(empty($ids) || $ids[0] == '') {
+					throw new \Exception("No se seleccionaron pagos válidos.");
+				}
+
 	            $cadena = $this->usuario_session->getCurrentUser();
 	            $usr = $cadena['nombre'];
 	            
-	            // Usamos el ID del primer pago formateado a 6 dígitos como Nro de Recibo Transaccional
-	            $nro_recibo = str_pad($ids[0], 6, '0', STR_PAD_LEFT);
+	            // Obtenemos un único número correlativo transaccional para todo el bloque
+	            $nro_recibo = $this->pagos->obtener_siguiente_recibo();
+
+				// Nuevos campos FASE 2
+				$metodo_pago = isset($_POST['metodo_pago']) ? $_POST['metodo_pago'] : 'EFECTIVO';
+				$nro_comprobante = isset($_POST['nro_comprobante']) ? $_POST['nro_comprobante'] : null;
+				$nro_factura_siat = isset($_POST['nro_factura_siat']) ? $_POST['nro_factura_siat'] : null;
 
 	            foreach($ids as $idpago) {
 	                $this->pagos->set("idpago", $idpago);
 	                $this->pagos->set("usr", $usr);
 	                $this->pagos->set("nro_recibo", $nro_recibo);
+					$this->pagos->set("metodo_pago", $metodo_pago);
+					$this->pagos->set("nro_comprobante", $nro_comprobante);
+					$this->pagos->set("nro_factura_siat", $nro_factura_siat);
 	                $this->pagos->registrar_pago();
 	            }
 
@@ -478,11 +588,7 @@ public function add()
 	    $datos_base['MONTO'] = $total_monto;
 	    $datos_base['PERIODOS_ARRAY'] = $periodos;
         
-        if (count($ids) > 1) {
-            $datos_base['RECIBO_NRO'] = str_pad($ids[0], 6, '0', STR_PAD_LEFT) . ' - ' . str_pad(end($ids), 6, '0', STR_PAD_LEFT);
-        } else {
-            $datos_base['RECIBO_NRO'] = str_pad($ids[0], 6, '0', STR_PAD_LEFT);
-        }
+        $datos_base['RECIBO_NRO'] = !empty($datos_base['NRO_RECIBO']) ? $datos_base['NRO_RECIBO'] : str_pad($datos_base['IDPAGO'], 6, '0', STR_PAD_LEFT);
 
 	    require_once ROOT . "libs/fpdf/fpdf.php";
 
@@ -523,7 +629,9 @@ public function add()
 	    $meses = ['01'=>'Enero', '02'=>'Febrero', '03'=>'Marzo', '04'=>'Abril', '05'=>'Mayo', '06'=>'Junio', '07'=>'Julio', '08'=>'Agosto', '09'=>'Septiembre', '10'=>'Octubre', '11'=>'Noviembre', '12'=>'Diciembre'];
 	    
         $text_periodos = "";
-        if (isset($datos['PERIODOS_ARRAY'])) {
+        if (isset($datos['TEXTO_PERIODOS_MANUAL'])) {
+            $text_periodos = $datos['TEXTO_PERIODOS_MANUAL'];
+        } elseif (isset($datos['PERIODOS_ARRAY'])) {
             $arr = [];
             foreach($datos['PERIODOS_ARRAY'] as $p) {
                 $partes = explode('-', $p);
@@ -547,6 +655,15 @@ public function add()
 	    if (file_exists($img_izq)) $pdf->Image($img_izq, 15, $y, 45);
 	    if (file_exists($img_cen)) $pdf->Image($img_cen, 75, $y, 60);
 	    if (file_exists($img_der)) $pdf->Image($img_der, 175, $y, 25);
+
+	    // --- MARCA DE AGUA DE SEGURIDAD PARA ANULACIONES ---
+	    if (isset($datos['ESTADO_RECIBO']) && $datos['ESTADO_RECIBO'] === 'ANULADO') {
+	        $pdf->SetFont('Arial', 'B', 45);
+	        $pdf->SetTextColor(255, 200, 200);
+	        $pdf->SetXY(20, $y + 35);
+	        $pdf->Cell(170, 20, utf8_decode('*** ANULADO ***'), 0, 1, 'C');
+	        $pdf->SetTextColor(0, 0, 0); // Restaurar a negro
+	    }
 
 	    $pdf->SetFont('Arial', 'B', 14);
 	    $pdf->SetXY(45, $y + 5);
@@ -582,6 +699,16 @@ public function add()
 	    $pdf->SetX(15); $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Corresponde a:'), 1, 0, 'L', true);
 	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(150, 7, utf8_decode(' MES(ES): ' . strtoupper($text_periodos)), 1, 1, 'L');
 	    $pdf->Ln(5);
+
+		// --- NUEVA SECCIÓN: DETALLES DE PAGO Y FACTURACIÓN ---
+		$pdf->SetX(15); $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Método de Pago:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(60, 7, utf8_decode(' ' . $datos['METODO_PAGO']), 1, 0, 'L');
+		$pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Nro. Factura SIAT:'), 1, 0, 'L', true);
+	    $pdf->SetFont('Arial', '', 9); $pdf->Cell(55, 7, utf8_decode(' ' . $datos['NRO_FACTURA_SIAT']), 1, 1, 'L');
+		if($datos['METODO_PAGO'] !== 'EFECTIVO' && !empty($datos['NRO_COMPROBANTE'])) {
+			$pdf->SetX(15); $pdf->SetFont('Arial', 'B', 9); $pdf->Cell(35, 7, utf8_decode(' Nro. Transacción:'), 1, 0, 'L', true);
+			$pdf->SetFont('Arial', '', 9); $pdf->Cell(150, 7, utf8_decode(' ' . $datos['NRO_COMPROBANTE']), 1, 1, 'L');
+		}
 
 	    $pdf->SetX(15); $pdf->SetFont('Arial', 'B', 11); $pdf->Cell(140, 10, utf8_decode(' TOTAL PAGADO:'), 1, 0, 'R', true);
 	    $pdf->SetFont('Arial', 'B', 12); $pdf->Cell(45, 10, utf8_decode('Bs. ' . number_format($datos['MONTO'], 2)), 1, 1, 'C');

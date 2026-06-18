@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-06-2026 a las 22:10:45
+-- Tiempo de generación: 18-06-2026 a las 15:40:59
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -38,6 +38,36 @@ ELSE
  SET OP='Error, La cuenta No se Encuentra Activa';
 END IF;
 SELECT OP;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CIERRE_GESTION` ()   BEGIN
+    DECLARE OP VARCHAR(100);
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        ROLLBACK;
+        SELECT 'Error interno en la BD al ejecutar el Cierre de Gestión.' AS OP;
+    END;
+
+    START TRANSACTION;
+
+    -- A) Liberar todos los espacios del catálogo
+    UPDATE catalogo SET ESTADO = 'DISPONIBLE' WHERE ESTADO = 'ALQUILADO';
+
+    -- B) Contratos Vigentes que SÍ tienen pagos pendientes -> Pasan a Cuentas por Cobrar (CXC)
+    UPDATE arriendos a
+    SET a.VIGENTE = 'CXC'
+    WHERE a.VIGENTE = 'SI'
+      AND EXISTS (SELECT 1 FROM pagos p WHERE p.IDARRIENDO = a.IDARRIENDO AND p.PENDIENTE = 'SI');
+
+    -- C) Contratos Vigentes que NO tienen deudas -> Pasan a Finalizado (FIN)
+    UPDATE arriendos a
+    SET a.VIGENTE = 'FIN'
+    WHERE a.VIGENTE = 'SI'
+      AND NOT EXISTS (SELECT 1 FROM pagos p WHERE p.IDARRIENDO = a.IDARRIENDO AND p.PENDIENTE = 'SI');
+
+    COMMIT;
+    SELECT '1' AS OP;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_CONFIRMA_CONTRATO` (IN `_IDARRIENDO` INT)   BEGIN
@@ -522,7 +552,7 @@ CREATE TABLE `arriendos` (
   `TIEMPOCONTRATO` int(11) NOT NULL,
   `MONTO` decimal(10,0) NOT NULL DEFAULT 0,
   `OBSERVACIONES` varchar(250) NOT NULL DEFAULT 'SIN OBSERVACIÓN',
-  `VIGENTE` varchar(2) NOT NULL DEFAULT 'PR',
+  `VIGENTE` varchar(3) NOT NULL DEFAULT 'PR',
   `FECHA_REGISTRO` datetime NOT NULL DEFAULT current_timestamp(),
   `ARCHIVO_PDF` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -532,7 +562,8 @@ CREATE TABLE `arriendos` (
 --
 
 INSERT INTO `arriendos` (`IDARRIENDO`, `IDUSUARIO`, `IDCLIENTE`, `ACTIVIDAD`, `RAZONSOCIAL`, `CONTRATO`, `FECHA_SUSCRIPCION`, `FECHA_INICIO`, `TIEMPOCONTRATO`, `MONTO`, `OBSERVACIONES`, `VIGENTE`, `FECHA_REGISTRO`, `ARCHIVO_PDF`) VALUES
-(2, 7, 10, 'ROPA', 'SIN DATO', '1232/2026', '2026-06-12', '2026-06-12', 7, 200, 'SIN OBSERVACIÓN', 'SI', '2026-06-12 14:25:30', 'contrato_2_1781291153.pdf');
+(1, 7, 10, 'BODEGA PARA GUARDAR DULCES', 'SIN DATO', 'CON-LEG/BOD-01/2026', '2026-06-17', '2026-06-17', 7, 600, 'SIN OBSERVACIÓN', 'SI', '2026-06-17 14:33:49', NULL),
+(2, 7, 1, 'VENTA DE ROPA', 'SIN DATO', 'CONT-LEG-STAND1', '2026-06-17', '2026-06-17', 7, 600, 'SIN OBSERVACIÓN', 'SI', '2026-06-17 14:56:35', NULL);
 
 -- --------------------------------------------------------
 
@@ -553,13 +584,13 @@ CREATE TABLE `catalogo` (
 --
 
 INSERT INTO `catalogo` (`IDCATALOGO`, `IDAREA`, `DESCRIPCION`, `ALQUILER`, `ESTADO`) VALUES
-(1, 6, 'BODEGA 2', 200, 'ALQUILADO'),
+(1, 6, 'BODEGA 2', 200, 'DISPONIBLE'),
 (3, 6, 'BODEGA 3', 200, 'DISPONIBLE'),
 (4, 6, 'BODEGA 4', 200, 'DISPONIBLE'),
-(6, 1, 'STAND 1', 600, 'DISPONIBLE'),
+(6, 1, 'STAND 1', 600, 'ALQUILADO'),
 (7, 1, 'STAND 4', 700, 'DISPONIBLE'),
 (8, 1, 'STAND 3', 700, 'DISPONIBLE'),
-(10, 6, 'BODEGA 1', 600, 'DISPONIBLE');
+(10, 6, 'BODEGA 1', 600, 'ALQUILADO');
 
 -- --------------------------------------------------------
 
@@ -600,6 +631,24 @@ INSERT INTO `clientes` (`IDCLIENTE`, `NOMBRES`, `PATERNO`, `MATERNO`, `NOMBRE_CO
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `correlativos`
+--
+
+CREATE TABLE `correlativos` (
+  `ID` int(11) NOT NULL,
+  `ULTIMO_RECIBO` int(11) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `correlativos`
+--
+
+INSERT INTO `correlativos` (`ID`, `ULTIMO_RECIBO`) VALUES
+(1, 11);
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `detalle`
 --
 
@@ -615,7 +664,8 @@ CREATE TABLE `detalle` (
 --
 
 INSERT INTO `detalle` (`IDDETALLE`, `IDCATALOGO`, `IDARRIENDO`, `ALQUILER_NOMINAL`) VALUES
-(1, 1, 2, 200);
+(1, 10, 1, 600),
+(2, 6, 2, 600);
 
 -- --------------------------------------------------------
 
@@ -636,14 +686,6 @@ CREATE TABLE `garantias_cumplimiento` (
   `IDARRIENDO` int(11) DEFAULT NULL,
   `USUARIO` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `garantias_cumplimiento`
---
-
-INSERT INTO `garantias_cumplimiento` (`IDGARANTIA`, `CITE_ADJUDICACION`, `CI_POSTULANTE`, `NOMBRE_POSTULANTE`, `IDCATALOGO`, `MONTO`, `FECHA_COBRO`, `FECHA_DEVOLUCION`, `ESTADO`, `IDARRIENDO`, `USUARIO`) VALUES
-(1, '123/2026', '87456487', 'REYNALDO JESUS FLORES JAILLITA', 1, 200.00, '2026-06-12 11:42:47', '2026-06-12 12:03:21', 'DEVUELTA', NULL, 'wil.arroyo'),
-(2, '123/2026', '87456487', 'REYNALDO JESUS FLORES JAILLITA', 10, 600.00, '2026-06-12 13:10:57', '2026-06-12 13:11:01', 'DEVUELTA', NULL, 'wil.arroyo');
 
 -- --------------------------------------------------------
 
@@ -666,36 +708,8 @@ CREATE TABLE `log_accesos` (
 --
 
 INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FECHA_EXPIRACION`, `ESTADO`, `IP_ACCESO`) VALUES
-(1, 7, '401577', '2026-06-02 12:27:05', '2026-06-02 12:32:05', 'USADO', '::1'),
-(2, 7, '830622', '2026-06-02 13:04:08', '2026-06-02 13:09:08', 'USADO', '::1'),
-(3, 7, '453075', '2026-06-02 14:46:09', '2026-06-02 14:51:09', 'PENDIENTE', '::1'),
-(4, 7, '907075', '2026-06-02 14:52:40', '2026-06-02 14:57:40', 'USADO', '::1'),
-(5, 7, '279673', '2026-06-03 09:11:55', '2026-06-03 09:16:55', 'USADO', '::1'),
-(6, 7, '835785', '2026-06-03 10:23:01', '2026-06-03 10:28:01', 'USADO', '::1'),
-(7, 7, '335323', '2026-06-03 13:09:54', '2026-06-03 13:14:54', 'USADO', '::1'),
-(8, 7, '265385', '2026-06-08 09:28:32', '2026-06-08 09:33:32', 'USADO', '::1'),
-(9, 7, '725737', '2026-06-08 09:28:32', '2026-06-08 09:33:32', 'PENDIENTE', '::1'),
-(10, 7, '880885', '2026-06-08 11:06:55', '2026-06-08 11:11:55', 'USADO', '::1'),
-(11, 7, '108329', '2026-06-08 13:17:58', '2026-06-08 13:22:58', 'USADO', '::1'),
-(12, 7, '618393', '2026-06-08 13:17:58', '2026-06-08 13:22:58', 'PENDIENTE', '::1'),
-(13, 7, '504474', '2026-06-09 09:13:13', '2026-06-09 09:18:13', 'USADO', '::1'),
-(14, 7, '993324', '2026-06-09 09:13:14', '2026-06-09 09:18:14', 'PENDIENTE', '::1'),
-(15, 7, '487003', '2026-06-09 09:55:36', '2026-06-09 10:00:36', 'USADO', '::1'),
-(16, 7, '136158', '2026-06-09 10:38:39', '2026-06-09 10:43:39', 'USADO', '::1'),
-(17, 7, '519563', '2026-06-09 11:51:18', '2026-06-09 11:56:18', 'USADO', '::1'),
-(18, 7, '856805', '2026-06-09 13:13:03', '2026-06-09 13:18:03', 'USADO', '::1'),
-(19, 7, '711596', '2026-06-09 14:50:13', '2026-06-09 14:55:13', 'USADO', '::1'),
-(20, 7, '663301', '2026-06-10 09:21:48', '2026-06-10 09:26:48', 'USADO', '::1'),
-(21, 7, '584498', '2026-06-10 09:22:12', '2026-06-10 09:27:12', 'USADO', '::1'),
-(22, 7, '337200', '2026-06-10 12:06:16', '2026-06-10 12:11:16', 'USADO', '::1'),
-(23, 7, '625481', '2026-06-10 13:08:40', '2026-06-10 13:13:40', 'USADO', '::1'),
-(24, 7, '617142', '2026-06-10 15:20:45', '2026-06-10 15:25:45', 'USADO', '::1'),
-(25, 7, '880893', '2026-06-10 16:12:56', '2026-06-10 16:17:56', 'USADO', '::1'),
-(26, 7, '132965', '2026-06-12 08:19:35', '2026-06-12 08:24:35', 'USADO', '::1'),
-(27, 7, '782786', '2026-06-12 11:39:23', '2026-06-12 11:44:23', 'USADO', '::1'),
-(28, 7, '897547', '2026-06-12 13:05:27', '2026-06-12 13:10:27', 'USADO', '::1'),
-(29, 7, '307144', '2026-06-15 09:35:53', '2026-06-15 09:40:53', 'USADO', '::1'),
-(30, 7, '468961', '2026-06-15 10:10:26', '2026-06-15 10:15:26', 'USADO', '::1');
+(1, 7, '809967', '2026-06-17 15:30:24', '2026-06-17 15:35:24', 'USADO', '::1'),
+(2, 7, '595471', '2026-06-18 09:00:50', '2026-06-18 09:05:50', 'USADO', '::1');
 
 -- --------------------------------------------------------
 
@@ -711,12 +725,37 @@ CREATE TABLE `log_cierres` (
   `USUARIO` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
--- Volcado de datos para la tabla `log_cierres`
+-- Estructura de tabla para la tabla `log_estornos`
 --
 
-INSERT INTO `log_cierres` (`IDLOGCIERRE`, `FECHA_INICIO`, `FECHA_FIN`, `FECHA_GENERACION`, `USUARIO`) VALUES
-(1, '2026-06-08', '2026-06-15', '2026-06-15 10:10:45', 'wil.arroyo');
+CREATE TABLE `log_estornos` (
+  `IDLOG` int(11) NOT NULL,
+  `NRO_RECIBO` varchar(50) NOT NULL,
+  `MONTO_TOTAL` decimal(10,2) NOT NULL,
+  `PERIODOS_COBRADOS` varchar(255) NOT NULL,
+  `CLIENTE` varchar(255) NOT NULL,
+  `CEDULA` varchar(50) NOT NULL,
+  `CONTRATO` varchar(50) NOT NULL,
+  `ACTIVIDAD` varchar(255) NOT NULL,
+  `METODO_PAGO` varchar(50) DEFAULT NULL,
+  `NRO_COMPROBANTE` varchar(100) DEFAULT NULL,
+  `NRO_FACTURA_SIAT` varchar(100) DEFAULT NULL,
+  `CAJERO_ORIGINAL` varchar(100) NOT NULL,
+  `FECHA_COBRO` datetime NOT NULL,
+  `USUARIO_QUE_ANULA` varchar(100) NOT NULL,
+  `FECHA_ANULACION` datetime NOT NULL DEFAULT current_timestamp(),
+  `MOTIVO` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `log_estornos`
+--
+
+INSERT INTO `log_estornos` (`IDLOG`, `NRO_RECIBO`, `MONTO_TOTAL`, `PERIODOS_COBRADOS`, `CLIENTE`, `CEDULA`, `CONTRATO`, `ACTIVIDAD`, `METODO_PAGO`, `NRO_COMPROBANTE`, `NRO_FACTURA_SIAT`, `CAJERO_ORIGINAL`, `FECHA_COBRO`, `USUARIO_QUE_ANULA`, `FECHA_ANULACION`, `MOTIVO`) VALUES
+(1, '000010', 600.00, '2026-08', 'FLORES  PINTO ALVARO', '8545213', 'CONT-LEG-STAND1', 'VENTA DE ROPA', 'EFECTIVO', '', '', 'wil.arroyo', '2026-06-18 09:01:30', 'wil.arroyo', '2026-06-18 09:01:57', 'ADSD');
 
 -- --------------------------------------------------------
 
@@ -732,21 +771,33 @@ CREATE TABLE `pagos` (
   `FECHA_PAGO` datetime DEFAULT NULL,
   `PENDIENTE` varchar(2) NOT NULL DEFAULT 'SI',
   `NRO_RECIBO` varchar(20) DEFAULT NULL,
-  `USR` varchar(20) DEFAULT NULL
+  `USR` varchar(20) DEFAULT NULL,
+  `METODO_PAGO` varchar(50) DEFAULT 'EFECTIVO',
+  `NRO_COMPROBANTE` varchar(100) DEFAULT NULL,
+  `NRO_FACTURA_SIAT` varchar(100) DEFAULT NULL,
+  `ESTADO_RECIBO` varchar(15) NOT NULL DEFAULT 'ACTIVO',
+  `MOTIVO_ANULACION` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `pagos`
 --
 
-INSERT INTO `pagos` (`IDPAGO`, `IDARRIENDO`, `PERIODO`, `MONTO`, `FECHA_PAGO`, `PENDIENTE`, `NRO_RECIBO`, `USR`) VALUES
-(2, 2, '2026-06', 126.67, '2026-06-12 15:06:02', 'NO', '000002', 'wil.arroyo'),
-(3, 2, '2026-07', 200.00, '2026-06-12 15:06:02', 'NO', '000002', 'wil.arroyo'),
-(4, 2, '2026-08', 200.00, '2026-06-12 15:06:02', 'NO', '000002', 'wil.arroyo'),
-(5, 2, '2026-09', 200.00, '2026-06-12 15:06:02', 'NO', '000002', 'wil.arroyo'),
-(6, 2, '2026-10', 200.00, NULL, 'SI', NULL, NULL),
-(7, 2, '2026-11', 200.00, NULL, 'SI', NULL, NULL),
-(8, 2, '2026-12', 200.00, NULL, 'SI', NULL, NULL);
+INSERT INTO `pagos` (`IDPAGO`, `IDARRIENDO`, `PERIODO`, `MONTO`, `FECHA_PAGO`, `PENDIENTE`, `NRO_RECIBO`, `USR`, `METODO_PAGO`, `NRO_COMPROBANTE`, `NRO_FACTURA_SIAT`, `ESTADO_RECIBO`, `MOTIVO_ANULACION`) VALUES
+(1, 1, '2026-06', 280.00, '2026-06-17 14:53:41', 'NO', '000001', 'wil.arroyo', 'EFECTIVO', '', '', 'ACTIVO', NULL),
+(2, 1, '2026-07', 600.00, NULL, 'SI', NULL, 'wil.arroyo', 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL),
+(3, 1, '2026-08', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL),
+(4, 1, '2026-09', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL),
+(5, 1, '2026-10', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL),
+(6, 1, '2026-11', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL),
+(7, 1, '2026-12', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL),
+(8, 2, '2026-06', 280.00, '2026-06-17 14:58:22', 'NO', '000008', 'wil.arroyo', 'EFECTIVO', '', '', 'ACTIVO', NULL),
+(9, 2, '2026-07', 600.00, '2026-06-17 15:56:14', 'NO', '000009', 'wil.arroyo', 'EFECTIVO', '', '', 'ACTIVO', NULL),
+(10, 2, '2026-08', 600.00, '2026-06-18 09:02:18', 'NO', '000011', 'wil.arroyo', 'TRANSFERENCIA', '', '', 'ACTIVO', NULL),
+(11, 2, '2026-09', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL),
+(12, 2, '2026-10', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL),
+(13, 2, '2026-11', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL),
+(14, 2, '2026-12', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL);
 
 -- --------------------------------------------------------
 
@@ -765,19 +816,6 @@ CREATE TABLE `propuestas` (
   `ESTADO` varchar(20) NOT NULL DEFAULT 'RETENIDA',
   `USUARIO` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `propuestas`
---
-
-INSERT INTO `propuestas` (`IDPROPUESTA`, `CI_POSTULANTE`, `NOMBRE_POSTULANTE`, `IDCATALOGO`, `MONTO`, `FECHA_COBRO`, `FECHA_DEVOLUCION`, `ESTADO`, `USUARIO`) VALUES
-(1, '7403044', 'REYNALDO JESUS FLORES JAILLITA', 10, 100.00, '2026-06-10 12:13:45', '2026-06-10 13:18:57', 'DEVUELTA', 'wil.arroyo'),
-(2, '7403044', 'REYNALDO JESUS FLORES JAILLITA', 1, 100.00, '2026-06-10 13:24:59', '2026-06-10 14:41:10', 'DEVUELTA', 'wil.arroyo'),
-(3, '87456487', 'RAMIRO FLORES RODRIGUEZ', 3, 100.00, '2026-06-10 13:25:56', '2026-06-10 13:54:33', 'DEVUELTA', 'wil.arroyo'),
-(4, '7300312', 'JESUS FLORES JAILLITA', 1, 100.00, '2026-06-10 13:55:00', '2026-06-12 13:10:44', 'DEVUELTA', 'wil.arroyo'),
-(5, '3054611', 'BENJAMIN FLORES', 4, 100.00, '2026-06-10 14:15:47', NULL, 'RETENIDA', 'wil.arroyo'),
-(6, '30542584', 'MARITZA JAILLITA', 1, 100.00, '2026-06-10 15:23:08', NULL, 'RETENIDA', 'wil.arroyo'),
-(7, '30542584', 'MARITZA JAILLITA', 1, 100.00, '2026-06-12 11:42:59', NULL, 'RETENIDA', 'wil.arroyo');
 
 -- --------------------------------------------------------
 
@@ -885,7 +923,7 @@ CREATE TABLE `v_contratos` (
 ,`TIEMPOCONTRATO` int(11)
 ,`MONTO` decimal(10,0)
 ,`OBSERVACIONES` varchar(250)
-,`VIGENTE` varchar(2)
+,`VIGENTE` varchar(3)
 ,`FECHA_REGISTRO` datetime
 ,`REPRESENTANTE` varchar(168)
 );
@@ -916,7 +954,7 @@ CREATE TABLE `v_resumen_gral_contrato` (
 ,`GENERAL` varchar(399)
 ,`REFERENCIAL` varchar(100)
 ,`ESPECIFICO` varchar(31)
-,`VIGENTE` varchar(2)
+,`VIGENTE` varchar(3)
 );
 
 -- --------------------------------------------------------
@@ -927,7 +965,7 @@ CREATE TABLE `v_resumen_gral_contrato` (
 --
 CREATE TABLE `v_resumen_pagos` (
 `IDARRIENDO` int(11)
-,`VIGENTE` varchar(2)
+,`VIGENTE` varchar(3)
 ,`IDPAGO` int(11)
 ,`PERIODO` varchar(30)
 ,`MONTO` decimal(10,2)
@@ -1022,6 +1060,12 @@ ALTER TABLE `clientes`
   ADD PRIMARY KEY (`IDCLIENTE`);
 
 --
+-- Indices de la tabla `correlativos`
+--
+ALTER TABLE `correlativos`
+  ADD PRIMARY KEY (`ID`);
+
+--
 -- Indices de la tabla `detalle`
 --
 ALTER TABLE `detalle`
@@ -1048,6 +1092,12 @@ ALTER TABLE `log_accesos`
 --
 ALTER TABLE `log_cierres`
   ADD PRIMARY KEY (`IDLOGCIERRE`);
+
+--
+-- Indices de la tabla `log_estornos`
+--
+ALTER TABLE `log_estornos`
+  ADD PRIMARY KEY (`IDLOG`);
 
 --
 -- Indices de la tabla `pagos`
@@ -1106,40 +1156,52 @@ ALTER TABLE `clientes`
   MODIFY `IDCLIENTE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
+-- AUTO_INCREMENT de la tabla `correlativos`
+--
+ALTER TABLE `correlativos`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT de la tabla `detalle`
 --
 ALTER TABLE `detalle`
-  MODIFY `IDDETALLE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `IDDETALLE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `garantias_cumplimiento`
 --
 ALTER TABLE `garantias_cumplimiento`
-  MODIFY `IDGARANTIA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `IDGARANTIA` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `log_accesos`
 --
 ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `log_cierres`
 --
 ALTER TABLE `log_cierres`
-  MODIFY `IDLOGCIERRE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `IDLOGCIERRE` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `log_estornos`
+--
+ALTER TABLE `log_estornos`
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`
 --
 ALTER TABLE `pagos`
-  MODIFY `IDPAGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `IDPAGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de la tabla `propuestas`
 --
 ALTER TABLE `propuestas`
-  MODIFY `IDPROPUESTA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `IDPROPUESTA` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
