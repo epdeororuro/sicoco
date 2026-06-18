@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-06-2026 a las 22:07:57
+-- Tiempo de generación: 18-06-2026 a las 23:38:59
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -563,7 +563,8 @@ CREATE TABLE `arriendos` (
 
 INSERT INTO `arriendos` (`IDARRIENDO`, `IDUSUARIO`, `IDCLIENTE`, `ACTIVIDAD`, `RAZONSOCIAL`, `CONTRATO`, `FECHA_SUSCRIPCION`, `FECHA_INICIO`, `TIEMPOCONTRATO`, `MONTO`, `OBSERVACIONES`, `VIGENTE`, `FECHA_REGISTRO`, `ARCHIVO_PDF`) VALUES
 (1, 7, 10, 'BODEGA PARA GUARDAR DULCES', 'SIN DATO', 'CON-LEG/BOD-01/2026', '2026-06-17', '2026-06-17', 7, 600, 'SIN OBSERVACIÓN', 'SI', '2026-06-17 14:33:49', NULL),
-(2, 7, 1, 'VENTA DE ROPA', 'SIN DATO', 'CONT-LEG-STAND1', '2026-06-17', '2026-06-17', 7, 600, 'SIN OBSERVACIÓN', 'SI', '2026-06-17 14:56:35', NULL);
+(2, 7, 1, 'VENTA DE ROPA', 'SIN DATO', 'CONT-LEG-STAND1', '2026-06-17', '2026-06-17', 7, 600, 'SIN OBSERVACIÓN', 'SI', '2026-06-17 14:56:35', NULL),
+(3, 7, 10, 'SINTTOC', 'SIN DATO', 'CON/LEG-20/2026', '2026-06-18', '2026-06-18', 7, 1000, 'SIN OBSERVACIÓN', 'PR', '2026-06-18 17:08:24', NULL);
 
 -- --------------------------------------------------------
 
@@ -590,7 +591,8 @@ INSERT INTO `catalogo` (`IDCATALOGO`, `IDAREA`, `DESCRIPCION`, `ALQUILER`, `ESTA
 (6, 1, 'STAND 1', 600, 'ALQUILADO'),
 (7, 1, 'STAND 4', 700, 'DISPONIBLE'),
 (8, 1, 'STAND 3', 700, 'DISPONIBLE'),
-(10, 6, 'BODEGA 1', 600, 'ALQUILADO');
+(10, 6, 'BODEGA 1', 600, 'ALQUILADO'),
+(11, 9, 'CARRIL 1', 1000, 'DISPONIBLE');
 
 -- --------------------------------------------------------
 
@@ -665,7 +667,8 @@ CREATE TABLE `detalle` (
 
 INSERT INTO `detalle` (`IDDETALLE`, `IDCATALOGO`, `IDARRIENDO`, `ALQUILER_NOMINAL`) VALUES
 (1, 10, 1, 600),
-(2, 6, 2, 600);
+(2, 6, 2, 600),
+(3, 11, 3, 1000);
 
 -- --------------------------------------------------------
 
@@ -682,9 +685,12 @@ CREATE TABLE `garantias_cumplimiento` (
   `MONTO` decimal(10,2) NOT NULL,
   `FECHA_COBRO` datetime NOT NULL DEFAULT current_timestamp(),
   `FECHA_DEVOLUCION` datetime DEFAULT NULL,
-  `ESTADO` varchar(20) NOT NULL DEFAULT 'RETENIDA',
+  `ESTADO` varchar(20) NOT NULL DEFAULT 'RETENIDA' COMMENT 'RETENIDA, DEVUELTA, ANULADA',
   `IDARRIENDO` int(11) DEFAULT NULL,
-  `USUARIO` varchar(50) NOT NULL
+  `USUARIO` varchar(50) NOT NULL,
+  `MOTIVO_ANULACION` varchar(255) DEFAULT NULL,
+  `USUARIO_ANULACION` varchar(50) DEFAULT NULL,
+  `FECHA_ANULACION` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -711,7 +717,8 @@ INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FEC
 (1, 7, '809967', '2026-06-17 15:30:24', '2026-06-17 15:35:24', 'USADO', '::1'),
 (2, 7, '595471', '2026-06-18 09:00:50', '2026-06-18 09:05:50', 'USADO', '::1'),
 (3, 7, '524343', '2026-06-18 13:29:51', '2026-06-18 13:34:51', 'USADO', '::1'),
-(4, 7, '648465', '2026-06-18 14:44:14', '2026-06-18 14:49:14', 'USADO', '::1');
+(4, 7, '648465', '2026-06-18 14:44:14', '2026-06-18 14:49:14', 'USADO', '::1'),
+(5, 7, '899179', '2026-06-18 16:58:18', '2026-06-18 17:03:18', 'USADO', '::1');
 
 -- --------------------------------------------------------
 
@@ -828,7 +835,8 @@ CREATE TABLE `propuestas` (
 --
 
 INSERT INTO `propuestas` (`IDPROPUESTA`, `CI_POSTULANTE`, `NOMBRE_POSTULANTE`, `IDCATALOGO`, `MONTO`, `FECHA_COBRO`, `FECHA_DEVOLUCION`, `ESTADO`, `USUARIO`, `MOTIVO_ANULACION`, `USUARIO_ANULACION`, `FECHA_ANULACION`) VALUES
-(1, '654321', 'MARIANO CLOSS PEREZ', 1, 100.00, '2026-06-18 15:37:12', NULL, 'RETENIDA', 'wil.arroyo', NULL, NULL, NULL);
+(1, '654321', 'MARIANO CLOSS PEREZ', 1, 100.00, '2026-06-18 15:37:12', NULL, 'ANULADA', 'wil.arroyo', '123', 'wil.arroyo', '2026-06-18 16:08:43'),
+(2, '654321', 'MARIANO CLOSS PEREZ', 3, 100.00, '2026-06-18 16:08:52', NULL, 'RETENIDA', 'wil.arroyo', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -885,7 +893,7 @@ INSERT INTO `usuarios` (`IDUSUARIO`, `NOMBRE`, `CEL`, `USR`, `PASS`, `FECHA_ALTA
 (11, 'JHUDIT PEREZ', '', 'JPEREZ', '$2y$10$wtSdoKD3lqHVX0bxjn.RQOiMOxK9SQoqj5KkL/ZKbX9u47nQgGlqq', '2026-06-08 12:28:30', '2026-06-08 12:29:07', 'NO', 4),
 (12, 'PEDOR', '', 'ASDSS', '$2y$10$zGUPHKOj6cpJtiVNvNN9fO2Rt3Q8z2aTHZZeZO.IazF15j3ziqTnW', '2026-06-08 12:28:52', '2026-06-08 12:29:00', 'NO', 1),
 (13, '123', '', '123', '$2y$10$xNRcJJBrAy0BuqZdkXU7S.fuw6IAhBsqb5M19PM.DmPJfBXuxpbSK', '2026-06-08 12:29:48', '2026-06-08 13:18:25', 'NO', 4),
-(14, '123123', '', '1232', '$2y$10$BRTrQtDfMFzXPB3p33LFHuVKQ1ehWLVyYZyWzqY1Weuwe3zp/g.Kq', '2026-06-08 13:19:18', '2026-06-08 13:47:46', 'NO', 1),
+(14, '123123', '', '1232', '$2y$10$BRTrQtDfMFzXPB3p33LFHuVKQ1ehWLVyYZyWzqY1Weuwe3zp/g.Kq', '2026-06-08 13:19:18', NULL, 'SI', 1),
 (15, 'REAS1', '', '123as', '$2y$10$3mnuXhxVc782viwvqtbG7.4tmr4RYZNyZlXw3DWTXPyHstRW1klg6', '2026-06-08 13:54:51', '2026-06-08 14:50:09', 'NO', 4),
 (16, 'YGF', '', '13hgg', '$2y$10$qkhk0Cp05BwRJVLPyWe15eE6CDx5odg8//E/8NnJTHCENFSdeNZd2', '2026-06-08 14:23:30', NULL, 'SI', 4),
 (17, '41234', '', 'asdass1', '$2y$10$rdqBUqyIO5GBo5bch8CN8eskhFFHR/kYsjq.X/FD7XdRNjgj1/QEG', '2026-06-08 14:50:20', '2026-06-08 14:50:50', 'NO', 4),
@@ -1154,13 +1162,13 @@ ALTER TABLE `areaubicacion`
 -- AUTO_INCREMENT de la tabla `arriendos`
 --
 ALTER TABLE `arriendos`
-  MODIFY `IDARRIENDO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `IDARRIENDO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `catalogo`
 --
 ALTER TABLE `catalogo`
-  MODIFY `IDCATALOGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `IDCATALOGO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de la tabla `clientes`
@@ -1178,7 +1186,7 @@ ALTER TABLE `correlativos`
 -- AUTO_INCREMENT de la tabla `detalle`
 --
 ALTER TABLE `detalle`
-  MODIFY `IDDETALLE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `IDDETALLE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `garantias_cumplimiento`
@@ -1190,7 +1198,7 @@ ALTER TABLE `garantias_cumplimiento`
 -- AUTO_INCREMENT de la tabla `log_accesos`
 --
 ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `log_cierres`
@@ -1214,7 +1222,7 @@ ALTER TABLE `pagos`
 -- AUTO_INCREMENT de la tabla `propuestas`
 --
 ALTER TABLE `propuestas`
-  MODIFY `IDPROPUESTA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `IDPROPUESTA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
@@ -1223,3 +1231,16 @@ ALTER TABLE `usuarios`
   MODIFY `IDUSUARIO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `garantias_cumplimiento`
+--
+ALTER TABLE `garantias_cumplimiento`
+  ADD CONSTRAINT `garantias_cumplimiento_ibfk_1` FOREIGN KEY (`IDCATALOGO`) REFERENCES `catalogo` (`IDCATALOGO`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
