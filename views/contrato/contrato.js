@@ -224,6 +224,9 @@ function colocarMarcador(lat, lng) {
 // =========================================================================
 
 $(document).ready(function(){
+  // Desactivar el enforceFocus de Bootstrap para que SweetAlert2 permita escribir en sus inputs
+  $.fn.modal.Constructor.prototype._enforceFocus = function() {};
+
   // Inicializar mapa solo cuando el Modal termine de abrirse
   // $('#ModalContrato').on('shown.bs.modal', function () {
   //     inicializarMapa();
@@ -345,6 +348,7 @@ $(document).ready(function(){
       var texto_meses = periodos.length > 1 ? periodos[0] + ' al ' + periodos[periodos.length - 1] : periodos[0];
 
       // --- Nuevo Modal de Swal con Formulario ---
+      $('#ModalDetalle').removeAttr('tabindex'); // Corrección para permitir foco en inputs de SweetAlert2
       Swal.fire({
           title: 'Confirmar Cobro y Facturación',
           icon: 'question',

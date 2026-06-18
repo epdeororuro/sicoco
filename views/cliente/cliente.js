@@ -23,8 +23,6 @@ function EliminarCliente(id)
 } // fin eliminar Cliente
 
 function ListarCliente(){
-  var boton_editar="<button type='button' class='EditarCliente btn btn-warning btn-sm' data-toggle='modal' data-target='#ModalCliente' ><i class='fas fa-edit'></i></button>";
-  var boton_eliminar="<button type='button' class='EliminarCliente btn btn-danger btn-sm'><i class='fas fa-trash'></i></button>";
   $("#TablaCliente").DataTable({     
  
    "responsive":true,
@@ -36,16 +34,16 @@ function ListarCliente(){
         "dataSrc":""
       },
       "columns":[
-      {"data": "IDCLIENTE"},
-      {"data": "NOMBRE"},
-      {"data": "CEDULA"},
-      {"data": "CONTACTOS"},
+      {"data": null, "className": "text-center font-weight-bold", "render": function (data, type, row, meta) { return meta.row + 1; }},
+      {"data": "NOMBRE", "render": function(data){ return "<strong>" + data + "</strong>"; }},
+      {"data": "CEDULA", "className": "text-center"},
+      {"data": "CONTACTOS", "className": "text-center"},
       {"data": "DIRECCION"},      
-      {"defaultContent": boton_editar+" "+boton_eliminar}
-      ],
-       dom: 'Bfrtip',
-       buttons: [
-             'excel', 'pdf', 'print'
-        ]       
+      {"data": null, "className": "text-center text-nowrap", "render": function(data, type, row){
+          var boton_editar="<button type='button' class='EditarCliente btn btn-warning btn-sm mx-1' data-toggle='modal' data-target='#ModalCliente' title='Editar Cliente'><i class='fas fa-edit'></i></button>";
+          var boton_eliminar="<button type='button' class='EliminarCliente btn btn-danger btn-sm mx-1' title='Eliminar Cliente'><i class='fas fa-trash'></i></button>";
+          return boton_editar + boton_eliminar;
+      }}
+      ]
     }); 
 } // fin de funcion listarCliente

@@ -127,61 +127,52 @@
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
+          
+          <!-- 1. INFRAESTRUCTURA -->
           <li class="nav-item">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-columns"></i>
+              <i class="nav-icon fas fa-building"></i>
               <p>
-                ACCESOS
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-
-                <a class="nav-link" href="<?php echo URL; ?>usuario">
-                  <i class="fa fa-users fa-lg" aria-hidden="true"></i>
-                      <span>Usuarios</span></a>
-              </li>
-            </ul>
-          </li>
-
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-edit"></i>
-              <p>
-                CATÁLOGO
+                INFRAESTRUCTURA
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL; ?>area">
-                  <i class="fa fa-th fa-lg"></i>
+                  <i class="fas fa-map-marked-alt fa-lg"></i>
                   <p>Áreas|Ubicaciones</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL; ?>catalogo">
-                  <i class="fa fa-microchip fa-lg"></i>
+                  <i class="fas fa-store fa-lg"></i>
                   <p>Espacios|Servicios</p>
                 </a>
               </li>                           
             </ul>
           </li>
        
+          <!-- 2. GESTIÓN COMERCIAL -->
           <li class="nav-item">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-copy"></i>
+              <i class="nav-icon fas fa-handshake"></i>
               <p>
-                REGISTROS
+                GESTIÓN COMERCIAL
                 <i class="fas fa-angle-left right"></i>
                 <span class="badge badge-info right"></span>
               </p>
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-              <a class="nav-link" href="<?php echo URL; ?>propuesta">
-                  <i class="fas fa-hand-holding-usd fa-lg"></i>
+                <a class="nav-link" href="<?php echo URL; ?>cliente">
+                  <i class="fas fa-users fa-lg"></i>
+                  <p>Directorio de Clientes</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="<?php echo URL; ?>propuesta">
+                  <i class="fas fa-file-signature fa-lg"></i>
                   <p>Garantías Propuestas</p>
                 </a>
               </li>
@@ -191,66 +182,65 @@
                   <p>Garantías Cumplimiento</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="<?php echo URL; ?>contrato">
-                  <i class="fa fa-money-check-alt fa-lg"></i>
-                  <p>Contratos</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="<?php echo URL; ?>cliente">
-                  <i class="fa fa-address-card fa-lg"></i>
-                  <p>Clientes</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="<?php echo URL; ?>pagos">
-                  <i class="fa fa-credit-card fa-lg"></i>
-                  <p>Pagos</p>
-                </a>
-              </li>
-
-              <li class="nav-item">
-                <a class="nav-link" href="<?php echo URL; ?>historial">
-                  <i class="fa fa-cubes fa-lg"></i>
-                  <p>Historial de Pagos</p>
-                </a>
-              </li>
-
-              <li class="nav-item">
-                <a class="nav-link" href="<?php echo URL; ?>cuentascobrar">
-                  <i class="fas fa-balance-scale fa-lg"></i>
-                  <p>Cuentas por Cobrar</p>
-                </a>
-              </li>
-
-              <li class="nav-item">
-                <a class="nav-link" href="<?php echo URL; ?>estorno">
-                  <i class="fas fa-balance-scale fa-lg"></i>
-                  <p>Estornos</p>
-                </a>
-              </li>
             </ul>
           </li>
-                   
+
+          <!-- 3. MÓDULO DE CAJA -->
           <li class="nav-item">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-table"></i>
+              <i class="nav-icon fas fa-cash-register"></i>
               <p>
-                REPORTES
+                MÓDULO DE CAJA
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
+                <a class="nav-link" href="<?php echo URL; ?>contrato">
+                  <i class="fas fa-file-contract fa-lg"></i>
+                  <p>Contratos</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="<?php echo URL; ?>pagos">
+                  <i class="fas fa-hand-holding-usd fa-lg"></i>
+                  <p>Pagos Generados</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="<?php echo URL; ?>cuentascobrar">
+                  <i class="fas fa-balance-scale-right fa-lg"></i>
+                  <p>Cuentas por Cobrar</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+                   
+          <!-- 4. AUDITORÍA Y REPORTES -->
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-chart-line"></i>
+              <p>
+                AUDITORÍA Y REPORTES
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a class="nav-link" href="<?php echo URL; ?>historial">
+                  <i class="fas fa-history fa-lg"></i>
+                  <p>Kardex Historico</p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="<?php echo URL; ?>reportes" class="nav-link">
                   <i class="fas fa-file-invoice-dollar fa-lg"></i>
-                  <p>Movimientos de Ingreso</p>
+                  <p>Reporte de Ingresos</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="<?php echo URL; ?>egreso" class="nav-link">
-                  <i class="fas fa-hand-holding-usd fa-lg"></i>
+                  <i class="fas fa-money-bill-wave fa-lg"></i>
                   <p>Egresos (Devoluciones)</p>
                 </a>
               </li>
@@ -265,14 +255,32 @@
             </ul>
           </li>
 
+          <!-- 5. SEGURIDAD Y ACCESOS -->
           <li class="nav-item">
-            
-              <a class="nav-link" href="<?php echo URL; ?>login/logout">
-                
-              <i class="fa fa-power-off fa-lg"></i>
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-user-shield"></i>
               <p>
-                Cerrar Sesión
+                SEGURIDAD Y ACCESOS
+                <i class="right fas fa-angle-left"></i>
               </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a class="nav-link" href="<?php echo URL; ?>usuario">
+                  <i class="fas fa-user-cog fa-lg" aria-hidden="true"></i>
+                  <span>Usuarios del Sistema</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <!-- 6. CERRAR SESION -->
+          <li class="nav-item mt-2">
+              <a class="nav-link" href="<?php echo URL; ?>login/logout">
+                <i class="fas fa-sign-out-alt fa-lg text-danger"></i>
+                <p class="text-danger font-weight-bold">
+                  Cerrar Sesión
+                </p>
             </a>
           </li>
         

@@ -1,17 +1,16 @@
-
   <section class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
             <i class="fas fa-users"></i> 
-             <strong>Registros/Clientes</strong>
+             <strong>Gestión Comercial / Directorio de Clientes</strong>
             
           </div>
           
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <span class="float-right"> 
-               <button type="button" id="btnNuevoRegistro" class="btn btn-primary btn-lm" data-toggle="modal" data-target="#ModalCliente">
+               <button type="button" id="btnNuevoRegistro" class="btn btn-guindo font-weight-bold shadow-sm" data-toggle="modal" data-target="#ModalCliente">
                 <i class="fas fa-plus-circle"></i> 
                  Nuevo Registro
                </button>
@@ -27,34 +26,35 @@
       <div class="container-fluid">
         <div class="row">
           <div class="col-12">
-            <div class="card">
+            <div class="card card-outline card-guindo">
              
               <!-- /.cargar el listado de la tabla -->
               <div class="card-body" id="listado">
 
-                <table id="TablaCliente"  class="table table-bordered table-striped table-hover table-sm">
-                 <thead class=" table-success">
+                <table id="TablaCliente"  class="table table-bordered table-striped table-hover table-sm" style="width: 100%;">
+                 <thead class="bg-guindo">
                   <tr>
-                    <th>Id</th>
-                    <th>Nombre</th>
-                    <th>Cédula</th>
-                    <th>Contactos</th>
-                    <th>Dirección</th>
-                    <th>Acciones</th>
+                    <th class="text-center" style="width: 5%;">N°</th>
+                    <th style="width: 30%;">Nombre Completo</th>
+                    <th class="text-center" style="width: 15%;">Cédula / NIT</th>
+                    <th class="text-center" style="width: 15%;">Contactos</th>
+                    <th style="width: 20%;">Dirección</th>
+                    <th class="text-center" style="width: 15%;">Acciones</th>
                   </tr>
                 </thead>
                  
-                  <tfoot class=" table-success">
+                  <tfoot class="bg-guindo">
                   <tr>
-                    <th>Id</th>
-                    <th>Nombre</th>
-                    <th>Cédula</th>
-                    <th>Contactos</th>
+                    <th class="text-center">N°</th>
+                    <th>Nombre Completo</th>
+                    <th class="text-center">Cédula / NIT</th>
+                    <th class="text-center">Contactos</th>
                     <th>Dirección</th>
-                    <th>Acciones</th>                     
+                    <th class="text-center">Acciones</th>
                   </tr>
                   </tfoot>
-                
+                  <tbody>
+                  </tbody>
                 </table>
 
                </div>
@@ -75,69 +75,72 @@
      <!-- Modal -->
         <div id="ModalCliente" class="modal fade" role="dialog">
 
-          <div class="modal-dialog modal-xl">
+          <div class="modal-dialog modal-lg">
 
             <!-- Modal content-->
             <div class="modal-content">
-              <div class="modal-header">
+              <div class="modal-header bg-guindo text-white">
                 <h4 class="modal-title" id="titulo">Registro de Clientes</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
               </div>
               
-              <div class="modal-body">
+            <div class="modal-body">
                 <p class="statusMsg"></p>
-                 <form role="form" enctype="multipart/form-data" id="FormCliente"  method="POST" autocomplete="off">
+              <form role="form" id="FormCliente" method="POST" autocomplete="off">
+                    <div class="form-group">
+                      <input type="hidden" id="txt_idcliente" name="txt_idcliente">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8">
                             <div class="form-group">
-                              <input  type="hidden"  id="txt_idcliente" name="txt_idcliente">
+                                <label>Nombre Completo / Razón Social <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control text-uppercase" id="txt_nombre" name="txt_nombre" placeholder="Ej. JUAN PEREZ" required>
                             </div>
-                            
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Cédula / NIT <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="txt_cedula" name="txt_cedula" placeholder="Ej. 1234567" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Contactos / Celular <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="txt_contactos" name="txt_contactos" placeholder="Ej. 77712345" required>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>Dirección <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control text-uppercase" id="txt_direccion" name="txt_direccion" placeholder="Ej. ZONA CENTRAL CALLE X" required>
+                            </div>
+                        </div>
+                    </div>
 
-                          <div class="row">
-                            <div class="col-sm-8">
-                                <label for="txt_nombre">Nombre Completo</label>
-                                <input type="text" class="form-control" id="txt_nombre" name="txt_nombre" required  minlength="5" maxlength="50" placeholder="escriba el Nombre Completo" >
-                            </div>
-
-                            <div class="col-sm-4">
-                                <label for="txt_cedula">Cédula de Identidad</label>
-                                <input type="number" class=" form-control" id="txt_cedula" 
-                                name="txt_cedula" required >
-                            </div>
-                          </div>  
-                         
-                         <div class="row">
-                            <div class="col-sm-4">
-                                <label for="txt_contactos">Número de Contacto</label>
-                                <input type="text" class="form-control" id="txt_contactos" name="txt_contactos" required  minlength="5" maxlength="20" placeholder="000000000-00000000">
-                            </div>
-
-                            <div class="col-sm-8">
-                              <label for="txt_direccion">Dirección</label>
-                              <input type="text" class="form-control" id="txt_direccion" 
-                              name="txt_direccion" required  
-                              minlength="5" maxlength="70" 
-                              placeholder="Dirección..">
-                            </div>                               
-                    </form>
+                </form>
               </div>
+
               <div class="modal-footer" id="OpcionNuevo">
                 <button type="button" class="btn btn-success btn-lg submitBtn" 
-                  id="btn_InsertCliente" name="btn_InsertCliente" data-dismiss="modal">
+                  id="btn_InsertCliente" name="btn_InsertCliente" data-dismiss="modal" onclick="Insert_Cliente();">
                   <span><i class="fas fa-save"></i></span>
                   Registrar                   
                 </button>
                 
-                <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal">Salir</button>
+                <button type="button" class="btn btn-secondary btn-lg" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
               </div>
 
               <div class="modal-footer" id="OpcionEditar">
                 <button type="button" class="btn btn-success btn-lg submitBtn" 
-                  id="btn_EditarCliente" name="btn_EditarCliente" data-dismiss="modal">
+                  id="btn_EditarCliente" name="btn_EditarCliente" data-dismiss="modal" onclick="Editar_Cliente();">
                   <span><i class="fas fa-save"></i></span>
                   Guardar Cambios                   
                 </button>
                 
-                <button type="button" class="btn btn-danger btn-lg" data-dismiss="modal">Salir</button>
+                <button type="button" class="btn btn-secondary btn-lg" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
               </div>
 
 
@@ -148,77 +151,58 @@
 <script src="<?php echo URL; ?>views/cliente/cliente.js"></script>
 
 <script type="text/javascript">
-  $(document).ready(function(){
-    $("#btn_InsertCliente").on('click', function(e){
-      e.preventDefault();
-       Insert_Cliente();
-    });
-  });
-</script>
-
-<script type="text/javascript">
-  $(document).ready(function(){
-    $("#btn_EditarCliente").on('click', function(e){
-      e.preventDefault();
-       Editar_Cliente();
-    });
-  });
-</script>
-
-<script type="text/javascript">
-  $(document).ready(function(){
-    $("#btnNuevoRegistro").on('click', function(e){
-      e.preventDefault();
-       $("#titulo").html("Registro de Clientes");
-       $("#OpcionEditar").hide();
-       $("#OpcionNuevo").show("slow");
-       LimpiarCamposCliente();
-    });
-  });
-</script>
-
-<script type="text/javascript">
    $(document).ready(function(){
-    ListarCliente();
+      // Llamamos a la función de cliente.js para que dibuje la tabla
+      ListarCliente();
+
+      // Configuración del modal para "Nuevo Registro"
+      $("#btnNuevoRegistro").on('click', function(e){
+        e.preventDefault();
+        $("#titulo").html("Registro de Clientes");
+        $("#OpcionEditar").hide();
+        $("#OpcionNuevo").show("slow");
+        LimpiarCamposCliente();
+        document.getElementsByName("txt_idcliente")[0].value = "";
+      });
+
+      // Configuración del modal para "Editar Registro"
+      $(document).on('click', '.EditarCliente', function(e){
+        e.preventDefault();
+        $("#titulo").html("Modificar Registro");
+        $("#OpcionNuevo").hide();
+        $("#OpcionEditar").show("slow");
+
+        // Obtener la fila de la tabla para extraer datos
+        var fila = $(this).closest("tr");
+        var data = $("#TablaCliente").DataTable().row(fila).data();
+
+        // Llenar los campos con la data recuperada
+        document.getElementsByName("txt_idcliente")[0].value = data.IDCLIENTE;
+        document.getElementsByName("txt_nombre")[0].value = data.NOMBRE;
+        document.getElementsByName("txt_cedula")[0].value = data.CEDULA;
+        document.getElementsByName("txt_contactos")[0].value = data.CONTACTOS;
+        document.getElementsByName("txt_direccion")[0].value = data.DIRECCION;
+      });
+
+      // Eliminación del Registro
+      $(document).on('click', '.EliminarCliente', function(e){
+        e.preventDefault();
+        var fila = $(this).closest("tr");
+        var data = $("#TablaCliente").DataTable().row(fila).data();
+
+        Swal.fire({
+          title: 'Está seguro de Eliminar este Registro?',
+          text: data.NOMBRE + " / Esta operación NO podrá Revertirse",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#28a745',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Eliminar el Registro!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            EliminarCliente(data.IDCLIENTE);
+          }
+        });
+      });
    });
-</script>
-
-<script type="text/javascript">
-// selecciona un registro para editar
-  $(document).on('click', '.EditarCliente', function(e){
- e.preventDefault();
-
- $("#titulo").html("Modificar Registro");
- $("#OpcionNuevo").hide();
- $("#OpcionEditar").show("slow");
-
- document.getElementsByName("txt_idcliente")[0].value=$(this).parents("tr").find("td").eq(0).html();
- document.getElementsByName("txt_nombre")[0].value=$(this).parents("tr").find("td").eq(1).html();
- document.getElementsByName("txt_cedula")[0].value=$(this).parents("tr").find("td").eq(2).html();
- document.getElementsByName("txt_contactos")[0].value=$(this).parents("tr").find("td").eq(3).html();
- document.getElementsByName("txt_direccion")[0].value=$(this).parents("tr").find("td").eq(4).html();
-
-});
-</script>
-
-<script type="text/javascript">
-// selecciona un registro para eliminar
-  $(document).on('click', '.EliminarCliente', function(e){
- e.preventDefault();
- var registro=$(this).parents("tr").find("td").eq(1).html()+' '+$(this).parents("tr").find("td").eq(2).html();
-   //registro=registro+' cedula:'+$(this).parents("tr").find("td").eq(3).html();
-    Swal.fire({
-      title: 'Está seguro de Eliminar este Registro?',
-      text: registro+" / Esta operación NO podrá Revertirse",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Eliminar el Registro!'
-    }).then((result) => {
-                            if (result.isConfirmed) {
-                               EliminarCliente($(this).parents("tr").find("td").eq(0).html());    
-                            }
-                       })
-});
 </script>
