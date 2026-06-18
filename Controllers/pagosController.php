@@ -50,40 +50,6 @@ public function listar_detalle($argumento)
 	  exit();
 	}
 
-
-
-public function add()
-	{$respuesta="valor inicial";		
-		if($_POST){
-			//echo "el valor enviado por post es-->".$_POST['txt_nombre'];
-			if (empty($_POST['txt_nombre'])||
-				empty($_POST['txt_cedula'])||
-				empty($_POST['txt_contactos'])||
-				empty($_POST['txt_direccion']))				
-			{
-				$respuesta="Debe Completar los Datos, Todos los Campos son Obligatorios";				
-			}
-			else 
-			{
-				$this->pagos->set("nombre", $_POST['txt_nombre']);
-				$this->pagos->set("cedula", $_POST['txt_cedula']);
-			$this->pagos->set("contactos", $_POST['txt_contactos']);
-			$this->pagos->set("direccion", $_POST['txt_direccion']);
-								
-				$datos=$this->pagos->add();	
-				$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
-	        	echo $respuesta;			
-	        	exit();			
-			}
-		}
-		else
-			{
-				$respuesta="Error al enviar los Datos";
-			}
-   	      echo $respuesta;
-   	      exit();
-	}
-
 	public function plan_pagos($argumento)
 	{
 	  try {

@@ -291,34 +291,6 @@ public function delete($argumento)
 	exit();	
 }
 
-public function addetalle($argumento)
-{  
-// se debe separar los valores de las variable (idcontrato-idcatalogo)
-    $parametro=explode("-",$argumento );
-	$this->contrato->set("idcontrato", $parametro[0]);	
-	$this->contrato->set("idcatalogo", $parametro[1]);	
-	$datos=$this->contrato->add_detalle();
-	$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
-	if ($respuesta == '1') {
-        echo json_encode(['status' => 'success', 'message' => 'Detalle agregado con éxito']);
-    } else {
-        echo json_encode(['status' => 'error', 'message' => $respuesta]);
-    }
-	exit();	
-}
-
-public function del_detalle($argumento)
-{  
-	$this->contrato->set("iddetalle", $argumento);	
-	$datos=$this->contrato->delete_detalle();
-	$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
-	if ($respuesta == '1') {
-        echo json_encode(['status' => 'success', 'message' => 'Detalle eliminado con éxito']);
-    } else {
-        echo json_encode(['status' => 'error', 'message' => $respuesta]);
-    }
-	exit();	
-}
 
 
 public function confirmar($argumento)

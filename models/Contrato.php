@@ -104,22 +104,6 @@
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
-		public function add(){
-			$sql="CALL SP_INSERT_CONTRATO (?, ?, ?, ?, ?, ?, ?, ?)";
-			$stmt = $this->con->conexion->prepare($sql);
-			$stmt->execute([
-				$this->idusuario, 
-				$this->idcliente, 
-				$this->actividad, 
-				$this->razon_social,
-				$this->contrato,
-				$this->fecha_suscripcion,
-				$this->fecha_inicio,
-				$this->tiempo_contrato
-			]);
-			return $stmt->fetchAll(\PDO::FETCH_ASSOC);			
-		}
-
 		public function add_unified(){
 			$sql = "CALL SP_NUEVO_ARRENDAMIENTO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			$stmt = $this->con->conexion->prepare($sql);
@@ -142,26 +126,11 @@
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
-		public function add_detalle(){
-			$sql="CALL SP_INSERT_DETALLE (?, ?)";
-			$stmt = $this->con->conexion->prepare($sql);
-			$stmt->execute([$this->idcontrato, $this->idcatalogo]);
-			return $stmt->fetchAll(\PDO::FETCH_ASSOC);			
-		}
-
 		public function del()
 		{
 			$sql="CALL SP_DEL_CONTRATO(?)";
 			$stmt = $this->con->conexion->prepare($sql);
 			$stmt->execute([$this->idcontrato]);
-			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-		}
-
-		public function delete_detalle()
-		{
-			$sql="CALL SP_DEL_DETALLE(?)";
-			$stmt = $this->con->conexion->prepare($sql);
-			$stmt->execute([$this->iddetalle]);
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 

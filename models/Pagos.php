@@ -242,28 +242,6 @@
 			return true;
 		}
 
-		public function add(){
-			$sql="CALL SP_INSERT_CLIENTE ('{$this->nombre}',
-			'{$this->cedula}', '{$this->contactos}', '{$this->direccion}')";
-			$datos=$this->con->consultaRetorno($sql);
-			return $datos;			
-		}
-
-		public function del()
-		{
-			$sql="call SP_DEL_CLIENTE('{$this->idcliente}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
-		}		
-
-		public function edit(){
-			$sql="CALL SP_MOD_CLIENTE
-			      ({$this->idcliente},'{$this->nombre}',
-			      '{$this->cedula}','{$this->contactos}',
-			      '{$this->direccion}');";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
-		}
 		
 	}
 
