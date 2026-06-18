@@ -21,8 +21,8 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <i class="fas fa-cash-register"></i> 
-             <strong>Módulo de Caja - Historial de Transacciones</strong>
+            <i class="fas fa-hand-holding-usd text-guindo"></i> 
+             <strong>Caja - Pagos Generados</strong>
           </div>
         </div>        
     </div><!-- /.container-fluid -->
@@ -35,7 +35,6 @@
           <div class="col-12">
             <div class="card card-outline card-guindo">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <h3 class="card-title">Listado de todos los pagos registrados en el sistema</h3>
                 
                 <div class="form-inline ml-auto">
                     <!-- Filtros por Estado -->

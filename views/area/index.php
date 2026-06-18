@@ -3,8 +3,8 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <i class="fas fa-users"></i> 
-             <strong>Catálogo/Área</strong>
+            <i class="fas fa-map-marked-alt text-guindo"></i>  
+             <strong>Infraestructura / Áreas|Ubicaciones</strong>
             
           </div>
           
@@ -13,7 +13,7 @@
               <span class="float-right"> 
                <button type="button" id="btnNuevoRegistro" class="btn btn-guindo font-weight-bold shadow-sm" data-toggle="modal" data-target="#ModalArea">
                 <i class="fas fa-plus-circle"></i> 
-                 Nuevo Registro
+                 Nueva Area|Ubicación
                </button>
             </span>
             </ol>

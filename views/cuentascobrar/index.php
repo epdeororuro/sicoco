@@ -3,11 +3,8 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <i class="fas fa-balance-scale"></i> 
-                <strong>Cuentas por Cobrar (Deudores)</strong>
-            </div>
-            <div class="col-sm-6 text-right">
-                <span class="badge badge-warning p-2" style="font-size: 13px;"><i class="fas fa-exclamation-triangle"></i> Módulo de Cobros de Gestiones Anteriores</span>
+                <i class="fas fa-balance-scale-right text-guindo"></i> 
+                <strong>Caja / Cuentas por Cobrar (Deudores)</strong>
             </div>
         </div>
     </div>
@@ -19,9 +16,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="card card-outline card-guindo">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title">Listado de Arrendatarios en Mora</h3>
-                    </div>
+
                     <div class="card-body">
                         <table id="TablaDeudores" class="table table-bordered table-striped table-hover table-sm" style="width:100%">
                             <thead class="bg-guindo">

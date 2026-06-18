@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <i class="fas fa-tachometer-alt"></i> 
+                <i class="fas fa-tachometer-alt text-guindo"></i> 
                 <strong>Dashboard Analítico</strong>
             </div>
             <!-- Botón de Cierre de Caja -->

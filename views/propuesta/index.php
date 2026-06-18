@@ -2,12 +2,12 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <i class="fas fa-hand-holding-usd"></i> 
-                <strong>Caja / Garantías de Seriedad de Propuesta</strong>
+                <i class="fas fa-file-signature text-guindo"></i> 
+                <strong>Postulaciones / Garantías de Seriedad de Propuesta</strong>
             </div>
             <div class="col-sm-6 text-right">
                <button type="button" class="btn btn-guindo font-weight-bold shadow-sm" data-toggle="modal" data-target="#ModalPropuesta">
-                <i class="fas fa-plus-circle"></i> Cobrar Nueva Garantía (100 Bs)
+                <i class="fas fa-plus-circle"></i> Cobrar Garantía de Propuesta (100 Bs)
                </button>
             </div>
         </div>        
@@ -25,7 +25,7 @@
                     <th>Postulante</th>
                     <th>Ítem al que postula</th>
                     <th>Monto (Bs.)</th>
-                    <th>Fecha Ingreso</th>
+                    <th>Fecha</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                   </tr>
@@ -36,7 +36,7 @@
                     <th>Postulante</th>
                     <th>Ítem al que postula</th>
                     <th>Monto (Bs.)</th>
-                    <th>Fecha Ingreso</th>
+                    <th>Fecha</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                   </tr>
@@ -52,7 +52,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-guindo text-white">
-                <h4 class="modal-title">Cobro de Garantía de Propuesta</h4>
+                <h4 class="modal-title">Cobrar Garantía de Propuesta</h4>
                 <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">

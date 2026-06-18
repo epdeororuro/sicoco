@@ -3,14 +3,16 @@
 class Reportes {
     private $con;
 
-    public function __construct() {
-        $this->con = new Conexion();
+    public function __construct(){ 
+        $this->con = new Conexion(); 
     }
 
-    public function listar_logs_cierres() {
-        $sql = "SELECT IDLOGCIERRE, FECHA_INICIO, FECHA_FIN, FECHA_GENERACION, USUARIO FROM log_cierres ORDER BY FECHA_GENERACION DESC";
-        $stmt = $this->con->conexion->query($sql);
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    public function lst_logs(){
+        $sql = "SELECT DATE_FORMAT(FECHA_INICIO, '%d/%m/%Y') as FECHA_INICIO, 
+                       DATE_FORMAT(FECHA_FIN, '%d/%m/%Y') as FECHA_FIN, 
+                       DATE_FORMAT(FECHA_GENERACION, '%d/%m/%Y %H:%i:%s') as FECHA_GENERACION, 
+                       USUARIO 
+                FROM log_cierres ORDER BY IDLOGCIERRE DESC";
+        return $this->con->conexion->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
     }
 }
-?>

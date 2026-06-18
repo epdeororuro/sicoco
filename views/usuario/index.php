@@ -5,9 +5,8 @@
         <input type="hidden" id="id_usuario_sesion" value="<?php echo isset($_SESSION['idmiembro']) ? $_SESSION['idmiembro'] : ''; ?>">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <i class="fas fa-users"></i> 
-             <strong>Configuración/Accesos</strong>
-            
+            <i class="fas fa-user-cog text-guindo"></i> 
+             <strong>Seguridad y Accesos / Usuarios del Sistema</strong>
           </div>
           
           <div class="col-sm-6">
@@ -15,7 +14,7 @@
               <span class="float-right"> 
                <button type="button" id="btnNuevoRegistro" class="btn btn-guindo font-weight-bold shadow-sm" data-toggle="modal" data-target="#ModalUsuario">
                 <i class="fas fa-plus-circle"></i> 
-                 Nuevo Registro
+                 Nuevo Usuario
                </button>
             </span>
             </ol>

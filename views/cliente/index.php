@@ -2,8 +2,8 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <i class="fas fa-users"></i> 
-             <strong>Gestión Comercial / Directorio de Clientes</strong>
+            <i class="fas fa-users text-guindo"></i> 
+             <strong>Postulaciones / Directorio de Clientes</strong>
             
           </div>
           
@@ -12,7 +12,7 @@
               <span class="float-right"> 
                <button type="button" id="btnNuevoRegistro" class="btn btn-guindo font-weight-bold shadow-sm" data-toggle="modal" data-target="#ModalCliente">
                 <i class="fas fa-plus-circle"></i> 
-                 Nuevo Registro
+                 Registrar Nuevo Cliente
                </button>
             </span>
             </ol>
@@ -80,7 +80,7 @@
             <!-- Modal content-->
             <div class="modal-content">
               <div class="modal-header bg-guindo text-white">
-                <h4 class="modal-title" id="titulo">Registro de Clientes</h4>
+                <h4 class="modal-title" id="titulo">Registrar Nuevo Cliente</h4>
                 <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
               </div>
               
@@ -158,7 +158,7 @@
       // Configuración del modal para "Nuevo Registro"
       $("#btnNuevoRegistro").on('click', function(e){
         e.preventDefault();
-        $("#titulo").html("Registro de Clientes");
+        $("#titulo").html("Registrar Nuevo Cliente");
         $("#OpcionEditar").hide();
         $("#OpcionNuevo").show("slow");
         LimpiarCamposCliente();

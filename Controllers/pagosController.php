@@ -688,48 +688,6 @@ public function listar_detalle($argumento)
 	    $pdf->SetX(30); $pdf->Cell(60, 4, utf8_decode('Cajero: ' . $datos['USR']), 0, 0, 'C');
 	}
 
-public function edit()
-	{$respuesta="valor inicial";		
-		if($_POST){
-			//echo "el valor enviado por post es-->".$_POST['txt_descripcion'];
-			if (empty($_POST['txt_idcliente'])||
-				empty($_POST['txt_nombre'])||
-				empty($_POST['txt_cedula'])||
-				empty($_POST['txt_contactos'])||
-				empty($_POST['txt_direccion']))	
-			{
-				$respuesta="Debe Completar los Datos, Todos los Campos son Obligatorios";				
-			}
-			else 
-			{
-				$this->pagos->set("idcliente", $_POST['txt_idcliente']);
-				$this->pagos->set("nombre", $_POST['txt_nombre']);
-				$this->pagos->set("cedula", $_POST['txt_cedula']);
-			$this->pagos->set("contactos", $_POST['txt_contactos']);
-			$this->pagos->set("direccion", $_POST['txt_direccion']);
-				
-	        	$datos=$this->pagos->edit();	
-				$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
-	        	echo $respuesta;		
-	        	exit();		
-			}
-		}
-		else
-			{
-				$respuesta="Error al enviar los Datos";
-			}
-   	      echo $respuesta;
-   	      exit();
-	}
-
-public function delete($argumento)
-{  $respuesta="valor inicial";
-	$this->pagos->set("idcliente", $argumento);	
-	$datos=$this->pagos->del();
-	$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
-	echo $respuesta;	
-	exit();	
-}
 	
 } // fin clase
 ?>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-06-2026 a las 15:40:59
+-- Tiempo de generación: 18-06-2026 a las 22:07:57
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -644,7 +644,7 @@ CREATE TABLE `correlativos` (
 --
 
 INSERT INTO `correlativos` (`ID`, `ULTIMO_RECIBO`) VALUES
-(1, 11);
+(1, 12);
 
 -- --------------------------------------------------------
 
@@ -709,7 +709,9 @@ CREATE TABLE `log_accesos` (
 
 INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FECHA_EXPIRACION`, `ESTADO`, `IP_ACCESO`) VALUES
 (1, 7, '809967', '2026-06-17 15:30:24', '2026-06-17 15:35:24', 'USADO', '::1'),
-(2, 7, '595471', '2026-06-18 09:00:50', '2026-06-18 09:05:50', 'USADO', '::1');
+(2, 7, '595471', '2026-06-18 09:00:50', '2026-06-18 09:05:50', 'USADO', '::1'),
+(3, 7, '524343', '2026-06-18 13:29:51', '2026-06-18 13:34:51', 'USADO', '::1'),
+(4, 7, '648465', '2026-06-18 14:44:14', '2026-06-18 14:49:14', 'USADO', '::1');
 
 -- --------------------------------------------------------
 
@@ -755,7 +757,8 @@ CREATE TABLE `log_estornos` (
 --
 
 INSERT INTO `log_estornos` (`IDLOG`, `NRO_RECIBO`, `MONTO_TOTAL`, `PERIODOS_COBRADOS`, `CLIENTE`, `CEDULA`, `CONTRATO`, `ACTIVIDAD`, `METODO_PAGO`, `NRO_COMPROBANTE`, `NRO_FACTURA_SIAT`, `CAJERO_ORIGINAL`, `FECHA_COBRO`, `USUARIO_QUE_ANULA`, `FECHA_ANULACION`, `MOTIVO`) VALUES
-(1, '000010', 600.00, '2026-08', 'FLORES  PINTO ALVARO', '8545213', 'CONT-LEG-STAND1', 'VENTA DE ROPA', 'EFECTIVO', '', '', 'wil.arroyo', '2026-06-18 09:01:30', 'wil.arroyo', '2026-06-18 09:01:57', 'ADSD');
+(1, '000010', 600.00, '2026-08', 'FLORES  PINTO ALVARO', '8545213', 'CONT-LEG-STAND1', 'VENTA DE ROPA', 'EFECTIVO', '', '', 'wil.arroyo', '2026-06-18 09:01:30', 'wil.arroyo', '2026-06-18 09:01:57', 'ADSD'),
+(2, '000011', 600.00, '2026-08', 'FLORES  PINTO ALVARO', '8545213', 'CONT-LEG-STAND1', 'VENTA DE ROPA', 'TRANSFERENCIA', '', '', 'wil.arroyo', '2026-06-18 09:02:18', 'wil.arroyo', '2026-06-18 09:52:18', '123123123');
 
 -- --------------------------------------------------------
 
@@ -793,10 +796,10 @@ INSERT INTO `pagos` (`IDPAGO`, `IDARRIENDO`, `PERIODO`, `MONTO`, `FECHA_PAGO`, `
 (7, 1, '2026-12', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL),
 (8, 2, '2026-06', 280.00, '2026-06-17 14:58:22', 'NO', '000008', 'wil.arroyo', 'EFECTIVO', '', '', 'ACTIVO', NULL),
 (9, 2, '2026-07', 600.00, '2026-06-17 15:56:14', 'NO', '000009', 'wil.arroyo', 'EFECTIVO', '', '', 'ACTIVO', NULL),
-(10, 2, '2026-08', 600.00, '2026-06-18 09:02:18', 'NO', '000011', 'wil.arroyo', 'TRANSFERENCIA', '', '', 'ACTIVO', NULL),
-(11, 2, '2026-09', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL),
-(12, 2, '2026-10', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL),
-(13, 2, '2026-11', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL),
+(10, 2, '2026-08', 600.00, '2026-06-18 14:44:53', 'NO', '000012', 'wil.arroyo', 'EFECTIVO', '', '14', 'ACTIVO', NULL),
+(11, 2, '2026-09', 600.00, '2026-06-18 14:44:53', 'NO', '000012', 'wil.arroyo', 'EFECTIVO', '', '14', 'ACTIVO', NULL),
+(12, 2, '2026-10', 600.00, '2026-06-18 14:44:54', 'NO', '000012', 'wil.arroyo', 'EFECTIVO', '', '14', 'ACTIVO', NULL),
+(13, 2, '2026-11', 600.00, '2026-06-18 14:44:54', 'NO', '000012', 'wil.arroyo', 'EFECTIVO', '', '14', 'ACTIVO', NULL),
 (14, 2, '2026-12', 600.00, NULL, 'SI', NULL, NULL, 'EFECTIVO', NULL, NULL, 'ACTIVO', NULL);
 
 -- --------------------------------------------------------
@@ -813,9 +816,19 @@ CREATE TABLE `propuestas` (
   `MONTO` decimal(10,2) NOT NULL DEFAULT 100.00,
   `FECHA_COBRO` datetime NOT NULL DEFAULT current_timestamp(),
   `FECHA_DEVOLUCION` datetime DEFAULT NULL,
-  `ESTADO` varchar(20) NOT NULL DEFAULT 'RETENIDA',
-  `USUARIO` varchar(50) NOT NULL
+  `ESTADO` varchar(20) NOT NULL DEFAULT 'RETENIDA' COMMENT 'RETENIDA, DEVUELTA, ANULADA',
+  `USUARIO` varchar(50) NOT NULL,
+  `MOTIVO_ANULACION` varchar(255) DEFAULT NULL,
+  `USUARIO_ANULACION` varchar(50) DEFAULT NULL,
+  `FECHA_ANULACION` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `propuestas`
+--
+
+INSERT INTO `propuestas` (`IDPROPUESTA`, `CI_POSTULANTE`, `NOMBRE_POSTULANTE`, `IDCATALOGO`, `MONTO`, `FECHA_COBRO`, `FECHA_DEVOLUCION`, `ESTADO`, `USUARIO`, `MOTIVO_ANULACION`, `USUARIO_ANULACION`, `FECHA_ANULACION`) VALUES
+(1, '654321', 'MARIANO CLOSS PEREZ', 1, 100.00, '2026-06-18 15:37:12', NULL, 'RETENIDA', 'wil.arroyo', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1153,7 +1166,7 @@ ALTER TABLE `catalogo`
 -- AUTO_INCREMENT de la tabla `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `IDCLIENTE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `IDCLIENTE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `correlativos`
@@ -1177,7 +1190,7 @@ ALTER TABLE `garantias_cumplimiento`
 -- AUTO_INCREMENT de la tabla `log_accesos`
 --
 ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `log_cierres`
@@ -1189,7 +1202,7 @@ ALTER TABLE `log_cierres`
 -- AUTO_INCREMENT de la tabla `log_estornos`
 --
 ALTER TABLE `log_estornos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `pagos`
@@ -1201,7 +1214,7 @@ ALTER TABLE `pagos`
 -- AUTO_INCREMENT de la tabla `propuestas`
 --
 ALTER TABLE `propuestas`
-  MODIFY `IDPROPUESTA` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IDPROPUESTA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
@@ -1210,16 +1223,3 @@ ALTER TABLE `usuarios`
   MODIFY `IDUSUARIO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
--- Restricciones para tablas volcadas
---
-
---
--- Filtros para la tabla `garantias_cumplimiento`
---
-ALTER TABLE `garantias_cumplimiento`
-  ADD CONSTRAINT `garantias_cumplimiento_ibfk_1` FOREIGN KEY (`IDCATALOGO`) REFERENCES `catalogo` (`IDCATALOGO`);
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

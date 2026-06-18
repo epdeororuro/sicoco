@@ -2,11 +2,8 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <i class="fas fa-hand-holding-usd"></i> 
-                <strong>Módulo de Egresos (Devoluciones)</strong>
-            </div>
-            <div class="col-sm-6 text-right">
-                <span class="badge badge-secondary p-2" style="font-size: 13px;"><i class="fas fa-search"></i> Buscador y Filtro Histórico</span>
+                <i class="fas fa-money-bill-wave text-guindo"></i> 
+                <strong>Informes y Reportes / Módulo de Egresos (Devoluciones)</strong>
             </div>
         </div>
     </div>

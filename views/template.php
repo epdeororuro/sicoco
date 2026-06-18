@@ -53,6 +53,49 @@
       background: #f4f6f9;
       background: linear-gradient(135deg, #f4f6f9 50%, #d8c3c9 100%);
   }
+
+  /* --- Diseño elegante de líneas para los Submenús (Árbol visual) --- */
+  .nav-treeview {
+      position: relative;
+  }
+  .nav-treeview::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 10px;
+      left: 22px; /* Alineado al centro del icono del menú padre */
+      border-left: 1px dashed rgba(255, 255, 255, 0.4);
+  }
+  .nav-treeview .nav-item {
+      position: relative;
+  }
+  .nav-treeview .nav-item::before {
+      content: "";
+      position: absolute;
+      top: 20px; /* Alineado al centro del link hijo */
+      left: 22px;
+      width: 14px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.4);
+      z-index: 1;
+  }
+  .nav-treeview .nav-link {
+      padding-left: 42px !important; /* Espacio exacto para la línea derivadora */
+      font-size: 0.9rem; /* Letra ligeramente más pequeña para denotar jerarquía */
+      transition: all 0.2s ease;
+  }
+  .nav-treeview .nav-link:hover {
+      padding-left: 46px !important; /* Efecto hover dinámico (se mueve a la derecha) */
+      color: #ffffff !important;
+      background-color: rgba(255, 255, 255, 0.05);
+  }
+  .nav-treeview .nav-icon {
+      font-size: 0.85rem !important; /* Iconos secundarios más sutiles */
+  }
+  /* Diferenciar menú padre */
+  .nav-sidebar > .nav-item > .nav-link > p {
+      font-weight: 600;
+      letter-spacing: 0.3px;
+  }
 </style>
 
 <?php if($mostrar_menu): ?>
@@ -140,25 +183,25 @@
             <ul class="nav nav-treeview">
               <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL; ?>area">
-                  <i class="fas fa-map-marked-alt fa-lg"></i>
+                  <i class="nav-icon fas fa-map-marked-alt"></i>
                   <p>Áreas|Ubicaciones</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL; ?>catalogo">
-                  <i class="fas fa-store fa-lg"></i>
+                  <i class="nav-icon fas fa-store"></i>
                   <p>Espacios|Servicios</p>
                 </a>
               </li>                           
             </ul>
           </li>
        
-          <!-- 2. GESTIÓN COMERCIAL -->
+          <!-- 2. POSTULACIONES -->
           <li class="nav-item">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-handshake"></i>
               <p>
-                GESTIÓN COMERCIAL
+                POSTULACIONES 
                 <i class="fas fa-angle-left right"></i>
                 <span class="badge badge-info right"></span>
               </p>
@@ -166,50 +209,50 @@
             <ul class="nav nav-treeview">
               <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL; ?>cliente">
-                  <i class="fas fa-users fa-lg"></i>
+                  <i class="nav-icon fas fa-users"></i>
                   <p>Directorio de Clientes</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL; ?>propuesta">
-                  <i class="fas fa-file-signature fa-lg"></i>
+                  <i class="nav-icon fas fa-file-signature"></i>
                   <p>Garantías Propuestas</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL; ?>cumplimiento">
-                  <i class="fas fa-shield-alt fa-lg"></i>
+                  <i class="nav-icon fas fa-shield-alt"></i>
                   <p>Garantías Cumplimiento</p>
                 </a>
               </li>
             </ul>
           </li>
 
-          <!-- 3. MÓDULO DE CAJA -->
+          <!-- 3. CAJA -->
           <li class="nav-item">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-cash-register"></i>
               <p>
-                MÓDULO DE CAJA
+                CAJA
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL; ?>contrato">
-                  <i class="fas fa-file-contract fa-lg"></i>
+                  <i class="nav-icon fas fa-file-contract"></i>
                   <p>Contratos</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL; ?>pagos">
-                  <i class="fas fa-hand-holding-usd fa-lg"></i>
+                  <i class="nav-icon fas fa-hand-holding-usd"></i>
                   <p>Pagos Generados</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL; ?>cuentascobrar">
-                  <i class="fas fa-balance-scale-right fa-lg"></i>
+                  <i class="nav-icon fas fa-balance-scale-right"></i>
                   <p>Cuentas por Cobrar</p>
                 </a>
               </li>
@@ -221,33 +264,33 @@
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-chart-line"></i>
               <p>
-                AUDITORÍA Y REPORTES
+                INFORMES Y REPORTES
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL; ?>historial">
-                  <i class="fas fa-history fa-lg"></i>
+                  <i class="nav-icon fas fa-folder-open"></i>
                   <p>Kardex Historico</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="<?php echo URL; ?>reportes" class="nav-link">
-                  <i class="fas fa-file-invoice-dollar fa-lg"></i>
+                  <i class="nav-icon fas fa-file-invoice-dollar"></i>
                   <p>Reporte de Ingresos</p>
                 </a>
               </li>
               <li class="nav-item">
                 <a href="<?php echo URL; ?>egreso" class="nav-link">
-                  <i class="fas fa-money-bill-wave fa-lg"></i>
-                  <p>Egresos (Devoluciones)</p>
+                  <i class="nav-icon fas fa-money-bill-wave"></i>
+                  <p>Reporte de Egresos</p>
                 </a>
               </li>
               <?php if((isset($currentUser['rol']) && $currentUser['rol'] == 1) || (isset($currentUser['cargo']) && $currentUser['cargo'] == 1)): // Restricción para Administradores ?>
               <li class="nav-item">
                 <a href="<?php echo URL; ?>estorno" class="nav-link">
-                  <i class="fas fa-ban fa-lg text-danger"></i>
+                  <i class="nav-icon fas fa-ban"></i>
                   <p>Anular Recibos (Estornos)</p>
                 </a>
               </li>
@@ -267,7 +310,7 @@
             <ul class="nav nav-treeview">
               <li class="nav-item">
                 <a class="nav-link" href="<?php echo URL; ?>usuario">
-                  <i class="fas fa-user-cog fa-lg" aria-hidden="true"></i>
+                  <i class="nav-icon fas fa-user-cog" aria-hidden="true"></i>
                   <span>Usuarios del Sistema</span>
                 </a>
               </li>

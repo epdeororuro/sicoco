@@ -124,7 +124,7 @@ $(document).ready(function(){
   // Evento: Botón Nuevo Registro
   $("#btnNuevoRegistro").on('click', function(e){
     e.preventDefault();
-    $("#titulo").html("Nuevo Registro de Accesos");
+    $("#titulo").html("Nuevo Usuario");
     $("#OpcionEditar").hide();
     $("#OpcionNuevo").show("slow");
     LimpiarCamposUsuario();

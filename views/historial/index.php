@@ -3,13 +3,8 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <i class="fas fa-folder-open text-primary"></i> 
-                <strong>Historial / Kardex de Clientes</strong>
-            </div>
-            <div class="col-sm-6 text-right">
-                <span class="badge badge-primary p-2" style="font-size: 13px;">
-                    <i class="fas fa-history"></i> Auditoría y Línea de Tiempo
-                </span>
+                <i class="fas fa-folder-open text-guindo"></i> 
+                <strong>Informes y Reportes / Kardex Histórico</strong>
             </div>
         </div>
     </div>
@@ -21,9 +16,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="card card-outline card-guindo shadow-sm">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title font-weight-bold">Buscador Global de Arrendatarios Históricos</h3>
-                    </div>
+
                     <div class="card-body">
                         <table id="TablaHistorialClientes" class="table table-bordered table-striped table-hover table-sm" style="width:100%">
                             <thead class="bg-guindo">

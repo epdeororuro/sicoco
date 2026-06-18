@@ -1,5 +1,17 @@
 var url_accion = '';
 var item_catalogo_editar = 0; // Variable global para recordar qué ítem preseleccionar
+var es_admin_propuesta = false; // Variable global para el rol
+
+function verificarRolAdmin() {
+    $.ajax({
+        url: base_url + 'usuario/verificar_rol_admin',
+        type: 'GET',
+        dataType: 'json',
+        success: function(resp) {
+            es_admin_propuesta = resp.es_admin;
+        }
+    });
+}
 
 $(document).ready(function() {
     // Asignamos el valor una vez que la plantilla ya haya cargado el base_url
@@ -7,6 +19,9 @@ $(document).ready(function() {
 
     // 1. Cargar la tabla principal
     ListarPropuesta();
+
+    // Verificar el rol del usuario al cargar la página
+    verificarRolAdmin();
 
     // 2. Inicializar plugins Select2
     $('#SelArea, #SelItemCatalogo').select2({ dropdownParent: $('#ModalPropuesta') });
@@ -177,6 +192,31 @@ $(document).ready(function() {
         });
     });
 
+    // 8. Anular Garantía
+    $(document).on('click', '.AnularGarantia', function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        Swal.fire({
+            title: '¿Confirmar Anulación?',
+            html: 'Esta acción es irreversible. Ingrese el motivo de la anulación:',
+            input: 'text', inputAttributes: { required: 'true' }, icon: 'warning', showCancelButton: true,
+            confirmButtonColor: '#dc3545', cancelButtonColor: '#6c757d', confirmButtonText: 'Sí, Anular',
+            preConfirm: (motivo) => { if (!motivo) { Swal.showValidationMessage('Debe ingresar un motivo para auditoría'); } return motivo; }
+        }).then((result) => {
+            if(result.isConfirmed) {
+                $.ajax({
+                    url: base_url + 'propuesta/anular/' + id, type: 'POST', data: { motivo: result.value }, dataType: 'json',
+                    success: function(resp) {
+                        if(resp.status === 'success') {
+                            Swal.fire('¡Anulado!', resp.message, 'success');
+                            $('#TablaPropuesta').DataTable().ajax.reload();
+                        } else { Swal.fire('Error', resp.message, 'error'); }
+                    }
+                });
+            }
+        });
+    });
+
     // 8. Imprimir Recibo vía POST para seguridad
     $(document).on('click', '.ImprimirRecibo', function(e) {
         e.preventDefault();
@@ -238,18 +278,25 @@ function ListarPropuesta() {
             {"data": "MONTO", "render": function(data) { return "Bs. " + parseFloat(data || 0).toFixed(2); }}, 
             {"data": null, "render": function(data, type, row) { 
                 return row.FECHA_COBRO || row.FECHA_INGRESO || row.FECHA_REGISTRO || 'S/D'; 
-            }}, 
+            }},
             {"data": "ESTADO", "render": function(data) { 
-                return data === 'RETENIDA' ? "<span class='badge badge-warning'><i class='fas fa-lock'></i> RETENIDA</span>" : "<span class='badge badge-success'><i class='fas fa-unlock'></i> DEVUELTA</span>"; 
+                if (data === 'RETENIDA') return "<span class='badge badge-warning'><i class='fas fa-lock'></i> RETENIDA</span>";
+                if (data === 'DEVUELTA') return "<span class='badge badge-success'><i class='fas fa-unlock'></i> DEVUELTA</span>";
+                if (data === 'ANULADA') return "<span class='badge badge-danger'><i class='fas fa-ban'></i> ANULADA</span>";
+                return data;
             }}, 
             {"data": null, "render": function(data, type, row) { 
                 var btn_print = "<button class='ImprimirRecibo btn btn-info btn-sm mx-1' data-id='" + row.IDPROPUESTA + "' title='Imprimir Recibo'><i class='fas fa-print'></i></button>"; 
-                var btn_devolver = "", btn_edit = "";
+                var btn_devolver = "", btn_edit = "", btn_anular = "";
                 if(row.ESTADO === 'RETENIDA') { 
                     btn_edit = "<button class='EditarPropuesta btn btn-warning btn-sm mx-1' data-id='" + row.IDPROPUESTA + "' data-ci='" + row.CI_POSTULANTE + "' data-nombre='" + row.NOMBRE_POSTULANTE + "' data-idcatalogo='" + row.IDCATALOGO + "' data-idarea='" + row.IDAREA + "' title='Editar'><i class='fas fa-edit'></i></button>";
                     btn_devolver = "<button class='DevolverGarantia btn btn-success btn-sm mx-1' data-id='" + row.IDPROPUESTA + "' title='Devolver'><i class='fas fa-hand-holding-usd'></i></button>"; 
+                    
+                    if (es_admin_propuesta) {
+                        btn_anular = "<button class='AnularGarantia btn btn-danger btn-sm mx-1' data-id='" + row.IDPROPUESTA + "' title='Anular Cobro'><i class='fas fa-ban'></i></button>"; 
+                    }
                 } 
-                return "<div class='text-center text-nowrap'>" + btn_edit + btn_print + btn_devolver + "</div>"; 
+                return "<div class='text-center text-nowrap'>" + btn_edit + btn_print + btn_devolver + btn_anular + "</div>"; 
             }} 
         ]
     });

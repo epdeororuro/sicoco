@@ -9,6 +9,8 @@ class Cumplimiento {
     public $idcatalogo;
     public $monto;
     public $usuario;
+    public $motivo_anulacion;
+    public $usuario_anulacion;
 
     public function __construct(){ 
         $this->con = new Conexion(); 
@@ -46,6 +48,12 @@ class Cumplimiento {
         return $stmt->execute([$this->idgarantia]);
     }
 
+    public function anular(){
+        $sql = "UPDATE garantias_cumplimiento SET ESTADO = 'ANULADA', MOTIVO_ANULACION = ?, USUARIO_ANULACION = ?, FECHA_ANULACION = CURRENT_TIMESTAMP WHERE IDGARANTIA = ? AND ESTADO = 'RETENIDA'";
+        $stmt = $this->con->conexion->prepare($sql);
+        return $stmt->execute([$this->motivo_anulacion, $this->usuario_anulacion, $this->idgarantia]);
+    }
+
     public function lst_areas(){
         $sql = "SELECT IDAREA, DISTRIBUCION FROM v_areas ORDER BY DISTRIBUCION";
         return $this->con->conexion->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
@@ -59,7 +67,7 @@ class Cumplimiento {
     }
     
     public function obtener_datos_recibo(){
-        $sql = "SELECT g.*, c.DESCRIPCION as ITEM, a.REFERENCIA, a.UBICACION 
+        $sql = "SELECT g.*, c.DESCRIPCION as ITEM, a.REFERENCIA, a.UBICACION, g.USUARIO_ANULACION, g.MOTIVO_ANULACION
                 FROM garantias_cumplimiento g 
                 INNER JOIN catalogo c ON g.IDCATALOGO = c.IDCATALOGO 
                 INNER JOIN areaubicacion a ON c.IDAREA = a.IDAREA 

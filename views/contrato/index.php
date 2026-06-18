@@ -3,8 +3,8 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <i class="fas fa-users"></i> 
-             <strong>Registros/Contratos</strong>
+            <i class="fas fa-file-contract text-guindo"></i> 
+             <strong>Caja / Contratos</strong>
             
           </div>
           

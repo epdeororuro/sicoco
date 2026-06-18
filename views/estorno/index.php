@@ -2,12 +2,10 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <i class="fas fa-ban text-danger"></i> 
-                <strong>Gestión de Errores (Anulación de Recibos)</strong>
+                <i class="fas fa-ban text-guindo"></i> 
+                <strong>Informes y Reportes / Anular Recibos(Estornos)</strong>
             </div>
-            <div class="col-sm-6 text-right">
-                <span class="badge badge-danger p-2" style="font-size: 13px;"><i class="fas fa-shield-alt"></i> Módulo de Acceso Restringido</span>
-            </div>
+
         </div>
     </div>
 </section>

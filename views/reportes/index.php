@@ -3,7 +3,7 @@
         <div class="row mb-2">
             <div class="col-sm-6">
                 <i class="fas fa-file-invoice-dollar"></i> 
-                <strong>Reportes - Movimientos de Ingresos</strong>
+                <strong>Informes y Reportes / Reporte de Ingresos</strong>
             </div>
         </div>        
     </div>
@@ -15,8 +15,6 @@
             <div class="col-12">
                 <div class="card card-outline card-guindo">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title">Historial de Cierres Contables Generados</h3>
-                        
                         <div class="form-inline ml-auto">
                             <label class="mr-2 font-weight-bold text-secondary">Generar Reporte del:</label>
                             <input type="date" id="fecha_inicio_reporte" class="form-control form-control-sm mr-2 shadow-sm" value="<?php echo date('Y-m-01'); ?>" max="<?php echo date('Y-m-d'); ?>">

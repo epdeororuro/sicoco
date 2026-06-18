@@ -102,6 +102,27 @@ class propuestaController
         exit();
     }
 
+    public function anular($argumento)
+    {
+        if(isset($_POST['motivo'])) {
+            $cadena = $this->usuario_session->getCurrentUser();
+            $usr = isset($cadena['nombre']) ? $cadena['nombre'] : 'Sistema';
+
+            $this->propuesta->set("idpropuesta", $argumento);
+            $this->propuesta->set("motivo_anulacion", strtoupper($_POST['motivo']));
+            $this->propuesta->set("usuario_anulacion", $usr);
+            
+            if (ob_get_length()) ob_clean();
+            header('Content-Type: application/json');
+            if ($this->propuesta->anular()) {
+                echo json_encode(['status' => 'success', 'message' => 'La garantía ha sido anulada.']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'No se pudo anular. Es posible que ya estuviera devuelta o anulada.']);
+            }
+        }
+        exit();
+    }
+
     public function devolver($argumento)
     {
         $this->propuesta->set("idpropuesta", $argumento);
@@ -168,6 +189,13 @@ class propuestaController
         if (file_exists($img_izq)) $pdf->Image($img_izq, 15, $y, 35);
         if (file_exists($img_cen)) $pdf->Image($img_cen, 75, $y, 60);
         if (file_exists($img_der)) $pdf->Image($img_der, 175, $y, 20);
+
+        // --- MARCA DE AGUA DE ANULACIÓN ---
+        if (isset($datos['ESTADO']) && $datos['ESTADO'] === 'ANULADA') {
+            $pdf->SetFont('Arial', 'B', 45); $pdf->SetTextColor(255, 200, 200);
+            $pdf->SetXY(20, $y + 35); $pdf->Cell(170, 20, utf8_decode('*** ANULADO ***'), 0, 1, 'C');
+            $pdf->SetTextColor(0, 0, 0);
+        }
 
         $es_devolucion = ($datos['ESTADO'] === 'DEVUELTA');
         $titulo = $es_devolucion ? 'COMPROBANTE DE EGRESO - GARANTÍA DE PROPUESTA' : 'COMPROBANTE DE INGRESO - GARANTÍA DE PROPUESTA';

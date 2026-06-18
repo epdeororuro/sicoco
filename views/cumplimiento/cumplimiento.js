@@ -1,8 +1,22 @@
 var url_accion = '';
 var item_catalogo_editar = 0;
+var es_admin_cumplimiento = false; // Variable global para el rol
+
+function verificarRolAdmin() {
+    $.ajax({
+        url: base_url + 'usuario/verificar_rol_admin',
+        type: 'GET',
+        dataType: 'json',
+        async: false, // Hacemos la llamada síncrona para asegurar que el rol esté disponible antes de dibujar la tabla
+        success: function(resp) {
+            es_admin_cumplimiento = resp.es_admin;
+        }
+    });
+}
 
 $(document).ready(function(){
     url_accion = base_url + 'cumplimiento/add';
+    verificarRolAdmin(); // Verificamos el rol del usuario al cargar la página
     ListarCumplimiento();
 
     $('#SelArea, #SelItemCatalogo').select2({ dropdownParent: $('#ModalCumplimiento') });
@@ -209,17 +223,26 @@ function ListarCumplimiento() {
             {"data": null, "render": function(data, type, row) { return "<strong>" + row.ITEM + "</strong><br><small>" + row.REFERENCIA + " - " + row.UBICACION + "</small>"; }},
             {"data": "MONTO", "render": function(data) { return "<strong class='text-success'>Bs. " + parseFloat(data).toFixed(2) + "</strong>"; }},
             {"data": null, "render": function(data, type, row) { return row.FECHA_COBRO || 'S/D'; }},
-            {"data": "ESTADO", "render": function(data, type, row) { if(data === 'RETENIDA') return '<span class="badge badge-warning"><i class="fas fa-lock"></i> RETENIDA (Falta Contrato)</span>'; if(data === 'ENLAZADA') return '<span class="badge badge-info"><i class="fas fa-link"></i> ENLAZADA AL CONTRATO</span><br><small class="text-muted">' + row.NRO_CONTRATO + '</small>'; if(data === 'DEVUELTA') return '<span class="badge badge-success"><i class="fas fa-unlock"></i> DEVUELTA</span>'; return '<span class="badge badge-secondary">' + data + '</span>'; }},
+            {"data": "ESTADO", "render": function(data, type, row) { 
+                if(data === 'RETENIDA') return '<span class="badge badge-warning"><i class="fas fa-lock"></i> RETENIDA</span>'; 
+                if(data === 'ENLAZADA') return '<span class="badge badge-info"><i class="fas fa-link"></i> ENLAZADA AL CONTRATO</span><br><small class="text-muted">' + row.NRO_CONTRATO + '</small>'; 
+                if(data === 'DEVUELTA') return '<span class="badge badge-success"><i class="fas fa-unlock"></i> DEVUELTA</span>'; 
+                if(data === 'ANULADA') return '<span class="badge badge-danger"><i class="fas fa-ban"></i> ANULADA</span>'; 
+                return '<span class="badge badge-secondary">' + data + '</span>'; 
+            }},
             {"data": null, "render": function(data, type, row) { 
                 var btn_print = "<button class='ImprimirRecibo btn btn-info btn-sm mx-1' data-id='" + row.IDGARANTIA + "' title='Imprimir Recibo'><i class='fas fa-print'></i></button>";
-                var btn_edit = "", btn_devolver = "";
+                var btn_edit = "", btn_devolver = "", btn_anular = "";
                 if(row.ESTADO === 'RETENIDA' || row.ESTADO === 'ENLAZADA') { 
                     btn_devolver = "<button class='DevolverGarantia btn btn-success btn-sm mx-1' data-id='" + row.IDGARANTIA + "' title='Devolver'><i class='fas fa-hand-holding-usd'></i></button>"; 
                 }
                 if(row.ESTADO === 'RETENIDA') { 
                     btn_edit = "<button class='EditarCumplimiento btn btn-warning btn-sm mx-1' data-id='" + row.IDGARANTIA + "' data-cite='" + row.CITE_ADJUDICACION + "' data-ci='" + row.CI_POSTULANTE + "' data-nombre='" + row.NOMBRE_POSTULANTE + "' data-idcatalogo='" + row.IDCATALOGO + "' data-idarea='" + row.IDAREA + "' title='Editar'><i class='fas fa-edit'></i></button>";
+                    if (es_admin_cumplimiento) {
+                        btn_anular = "<button class='AnularGarantiaCumplimiento btn btn-danger btn-sm mx-1' data-id='" + row.IDGARANTIA + "' title='Anular Cobro'><i class='fas fa-ban'></i></button>";
+                    }
                 } 
-                return "<div class='text-center text-nowrap'>" + btn_edit + btn_print + btn_devolver + "</div>"; 
+                return "<div class='text-center text-nowrap'>" + btn_edit + btn_print + btn_devolver + btn_anular + "</div>"; 
             }}
         ]
     }); 

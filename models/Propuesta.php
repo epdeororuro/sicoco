@@ -7,6 +7,8 @@ class Propuesta {
     public $nombre_postulante;
     public $idcatalogo;
     public $usuario;
+    public $motivo_anulacion;
+    public $usuario_anulacion;
 
     public function __construct(){ 
         $this->con = new Conexion(); 
@@ -46,6 +48,12 @@ class Propuesta {
         return $stmt->execute([$this->ci_postulante, $this->nombre_postulante, $this->idcatalogo, $this->idpropuesta]);
     }
 
+    public function anular(){
+        $sql = "UPDATE propuestas SET ESTADO = 'ANULADA', MOTIVO_ANULACION = ?, USUARIO_ANULACION = ?, FECHA_ANULACION = CURRENT_TIMESTAMP WHERE IDPROPUESTA = ? AND ESTADO = 'RETENIDA'";
+        $stmt = $this->con->conexion->prepare($sql);
+        return $stmt->execute([$this->motivo_anulacion, $this->usuario_anulacion, $this->idpropuesta]);
+    }
+
     public function devolver(){
         $sql = "UPDATE propuestas SET ESTADO = 'DEVUELTA', FECHA_DEVOLUCION = CURRENT_TIMESTAMP WHERE IDPROPUESTA = ?";
         $stmt = $this->con->conexion->prepare($sql);
@@ -67,7 +75,7 @@ class Propuesta {
     
     public function obtener_recibo(){
         // Código para obtener datos del recibo, idéntico al que ya tenías.
-        $sql = "SELECT p.*, CONCAT(IFNULL(a.REFERENCIA, 'S/D'), ' - ', IFNULL(a.UBICACION, 'S/D'), ' / ', IFNULL(c.DESCRIPCION, 'ÍTEM NO ENCONTRADO')) AS ESPACIO 
+        $sql = "SELECT p.*, CONCAT(IFNULL(a.REFERENCIA, 'S/D'), ' - ', IFNULL(a.UBICACION, 'S/D'), ' / ', IFNULL(c.DESCRIPCION, 'ÍTEM NO ENCONTRADO')) AS ESPACIO, p.USUARIO_ANULACION, p.MOTIVO_ANULACION
                 FROM propuestas p 
                 LEFT JOIN catalogo c ON p.IDCATALOGO = c.IDCATALOGO 
                 LEFT JOIN areaubicacion a ON c.IDAREA = a.IDAREA 
