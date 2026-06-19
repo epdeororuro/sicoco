@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-06-2026 a las 23:38:59
+-- Tiempo de generación: 19-06-2026 a las 21:15:37
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -563,8 +563,9 @@ CREATE TABLE `arriendos` (
 
 INSERT INTO `arriendos` (`IDARRIENDO`, `IDUSUARIO`, `IDCLIENTE`, `ACTIVIDAD`, `RAZONSOCIAL`, `CONTRATO`, `FECHA_SUSCRIPCION`, `FECHA_INICIO`, `TIEMPOCONTRATO`, `MONTO`, `OBSERVACIONES`, `VIGENTE`, `FECHA_REGISTRO`, `ARCHIVO_PDF`) VALUES
 (1, 7, 10, 'BODEGA PARA GUARDAR DULCES', 'SIN DATO', 'CON-LEG/BOD-01/2026', '2026-06-17', '2026-06-17', 7, 600, 'SIN OBSERVACIÓN', 'SI', '2026-06-17 14:33:49', NULL),
-(2, 7, 1, 'VENTA DE ROPA', 'SIN DATO', 'CONT-LEG-STAND1', '2026-06-17', '2026-06-17', 7, 600, 'SIN OBSERVACIÓN', 'SI', '2026-06-17 14:56:35', NULL),
-(3, 7, 10, 'SINTTOC', 'SIN DATO', 'CON/LEG-20/2026', '2026-06-18', '2026-06-18', 7, 1000, 'SIN OBSERVACIÓN', 'PR', '2026-06-18 17:08:24', NULL);
+(2, 7, 1, 'VENTA DE ROPA', 'SIN DATO', 'CONT-LEG-STAND1', '2026-06-17', '2026-06-17', 7, 600, 'SIN OBSERVACIÓN', 'SI', '2026-06-17 14:56:35', 'contrato_2_1781893151.pdf'),
+(3, 7, 10, 'SINTTOC', 'SIN DATO', 'CON/LEG-20/2026', '2026-06-18', '2026-06-18', 7, 1000, 'SIN OBSERVACIÓN', 'PR', '2026-06-18 17:08:24', NULL),
+(4, 7, 10, 'VENTA DE ROPA', 'SIN DATO', 'CONT/CO/BOD-02/2026', '2026-06-19', '2026-06-19', 7, 200, 'SIN OBSERVACIÓN', 'PR', '2026-06-19 14:20:11', NULL);
 
 -- --------------------------------------------------------
 
@@ -668,7 +669,8 @@ CREATE TABLE `detalle` (
 INSERT INTO `detalle` (`IDDETALLE`, `IDCATALOGO`, `IDARRIENDO`, `ALQUILER_NOMINAL`) VALUES
 (1, 10, 1, 600),
 (2, 6, 2, 600),
-(3, 11, 3, 1000);
+(3, 11, 3, 1000),
+(4, 4, 4, 200);
 
 -- --------------------------------------------------------
 
@@ -718,7 +720,31 @@ INSERT INTO `log_accesos` (`IDLOG`, `IDUSUARIO`, `TOKEN`, `FECHA_CREACION`, `FEC
 (2, 7, '595471', '2026-06-18 09:00:50', '2026-06-18 09:05:50', 'USADO', '::1'),
 (3, 7, '524343', '2026-06-18 13:29:51', '2026-06-18 13:34:51', 'USADO', '::1'),
 (4, 7, '648465', '2026-06-18 14:44:14', '2026-06-18 14:49:14', 'USADO', '::1'),
-(5, 7, '899179', '2026-06-18 16:58:18', '2026-06-18 17:03:18', 'USADO', '::1');
+(5, 7, '899179', '2026-06-18 16:58:18', '2026-06-18 17:03:18', 'USADO', '::1'),
+(6, 7, '650343', '2026-06-19 14:16:09', '2026-06-19 14:21:09', 'USADO', '::1');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `log_actividades`
+--
+
+CREATE TABLE `log_actividades` (
+  `IDLOG` int(11) NOT NULL,
+  `IDUSUARIO` int(11) DEFAULT NULL,
+  `ACCION` varchar(50) NOT NULL,
+  `DESCRIPCION` varchar(255) NOT NULL,
+  `IP_ORIGEN` varchar(50) DEFAULT NULL,
+  `USER_AGENT` varchar(255) DEFAULT NULL,
+  `FECHA` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `log_actividades`
+--
+
+INSERT INTO `log_actividades` (`IDLOG`, `IDUSUARIO`, `ACCION`, `DESCRIPCION`, `IP_ORIGEN`, `USER_AGENT`, `FECHA`) VALUES
+(1, 7, 'CONTRATO_CREADO', 'Creó el contrato: CONT/CO/BOD-02/2026 para el cliente con CI: 7403044', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', '2026-06-19 14:20:11');
 
 -- --------------------------------------------------------
 
@@ -733,6 +759,17 @@ CREATE TABLE `log_cierres` (
   `FECHA_GENERACION` datetime NOT NULL DEFAULT current_timestamp(),
   `USUARIO` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `log_cierres`
+--
+
+INSERT INTO `log_cierres` (`IDLOGCIERRE`, `FECHA_INICIO`, `FECHA_FIN`, `FECHA_GENERACION`, `USUARIO`) VALUES
+(1, '2026-06-01', '2026-06-19', '2026-06-19 14:20:57', 'wil.arroyo'),
+(2, '2026-06-01', '2026-06-19', '2026-06-19 14:23:01', 'wil.arroyo'),
+(3, '2026-06-01', '2026-06-19', '2026-06-19 14:30:37', 'wil.arroyo'),
+(4, '2026-06-01', '2026-06-19', '2026-06-19 14:30:46', 'wil.arroyo'),
+(5, '2026-06-01', '2026-06-19', '2026-06-19 14:34:42', 'wil.arroyo');
 
 -- --------------------------------------------------------
 
@@ -1109,6 +1146,13 @@ ALTER TABLE `log_accesos`
   ADD PRIMARY KEY (`IDLOG`);
 
 --
+-- Indices de la tabla `log_actividades`
+--
+ALTER TABLE `log_actividades`
+  ADD PRIMARY KEY (`IDLOG`),
+  ADD KEY `IDUSUARIO` (`IDUSUARIO`);
+
+--
 -- Indices de la tabla `log_cierres`
 --
 ALTER TABLE `log_cierres`
@@ -1162,7 +1206,7 @@ ALTER TABLE `areaubicacion`
 -- AUTO_INCREMENT de la tabla `arriendos`
 --
 ALTER TABLE `arriendos`
-  MODIFY `IDARRIENDO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `IDARRIENDO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `catalogo`
@@ -1186,7 +1230,7 @@ ALTER TABLE `correlativos`
 -- AUTO_INCREMENT de la tabla `detalle`
 --
 ALTER TABLE `detalle`
-  MODIFY `IDDETALLE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `IDDETALLE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `garantias_cumplimiento`
@@ -1198,13 +1242,19 @@ ALTER TABLE `garantias_cumplimiento`
 -- AUTO_INCREMENT de la tabla `log_accesos`
 --
 ALTER TABLE `log_accesos`
-  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT de la tabla `log_actividades`
+--
+ALTER TABLE `log_actividades`
+  MODIFY `IDLOG` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `log_cierres`
 --
 ALTER TABLE `log_cierres`
-  MODIFY `IDLOGCIERRE` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `IDLOGCIERRE` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `log_estornos`
@@ -1239,6 +1289,12 @@ ALTER TABLE `usuarios`
 --
 ALTER TABLE `garantias_cumplimiento`
   ADD CONSTRAINT `garantias_cumplimiento_ibfk_1` FOREIGN KEY (`IDCATALOGO`) REFERENCES `catalogo` (`IDCATALOGO`);
+
+--
+-- Filtros para la tabla `log_actividades`
+--
+ALTER TABLE `log_actividades`
+  ADD CONSTRAINT `fk_log_usuario` FOREIGN KEY (`IDUSUARIO`) REFERENCES `usuarios` (`IDUSUARIO`) ON DELETE SET NULL;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
