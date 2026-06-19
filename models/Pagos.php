@@ -213,12 +213,12 @@
 			$res['ingreso_alquileres'] = $stmt1->fetch(\PDO::FETCH_ASSOC)['total'];
 
 			// 2. Ingresos Garantías (Nuevas propuestas y cumplimientos cobrados)
-			$stmt2 = $this->con->conexion->prepare("SELECT (SELECT IFNULL(SUM(MONTO),0) FROM garantias_propuesta WHERE DATE(FECHA_COBRO) BETWEEN ? AND ?) + (SELECT IFNULL(SUM(MONTO),0) FROM garantias_cumplimiento WHERE DATE(FECHA_COBRO) BETWEEN ? AND ?) AS total");
+			$stmt2 = $this->con->conexion->prepare("SELECT (SELECT IFNULL(SUM(MONTO),0) FROM propuestas WHERE DATE(FECHA_COBRO) BETWEEN ? AND ?) + (SELECT IFNULL(SUM(MONTO),0) FROM garantias_cumplimiento WHERE DATE(FECHA_COBRO) BETWEEN ? AND ?) AS total");
 			$stmt2->execute([$inicio, $fin, $inicio, $fin]);
 			$res['ingreso_garantias'] = $stmt2->fetch(\PDO::FETCH_ASSOC)['total'];
 
 			// 3. Egresos Garantías (Devoluciones registradas)
-			$stmt3 = $this->con->conexion->prepare("SELECT (SELECT IFNULL(SUM(MONTO),0) FROM garantias_propuesta WHERE ESTADO='DEVUELTA' AND DATE(FECHA_DEVOLUCION) BETWEEN ? AND ?) + (SELECT IFNULL(SUM(MONTO),0) FROM garantias_cumplimiento WHERE ESTADO='DEVUELTA' AND DATE(FECHA_DEVOLUCION) BETWEEN ? AND ?) AS total");
+			$stmt3 = $this->con->conexion->prepare("SELECT (SELECT IFNULL(SUM(MONTO),0) FROM propuestas WHERE ESTADO='DEVUELTA' AND DATE(FECHA_DEVOLUCION) BETWEEN ? AND ?) + (SELECT IFNULL(SUM(MONTO),0) FROM garantias_cumplimiento WHERE ESTADO='DEVUELTA' AND DATE(FECHA_DEVOLUCION) BETWEEN ? AND ?) AS total");
 			$stmt3->execute([$inicio, $fin, $inicio, $fin]);
 			$res['egresos_garantias'] = $stmt3->fetch(\PDO::FETCH_ASSOC)['total'];
 

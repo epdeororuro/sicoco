@@ -213,6 +213,10 @@ public function listar_detalle($argumento)
             // Disparador de Liberación Automática
             $this->pagos->verificar_y_liberar_contrato_por_pago($idpago);
 
+            // Registrar en auditoría
+            $recibo = $this->pagos->get("nro_recibo");
+            $this->usuario_session->registrarActividad('PAGO_REGISTRADO', 'Registró el cobro individual del pago ID: ' . $idpago . ' (Recibo Nro: ' . $recibo . ')');
+
 	        if (ob_get_length()) ob_clean();
 	        echo json_encode(['status' => 'success', 'message' => 'Pago realizado correctamente']);
 	    } catch (\Exception $e) {
@@ -224,10 +228,13 @@ public function listar_detalle($argumento)
 
 	public function imprimir_cierre($fecha_inicio = null)
 	{
-	    if(isset($_GET['inicio']) && $_GET['inicio'] != '') {
+	    if(isset($_POST['inicio']) && $_POST['inicio'] != '') {
+	        $fecha_inicio = $_POST['inicio'];
+	    } elseif(isset($_GET['inicio']) && $_GET['inicio'] != '') {
 	        $fecha_inicio = $_GET['inicio'];
 	    }
-	    $fecha_fin = isset($_GET['fin']) ? $_GET['fin'] : null;
+	    
+	    $fecha_fin = isset($_POST['fin']) ? $_POST['fin'] : (isset($_GET['fin']) ? $_GET['fin'] : null);
 
 	    if(!$fecha_inicio) {
 	        $fecha_inicio = date('Y-m-d');
@@ -311,27 +318,27 @@ public function listar_detalle($argumento)
 	            $pdf->Cell(0, 7, utf8_decode(' CAJERO / USUARIO: ' . strtoupper($cajero_actual)), 1, 1, 'L', true);
 	            $pdf->SetFillColor(230, 230, 230);
 	            $pdf->SetFont('Arial', 'B', 8);
-	            $pdf->Cell(18, 6, 'RECIBO', 1, 0, 'C', true);
-	            $pdf->Cell(12, 6, 'HORA', 1, 0, 'C', true);
-	            $pdf->Cell(70, 6, 'CLIENTE', 1, 0, 'C', true);
-	            $pdf->Cell(25, 6, 'CONTRATO', 1, 0, 'C', true);
-	            $pdf->Cell(40, 6, 'PERIODOS', 1, 0, 'C', true);
+	            $pdf->Cell(15, 6, 'RECIBO', 1, 0, 'C', true);
+	            $pdf->Cell(10, 6, 'HORA', 1, 0, 'C', true);
+	            $pdf->Cell(60, 6, 'CLIENTE', 1, 0, 'C', true);
+	            $pdf->Cell(35, 6, 'CONTRATO', 1, 0, 'C', true);
+	            $pdf->Cell(45, 6, 'PERIODOS', 1, 0, 'C', true);
 	            $pdf->Cell(30, 6, 'TOTAL (Bs)', 1, 1, 'C', true);
 	        }
 
 	        // Fila de datos del recibo
 	        $pdf->SetFont('Arial', '', 8);
-	        $pdf->Cell(18, 6, $d['NRO_RECIBO'], 1, 0, 'C');
-	        $pdf->Cell(12, 6, date('H:i', strtotime($d['HORA'])), 1, 0, 'C');
+	        $pdf->Cell(15, 6, $d['NRO_RECIBO'], 1, 0, 'C');
+	        $pdf->Cell(10, 6, date('H:i', strtotime($d['HORA'])), 1, 0, 'C');
 	        if ($d['ESTADO_RECIBO'] == 'ANULADO') {
 	            $pdf->SetTextColor(255, 0, 0);
-	            $pdf->Cell(70, 6, utf8_decode('*** ANULADO *** ' . substr($d['CLIENTE'], 0, 20)), 1, 0, 'L');
+	            $pdf->Cell(60, 6, utf8_decode('*** ANULADO *** ' . substr($d['CLIENTE'], 0, 15)), 1, 0, 'L');
 	            $pdf->SetTextColor(0, 0, 0);
 	        } else {
-	            $pdf->Cell(70, 6, utf8_decode(substr($d['CLIENTE'], 0, 38)), 1, 0, 'L');
+	            $pdf->Cell(60, 6, utf8_decode(substr($d['CLIENTE'], 0, 30)), 1, 0, 'L');
 	        }
-	        $pdf->Cell(25, 6, utf8_decode($d['CONTRATO']), 1, 0, 'C');
-	        $pdf->Cell(40, 6, utf8_decode(substr($d['PERIODOS'], 0, 23)), 1, 0, 'C');
+	        $pdf->Cell(35, 6, utf8_decode(substr($d['CONTRATO'], 0, 25)), 1, 0, 'C');
+	        $pdf->Cell(45, 6, utf8_decode(substr($d['PERIODOS'], 0, 25)), 1, 0, 'C');
 	        $pdf->Cell(30, 6, number_format($d['TOTAL'], 2), 1, 1, 'R');
 
 	        $subtotal_cajero += $d['TOTAL'];
@@ -515,6 +522,9 @@ public function listar_detalle($argumento)
 
 	            // Disparador de Liberación Automática (Usamos el último ID del bloque para verificar)
 	            $this->pagos->verificar_y_liberar_contrato_por_pago(end($ids));
+
+                // Registrar en auditoría
+                $this->usuario_session->registrarActividad('PAGO_MULTIPLE_REGISTRADO', 'Registró cobros acumulados para los pagos IDs: ' . $_POST['idpagos'] . ' (Recibo Nro: ' . $nro_recibo . ')');
 
 	            if (ob_get_length()) ob_clean();
 	            echo json_encode(['status' => 'success', 'message' => 'Pagos realizados correctamente']);

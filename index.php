@@ -36,6 +36,25 @@ if (isset($_SESSION['ultimo_acceso'])) {
 
  $dir=new Config\Request();
  $controlador_actual = strtolower($dir->getControlador());
+
+ // --- MIDDLEWARE DE VALIDACIÓN CSRF GLOBAL ---
+ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $controlador_actual !== 'login') {
+     $token = null;
+     if (isset($_POST['csrf_token'])) {
+         $token = $_POST['csrf_token'];
+     } elseif (isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
+         $token = $_SERVER['HTTP_X_CSRF_TOKEN'];
+     }
+     
+     $session = new Config\sessionController();
+     if (!$session->validarCSRF($token)) {
+         http_response_code(403);
+         if (ob_get_length()) ob_clean();
+         echo json_encode(['status' => 'error', 'message' => 'Acceso denegado: Token CSRF no válido o expirado. Por favor, recargue la página.']);
+         exit();
+     }
+ }
+
  require_once "views/template.php";
 
 

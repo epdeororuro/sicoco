@@ -23,30 +23,30 @@
 		public function lst(){
 			$sql = "SELECT * FROM areaubicacion 
 			order by REFERENCIA, UBICACION";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$stmt = $this->con->conexion->query($sql);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function add(){
-			$sql="CALL SP_INSERT_AREA ('{$this->referencia}',
-			'{$this->ubicacion}')";
-			$datos=$this->con->consultaRetorno($sql);
-			return $datos;			
+			$sql="CALL SP_INSERT_AREA (?, ?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->referencia, $this->ubicacion]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function del()
 		{
-			$sql="call SP_DEL_AREA('{$this->idarea}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$sql="CALL SP_DEL_AREA(?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idarea]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 		
 		public function edit(){
-			$sql="CALL SP_MOD_AREA
-			      ({$this->idarea},'{$this->referencia}',
-			      '{$this->ubicacion}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$sql="CALL SP_MOD_AREA(?, ?, ?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idarea, $this->referencia, $this->ubicacion]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 		
 	}

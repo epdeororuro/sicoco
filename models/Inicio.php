@@ -41,5 +41,26 @@ class Inicio {
         $stmt = $this->con->conexion->query($sql);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+    public function get_cxc_relacion(){
+        $sql = "SELECT 
+                    (SELECT IFNULL(SUM(MONTO), 0) FROM pagos WHERE PENDIENTE='NO' AND ESTADO_RECIBO='ACTIVO') AS COBRADO,
+                    (SELECT IFNULL(SUM(MONTO), 0) FROM pagos WHERE PENDIENTE='SI' AND ESTADO_RECIBO='ACTIVO') AS PENDIENTE";
+        $stmt = $this->con->conexion->query($sql);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
+
+    public function get_cxc_top_deudores(){
+        $sql = "SELECT c.NOMBRE_COMPLETO AS CLIENTE, SUM(p.MONTO) AS DEUDA_TOTAL
+                FROM pagos p
+                INNER JOIN arriendos a ON p.IDARRIENDO = a.IDARRIENDO
+                INNER JOIN clientes c ON a.IDCLIENTE = c.IDCLIENTE
+                WHERE p.PENDIENTE = 'SI' AND p.ESTADO_RECIBO = 'ACTIVO'
+                GROUP BY c.IDCLIENTE, c.NOMBRE_COMPLETO
+                ORDER BY DEUDA_TOTAL DESC
+                LIMIT 5";
+        $stmt = $this->con->conexion->query($sql);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }
 ?>

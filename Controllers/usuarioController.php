@@ -7,19 +7,26 @@ class usuarioController
 	private $usuario_session;
 	public function __construct()
 	{
-		
-	$this->usuario_session=new SessionController();
+		$this->usuario_session=new SessionController();
 		if ($this->usuario_session->verifica()) {
-             $this->usuario=new Usuario();
-		
-		   }
-	else
+			$currentUser = $this->usuario_session->getCurrentUser();
+			if (!isset($currentUser['cargo']) || $currentUser['cargo'] != 1) {
+				// Si no es Administrador, solo permitimos cambiar_clave
+				$url = isset($_GET['url']) ? filter_input(INPUT_GET, 'url', FILTER_SANITIZE_URL) : '';
+				$partes = explode('/', $url);
+				$metodo = isset($partes[1]) ? strtolower($partes[1]) : 'index';
+				if ($metodo !== 'cambiar_clave') {
+					header('Location:'. URL . "inicio");
+					exit();
+				}
+			}
+			$this->usuario=new Usuario();
+		}
+		else
 		{
 			header('Location:'. URL . "login");
 			exit();
 		}
-
-		
 	}
 	
 	public function index()
@@ -64,6 +71,9 @@ public function add()
 				$datos=$this->usuario->add();	
 	        	if (ob_get_length()) ob_clean();
 				$respuesta = is_array($datos) ? (isset($datos[0]['OP']) ? $datos[0]['OP'] : '1') : $datos;
+				if ($respuesta == '1') {
+					$this->usuario_session->registrarActividad('USUARIO_CREADO', 'Creó el usuario operador: ' . $_POST['txt_usuario']);
+				}
 	        	echo trim((string)$respuesta);
 	        	exit();
 			}
@@ -103,6 +113,9 @@ public function edit()
 	        	$datos=$this->usuario->edit();	
 	        	if (ob_get_length()) ob_clean();
 				$respuesta = is_array($datos) ? (isset($datos[0]['OP']) ? $datos[0]['OP'] : '1') : $datos;
+				if ($respuesta == '1') {
+					$this->usuario_session->registrarActividad('USUARIO_MODIFICADO', 'Modificó el usuario ID: ' . $_POST['txt_idusuario'] . ' (Login: ' . $_POST['txt_usuario'] . ')');
+				}
 	        	echo trim((string)$respuesta);
 	        	exit();
 			}
@@ -122,6 +135,9 @@ public function delete($argumento)
 	$datos=$this->usuario->del();
 	if (ob_get_length()) ob_clean();
 	$respuesta = is_array($datos) ? (isset($datos[0]['OP']) ? $datos[0]['OP'] : '1') : $datos;
+	if ($respuesta == '1') {
+		$this->usuario_session->registrarActividad('USUARIO_ELIMINADO', 'Eliminó permanentemente el usuario ID: ' . $argumento);
+	}
 	echo trim((string)$respuesta);
 	exit();	
 }
@@ -132,6 +148,9 @@ public function baja($argumento)
 	$datos=$this->usuario->baja();
 	if (ob_get_length()) ob_clean();
 	$respuesta = is_array($datos) ? (isset($datos[0]['OP']) ? $datos[0]['OP'] : '1') : $datos;
+	if ($respuesta == '1') {
+		$this->usuario_session->registrarActividad('USUARIO_DESACTIVADO', 'Dio de baja al usuario ID: ' . $argumento);
+	}
 	echo trim((string)$respuesta);
 	exit();	
 }
@@ -142,6 +161,9 @@ public function reactivar($argumento)
 	$datos=$this->usuario->reactivar();
 	if (ob_get_length()) ob_clean();
 	$respuesta = is_array($datos) ? (isset($datos[0]['OP']) ? $datos[0]['OP'] : '1') : $datos;
+	if ($respuesta == '1') {
+		$this->usuario_session->registrarActividad('USUARIO_REACTIVADO', 'Reactivó al usuario ID: ' . $argumento);
+	}
 	echo trim((string)$respuesta);
 	exit();	
 }
@@ -157,6 +179,7 @@ public function cambiar_clave()
         $this->usuario->set("clave", $nueva_clave);
         
         if($this->usuario->cambiar_clave()) {
+            $this->usuario_session->registrarActividad('CONTRASENA_CAMBIADA', 'El usuario actualizó su contraseña de acceso.');
             echo json_encode(['status' => 'success', 'message' => 'Su contraseña ha sido actualizada correctamente.']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'No se pudo actualizar la contraseña.']);

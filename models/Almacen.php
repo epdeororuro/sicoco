@@ -25,37 +25,33 @@
 
 		public function lst(){
 		    $sql = "SELECT * FROM almacen WHERE TIPO LIKE 'ALMACEN' OR TIPO LIKE 'TIENDA' ORDER BY ACTIVO, TIPO";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
-			/* se tiene tipo (almacen, tienda) las variables auxiliares son (pedido, venta)
-			  con registro interno en la base de datos
-			*/
+			$stmt = $this->con->conexion->query($sql);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function add(){
-			$sql = "INSERT INTO almacen (DESCRIPCION, UBICACION, CONTACTOS, TIPO) 
-			VALUES (UPPER('{$this->descripcion}'), UPPER('{$this->ubicacion}'), 
-			        '{$this->contactos}', UPPER('{$this->tipo}')";
-			$retorno= $this->con->consultaSimple($sql);
-            return $retorno;			
+			$sql = "INSERT INTO almacen (DESCRIPCION, UBICACION, CONTACTOS, TIPO) VALUES (UPPER(?), UPPER(?), ?, UPPER(?))";
+			$stmt = $this->con->conexion->prepare($sql);
+			return $stmt->execute([$this->descripcion, $this->ubicacion, $this->contactos, $this->tipo]);
 		}
 
 		public function edit()
 		{
-			$sql="UPDATE ALMACEN SET DESCRIPCION =UPPER('{$this->descripcion}'), 
-			                         UBICACION=UPPER('{$this->ubicacion}'), 
-			                         CONTACTOS='{$this->contactos}', 
-			                         TIPO= UPPER('{$this->tipo}')
-			      WHERE IDALMACEN='{$this->idalmacen}'";
-			$retorno= $this->con->consultaSimple($sql);
-			return $retorno;
+			$sql="UPDATE ALMACEN SET DESCRIPCION = UPPER(?), 
+			                         UBICACION = UPPER(?), 
+			                         CONTACTOS = ?, 
+			                         TIPO = UPPER(?)
+			      WHERE IDALMACEN = ?";
+			$stmt = $this->con->conexion->prepare($sql);
+			return $stmt->execute([$this->descripcion, $this->ubicacion, $this->contactos, $this->tipo, $this->idalmacen]);
 		}
 
 		public function del()
 		{
-			$sql="call SP_DEL_ALMACEN('{$this->idalmacen}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$sql="CALL SP_DEL_ALMACEN(?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idalmacen]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 	}

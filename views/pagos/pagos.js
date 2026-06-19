@@ -44,7 +44,34 @@ $(document).ready(function() {
         e.preventDefault();
         var fecha = $('#fecha_cierre').val();
         if(fecha) {
-            window.open(base_url + 'pagos/imprimir_cierre/' + fecha + '/' + fecha, '_blank');
+            // Abrimos el PDF en una nueva pestaña usando POST
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = base_url + 'pagos/imprimir_cierre';
+            form.target = '_blank';
+
+            var tokenVal = (typeof csrf_token !== 'undefined') ? csrf_token : $('meta[name="csrf-token"]').attr('content');
+            var inputCsrf = document.createElement('input');
+            inputCsrf.type = 'hidden';
+            inputCsrf.name = 'csrf_token';
+            inputCsrf.value = tokenVal || '';
+            form.appendChild(inputCsrf);
+
+            var inputInicio = document.createElement('input');
+            inputInicio.type = 'hidden';
+            inputInicio.name = 'inicio';
+            inputInicio.value = fecha;
+            form.appendChild(inputInicio);
+
+            var inputFin = document.createElement('input');
+            inputFin.type = 'hidden';
+            inputFin.name = 'fin';
+            inputFin.value = fecha;
+            form.appendChild(inputFin);
+
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
         } else {
             Swal.fire('Atención', 'Seleccione una fecha válida para el cierre.', 'warning');
         }

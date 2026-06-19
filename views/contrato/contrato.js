@@ -156,10 +156,13 @@ function ListarDetalle(idarriendo){
           if(row.PENDIENTE === 'SI') {
               var hoy = new Date();
               var partes = row.PERIODO.split('-');
+              var esMora = false;
               if (partes.length === 2 && (parseInt(partes[0]) < hoy.getFullYear() || (parseInt(partes[0]) === hoy.getFullYear() && parseInt(partes[1]) < (hoy.getMonth() + 1)))) {
-                  return "<span class='text-danger font-weight-bold'><i class='fas fa-exclamation-triangle'></i> Mora</span>";
+                  esMora = true;
               }
-              return "<span class='text-muted'><i class='fas fa-clock'></i> Por cobrar</span>";
+              var label = esMora ? "<span class='text-danger font-weight-bold'><i class='fas fa-exclamation-triangle'></i> Mora</span>" : "<span class='text-muted'><i class='fas fa-clock'></i> Por cobrar</span>";
+              var btnWa = "<button type='button' class='btn btn-success btn-xs ml-2' onclick='enviarRecordatorioPago("+row.IDPAGO+", \""+row.PERIODO+"\", "+row.MONTO+")' title='Enviar Recordatorio WhatsApp'><i class='fab fa-whatsapp'></i></button>";
+              return label + btnWa;
           }
           return "<span class='text-success'><i class='fas fa-check'></i> Completado</span> <a href='"+base_url+"pagos/imprimir_recibo_multiple?ids="+row.IDPAGO+"' target='_blank' class='btn btn-danger btn-sm ml-2' title='Imprimir Recibo PDF'><i class='fas fa-file-pdf'></i></a>";
       }}
@@ -674,6 +677,7 @@ $(document).on('click', '.DetalleContrato', function(e){
       dataType: 'json',
       success: function(response) {
           if (response.status === 'success' && response.data) {
+              window.contratoActivo = response.data;
               var d = response.data;
               var clienteText = d.NOMBRES + ' ' + (d.PATERNO ? d.PATERNO : '') + ' ' + (d.MATERNO ? d.MATERNO : '');
               
@@ -855,3 +859,40 @@ function ListarContrato(){
       ]
     }); 
 } // fin de funcion listarContrato
+
+window.enviarRecordatorioPago = function(idpago, periodo, monto) {
+    if (!window.contratoActivo) {
+        Swal.fire('Error', 'No se cargaron los datos del contrato activo.', 'error');
+        return;
+    }
+    
+    var d = window.contratoActivo;
+    var celular = d.CELULAR ? d.CELULAR.trim() : '';
+    celular = celular.replace(/[^0-9]/g, '');
+    
+    if (celular.length > 0 && !celular.startsWith('591')) {
+        celular = '591' + celular;
+    }
+    
+    if (celular === '' || celular === '591' || celular === '59100000000') {
+        Swal.fire('Atención', 'El cliente no tiene registrado un número de celular válido para notificar.', 'warning');
+        return;
+    }
+
+    var clienteText = d.NOMBRES + ' ' + (d.PATERNO ? d.PATERNO : '') + ' ' + (d.MATERNO ? d.MATERNO : '');
+    
+    var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    var mesTexto = periodo;
+    if(periodo && periodo.includes('-')) {
+        var mesIndex = parseInt(periodo.split('-')[1]) - 1;
+        mesTexto = meses[mesIndex] + ' de ' + periodo.split('-')[0];
+    }
+
+    var texto_wa = "🔔 *EPDEOR - Recordatorio de Pago*%0A%0A" +
+                   "Estimado(a) *" + clienteText + "*, le recordamos que se encuentra pendiente el pago del arriendo por el mes de *" + mesTexto + "* correspondiente a su contrato *" + d.CONTRATO + "* por la actividad *" + d.ACTIVIDAD + "*.%0A%0A" +
+                   "Monto de la mensualidad: *Bs. " + parseFloat(monto).toFixed(2) + "*%0A%0A" +
+                   "Por favor, pase por oficinas de caja de la Empresa Pública Departamental de Oruro para regularizar su situación. ¡Muchas gracias!";
+                   
+    var url_wa = "https://api.whatsapp.com/send?phone=" + celular + "&text=" + texto_wa;
+    window.open(url_wa, '_blank');
+};

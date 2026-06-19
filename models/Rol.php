@@ -27,39 +27,37 @@
 
 		public function lst(){
 			$sql = "SELECT * FROM VISTA_ENCARGADO";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$stmt = $this->con->conexion->query($sql);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 		public function lst_operador(){
 			$sql = "SELECT concat(IDPERSONA, '-', CI_NIT) AS ID, (CONCAT(NOMBRES,' ', APELLIDOS)) AS NOMBRE 
 			        FROM PERSONAS WHERE TIPO_PERSONA LIKE 'OPERADOR'";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$stmt = $this->con->conexion->query($sql);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function add(){
-			//SP_INSERT_ENCARGADO (IDPERSON INTEGER, USR VARCHAR(15), ROLES VARCHAR(15))
-			$sql="CALL SP_INSERT_ENCARGADO ('{$this->idpersona}', '{$this->usuario}', 
-			                                '{$this->rol}', '{$this->clave}')";
-			//$sql="INSERT INTO ENCARGADO (IDPERSONA, USUARIO, CLAVE, ROL)
-			 //  VALUES('{$this->idpersona}', '{$this->usuario}', '{$this->clave}', '{$this->rol}')";
-			$datos=$this->con->ConsultaRetorno($sql);
-			return $datos;			
+			$sql="CALL SP_INSERT_ENCARGADO (?, ?, ?, ?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idpersona, $this->usuario, $this->rol, $this->clave]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function del()
 		{
-			$sql="call SP_DEL_ENCARGADO('{$this->idencargado}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$sql="CALL SP_DEL_ENCARGADO(?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idencargado]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function baja(){
 			$sql = "UPDATE encargado SET ACTIVO  = 'NO', 
 			                         BAJA   = current_timestamp()				                         
-			        WHERE IDENCARGADO = '{$this->idencargado}'";
-			$retorno= $this->con->consultaSimple($sql);
-			return $retorno;
+			        WHERE IDENCARGADO = ?";
+			$stmt = $this->con->conexion->prepare($sql);
+			return $stmt->execute([$this->idencargado]);
 		}
 		
 

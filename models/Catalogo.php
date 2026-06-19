@@ -25,38 +25,37 @@
 		public function lst(){
 			$sql = "SELECT * FROM v_catalogo 
 			order by DISTRIBUCION,  ESTADO, DESCRIPCION";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$stmt = $this->con->conexion->query($sql);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function lst_areas(){
 			$sql = "SELECT IDAREA, DISTRIBUCION FROM v_areas 
 			order by DISTRIBUCION";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$stmt = $this->con->conexion->query($sql);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function add(){
-			$sql="CALL SP_INSERT_CATALOGO ('{$this->idarea}',
-			'{$this->descripcion}', '{$this->alquiler}')";
-			$datos=$this->con->ConsultaRetorno($sql);
-			return $datos;			
+			$sql="CALL SP_INSERT_CATALOGO (?, ?, ?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idarea, $this->descripcion, $this->alquiler]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function del()
 		{
-			$sql="call SP_DEL_CATALOGO('{$this->idcatalogo}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$sql="CALL SP_DEL_CATALOGO(?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idcatalogo]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 		
 		public function edit(){
-			$sql="CALL SP_MOD_CATALOGO
-			      ({$this->idcatalogo},'{$this->idarea}',
-			      '{$this->descripcion}',
-			      '{$this->alquiler}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$sql="CALL SP_MOD_CATALOGO(?, ?, ?, ?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idcatalogo, $this->idarea, $this->descripcion, $this->alquiler]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 		
 	}

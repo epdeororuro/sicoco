@@ -19,6 +19,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="<?php echo isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : ''; ?>">
   <title>SICOCO - Empresa Pública Departamental de Oruro</title>
   <link rel="icon" href="img/logos/favicon.ico" type="image/x-icon">
   <!-- Google Font: Source Sans Pro -->
@@ -398,7 +399,17 @@
 </div>
 
 <script src="<?php echo URL; ?>views/template/plugins/sweetalert2/sweetalert2.all.min.js"></script>
-<script> const base_url='<?php echo URL;?>';</script>
+<script>
+  const base_url='<?php echo URL;?>';
+  const csrf_token='<?php echo isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : ''; ?>';
+  if (window.jQuery) {
+      jQuery.ajaxSetup({
+          headers: {
+              'X-CSRF-TOKEN': csrf_token
+          }
+      });
+  }
+</script>
 <script src="<?php echo URL; ?>views/template/global/funciones.js"></script>
 
 <!-- Bootstrap 4 -->

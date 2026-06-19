@@ -26,31 +26,30 @@
 		public function lst(){
 			$sql = "SELECT IDCLIENTE, NOMBRE_COMPLETO AS NOMBRE, CEDULA, CONTACTOS, DIRECCION 
 			        FROM clientes ORDER BY NOMBRE_COMPLETO";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$stmt = $this->con->conexion->query($sql);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function add(){
-			$sql="CALL SP_INSERT_CLIENTE ('{$this->nombre}',
-			'{$this->cedula}', '{$this->contactos}', '{$this->direccion}')";
-			$datos=$this->con->consultaRetorno($sql);
-			return $datos;			
+			$sql="CALL SP_INSERT_CLIENTE (?, ?, ?, ?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->nombre, $this->cedula, $this->contactos, $this->direccion]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function del()
 		{
-			$sql="call SP_DEL_CLIENTE('{$this->idcliente}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$sql="CALL SP_DEL_CLIENTE(?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idcliente]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}		
 
 		public function edit(){
-			$sql="CALL SP_MOD_CLIENTE
-			      ({$this->idcliente},'{$this->nombre}',
-			      '{$this->cedula}','{$this->contactos}',
-			      '{$this->direccion}');";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$sql="CALL SP_MOD_CLIENTE(?, ?, ?, ?, ?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idcliente, $this->nombre, $this->cedula, $this->contactos, $this->direccion]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 		public function buscar_ci($cedula)
 		{

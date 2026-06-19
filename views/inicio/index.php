@@ -95,6 +95,34 @@
                 </div>
             </div>
         </div>
+
+        <!-- Segunda fila de gráficos: Analíticas de Cobranza (Cuentas por Cobrar) -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card card-outline card-success shadow-sm">
+                    <div class="card-header border-0">
+                        <h3 class="card-title"><i class="fas fa-chart-pie text-success"></i> Eficiencia de Cobranza</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <canvas id="graficoEficiencia" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card card-outline card-danger shadow-sm">
+                    <div class="card-header border-0">
+                        <h3 class="card-title"><i class="fas fa-user-slash text-danger"></i> Top 5 Clientes Deudores</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <canvas id="graficoDeudores" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -109,7 +137,8 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="formCierreCaja" method="GET" action="<?php echo URL; ?>pagos/imprimir_cierre" target="_blank">
+                <form id="formCierreCaja" method="POST" action="<?php echo URL; ?>pagos/imprimir_cierre" target="_blank">
+                    <input type="hidden" name="csrf_token" value="<?php echo isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : ''; ?>">
                     <div class="form-group">
                         <label>Fecha de Inicio:</label>
                         <input type="date" class="form-control" name="inicio" id="cierre_inicio" required value="<?php echo date('Y-m-d'); ?>">

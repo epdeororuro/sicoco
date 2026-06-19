@@ -9,6 +9,11 @@ class estornoController {
     public function __construct() {
         $this->usuario_session = new SessionController();
         if ($this->usuario_session->verifica()) {
+            $currentUser = $this->usuario_session->getCurrentUser();
+            if (!isset($currentUser['cargo']) || $currentUser['cargo'] != 1) {
+                header('Location:'. URL . "inicio");
+                exit();
+            }
             $this->estorno = new Estorno();
         } else {
             header('Location:'. URL . "login");
@@ -34,8 +39,14 @@ class estornoController {
             $motivo = strtoupper($_POST['motivo']);
             $cadena = $this->usuario_session->getCurrentUser();
             $usr = $cadena['nombre'];
+            
+            $exito = $this->estorno->anular_recibo($nro, $motivo, $usr);
+            if ($exito) {
+                $this->usuario_session->registrarActividad('RECIBO_ESTORNADO', "Anuló el recibo Nro: $nro. Motivo: $motivo");
+            }
+            
             if (ob_get_length()) ob_clean();
-            echo json_encode($this->estorno->anular_recibo($nro, $motivo, $usr) ? ['status' => 'success', 'message' => 'Recibo anulado correctamente y deuda restaurada.'] : ['status' => 'error', 'message' => 'No se pudo anular el recibo. Quizás ya estaba anulado.']);
+            echo json_encode($exito ? ['status' => 'success', 'message' => 'Recibo anulado correctamente y deuda restaurada.'] : ['status' => 'error', 'message' => 'No se pudo anular el recibo. Quizás ya estaba anulado.']);
         }
         exit();
     }

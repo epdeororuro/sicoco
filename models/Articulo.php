@@ -24,55 +24,46 @@
 		}
 
 		public function lst(){
-			$sql = "SELECT * FROM VISTA_ARTICULO_CATEGORIA WHERE TIPO LIKE '{$this->tipo}' 
+			$sql = "SELECT * FROM VISTA_ARTICULO_CATEGORIA WHERE TIPO LIKE ? 
 			        ORDER BY C_DESCRIPCION, DESCRIPCION";			        
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->tipo]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 		public function lst_categoria(){
-			/*$sql = "SELECT IDCATEGORIA, DESCRIPCION FROM CATEGORIA 
-			        WHERE VIGENTE LIKE 'SI' AND TIPO LIKE '{$this->tipo}' ORDER BY DESCRIPCION"; 
-*/
-			  $sql = "SELECT IDAREA, concat(REFERENCIA, '->', UBICACION ) as DISTRIBUCION FROM areaubicacion 
+			$sql = "SELECT IDAREA, concat(REFERENCIA, '->', UBICACION ) as DISTRIBUCION FROM areaubicacion 
 			order by DISTRIBUCION";
-			
-
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$stmt = $this->con->conexion->query($sql);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function add()
 		{			
-			$sql="INSERT INTO ARTICULO(IDCATEGORIA, DESCRIPCION, MINIMO, CODBARRA, TIPO)
-			VALUES ('{$this->idcategoria}', UPPER('{$this->descripcion}'), '{$this->minimo}',
-			        '{$this->codbarra}', UPPER('{$this->tipo}'))";
-			$datos=$this->con->consultaSimple($sql);
-			return $datos;			
+			$sql="INSERT INTO ARTICULO(IDCATEGORIA, DESCRIPCION, MINIMO, CODBARRA, TIPO) VALUES (?, UPPER(?), ?, ?, UPPER(?))";
+			$stmt = $this->con->conexion->prepare($sql);
+			return $stmt->execute([$this->idcategoria, $this->descripcion, $this->minimo, $this->codbarra, $this->tipo]);
 		}
 
 		public function edit()
 		{
-			$sql="UPDATE ARTICULO SET DESCRIPCION=UPPER('{$this->descripcion}'),
-			                          MINIMO='{$this->minimo}',
-			                          CODBARRA='{$this->codbarra}'
-			       WHERE IDARTICULO = '$this->idarticulo'";
-			$datos=$this->con->consultaSimple($sql);
-			return $datos;
+			$sql="UPDATE ARTICULO SET DESCRIPCION = UPPER(?), MINIMO = ?, CODBARRA = ? WHERE IDARTICULO = ?";
+			$stmt = $this->con->conexion->prepare($sql);
+			return $stmt->execute([$this->descripcion, $this->minimo, $this->codbarra, $this->idarticulo]);
 		}
 
 		public function cambio()
 		{
-			$sql="UPDATE ARTICULO SET IDCATEGORIA='{$this->idcategoria}'			                         
-			       WHERE IDARTICULO = '$this->idarticulo'";
-			$datos=$this->con->consultaSimple($sql);
-			return $datos;
+			$sql="UPDATE ARTICULO SET IDCATEGORIA = ? WHERE IDARTICULO = ?";
+			$stmt = $this->con->conexion->prepare($sql);
+			return $stmt->execute([$this->idcategoria, $this->idarticulo]);
 		}
 
 		public function del()
 		{
-			$sql="call SP_DEL_ARTICULO('{$this->idarticulo}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$sql="CALL SP_DEL_ARTICULO(?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idarticulo]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 	}

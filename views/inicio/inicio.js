@@ -1,10 +1,13 @@
 var chartIngresos = null;
 var chartEspacios = null;
+var chartEficiencia = null;
+var chartDeudores = null;
 
 $(document).ready(function() {
     cargarKPIs();
     cargarAnios();
     cargarGraficoEspacios();
+    cargarGraficosCxC();
 
     // Cerrar el modal automáticamente al pedir el reporte
     $('#formCierreCaja').on('submit', function() {
@@ -183,6 +186,124 @@ function dibujarChartEspacios(labels, data, colors) {
             plugins: {
                 legend: {
                     position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function cargarGraficosCxC() {
+    $.ajax({
+        url: base_url + 'inicio/cargar_graficos_cxc',
+        type: 'GET',
+        dataType: 'json',
+        success: function(resp) {
+            if(resp.status === 'success') {
+                // 1. Dibujar gráfico de Eficiencia de Cobranza (Doughnut)
+                var cobrado = parseFloat(resp.data.relacion.COBRADO);
+                var pendiente = parseFloat(resp.data.relacion.PENDIENTE);
+                
+                dibujarChartEficiencia(cobrado, pendiente);
+
+                // 2. Dibujar gráfico de Top 5 Deudores (Barras Horizontales)
+                var nombresDeudores = [];
+                var deudasDeudores = [];
+                
+                $(resp.data.top_deudores).each(function(i, v) {
+                    var nombre = v.CLIENTE.length > 22 ? v.CLIENTE.substring(0, 20) + '...' : v.CLIENTE;
+                    nombresDeudores.push(nombre);
+                    deudasDeudores.push(parseFloat(v.DEUDA_TOTAL));
+                });
+
+                dibujarChartDeudores(nombresDeudores, deudasDeudores);
+            }
+        }
+    });
+}
+
+function dibujarChartEficiencia(cobrado, pendiente) {
+    var ctx = document.getElementById('graficoEficiencia').getContext('2d');
+    
+    if (chartEficiencia) { chartEficiencia.destroy(); }
+
+    var total = cobrado + pendiente;
+    var porcCobrado = total > 0 ? ((cobrado / total) * 100).toFixed(1) : 0;
+    var porcPendiente = total > 0 ? ((pendiente / total) * 100).toFixed(1) : 0;
+
+    chartEficiencia = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Cobrado (' + porcCobrado + '%)', 'Pendiente (' + porcPendiente + '%)'],
+            datasets: [{
+                data: [cobrado, pendiente],
+                backgroundColor: ['#28a745', '#dc3545'],
+                borderWidth: 2,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            var label = context.label || '';
+                            if (label) {
+                                label = label.split(' (')[0];
+                            }
+                            return label + ': Bs. ' + context.raw.toFixed(2);
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function dibujarChartDeudores(labels, data) {
+    var ctx = document.getElementById('graficoDeudores').getContext('2d');
+    
+    if (chartDeudores) { chartDeudores.destroy(); }
+
+    chartDeudores = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Deuda Pendiente (Bs.)',
+                data: data,
+                backgroundColor: 'rgba(220, 53, 69, 0.85)',
+                borderColor: 'rgba(220, 53, 69, 1)',
+                borderWidth: 1,
+                borderRadius: 4,
+                barThickness: 20
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Deuda: Bs. ' + context.parsed.x.toFixed(2);
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) { return 'Bs. ' + value; }
+                    }
                 }
             }
         }

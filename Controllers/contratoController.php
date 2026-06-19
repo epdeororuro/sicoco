@@ -177,6 +177,7 @@ public function add()
 				$datos=$this->contrato->add_unified();	
 				$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
 	        	if ($respuesta == '1') {
+                    $this->usuario_session->registrarActividad('CONTRATO_CREADO', 'Creó el contrato: ' . $_POST['txt_contrato'] . ' para el cliente con CI: ' . $_POST['txt_cedula']);
                     echo json_encode(['status' => 'success', 'message' => 'Registro insertado con éxito']);
                 } else {
                     echo json_encode(['status' => 'error', 'message' => $respuesta]);
@@ -254,6 +255,7 @@ public function edit()
 	        	$datos=$this->contrato->edit();	
 				$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
 	        	if ($respuesta == '1') {
+                    $this->usuario_session->registrarActividad('CONTRATO_MODIFICADO', 'Modificó el contrato ID: ' . $_POST['txt_idcontrato'] . ' (Nro: ' . $_POST['txt_contrato'] . ') para el cliente con CI: ' . $_POST['txt_cedula']);
                     echo json_encode(['status' => 'success', 'message' => 'Registro modificado con éxito']);
                 } else {
                     echo json_encode(['status' => 'error', 'message' => $respuesta]);
@@ -284,6 +286,7 @@ public function delete($argumento)
 	$datos=$this->contrato->del();
 	$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
 	if ($respuesta == '1') {
+        $this->usuario_session->registrarActividad('CONTRATO_ELIMINADO', 'Eliminó el contrato ID: ' . $argumento);
         echo json_encode(['status' => 'success', 'message' => 'Registro eliminado con éxito']);
     } else {
         echo json_encode(['status' => 'error', 'message' => $respuesta]);
@@ -299,6 +302,7 @@ public function confirmar($argumento)
 	$datos=$this->contrato->confirma_contrato();
 	$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
 	if ($respuesta == '1') {
+        $this->usuario_session->registrarActividad('CONTRATO_CONFIRMADO', 'Confirmó el contrato ID: ' . $argumento);
         echo json_encode(['status' => 'success', 'message' => 'Contrato confirmado con éxito']);
     } else {
         echo json_encode(['status' => 'error', 'message' => $respuesta]);
@@ -309,6 +313,28 @@ public function confirmar($argumento)
 	public function upload_pdf() {
 		if(isset($_FILES['file_pdf']) && isset($_POST['idcontrato_pdf'])) {
 			$id = $_POST['idcontrato_pdf'];
+			
+			// 1. Validar errores de subida
+			if ($_FILES['file_pdf']['error'] !== UPLOAD_ERR_OK) {
+				echo json_encode(['status' => 'error', 'message' => 'Error al subir el archivo al servidor. Código de error: ' . $_FILES['file_pdf']['error']]);
+				exit();
+			}
+
+			// 2. Validar tamaño (máximo 5MB)
+			$max_size = 5 * 1024 * 1024;
+			if ($_FILES['file_pdf']['size'] > $max_size) {
+				echo json_encode(['status' => 'error', 'message' => 'El archivo excede el tamaño máximo permitido de 5MB.']);
+				exit();
+			}
+
+			// 3. Validar tipo MIME real (estrictamente application/pdf)
+			$finfo = new \finfo(FILEINFO_MIME_TYPE);
+			$mime_type = $finfo->file($_FILES['file_pdf']['tmp_name']);
+			if ($mime_type !== 'application/pdf') {
+				echo json_encode(['status' => 'error', 'message' => 'El archivo no es un documento PDF válido.']);
+				exit();
+			}
+
 			$directorio = 'views/contrato/pdf/';
 			
 			// Crear directorio con permisos si no existe

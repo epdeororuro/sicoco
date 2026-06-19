@@ -75,5 +75,25 @@ class inicioController
         }
         exit();
     }
+
+    public function cargar_graficos_cxc()
+    {
+        try {
+            $relacion = $this->inicio->get_cxc_relacion();
+            $top_deudores = $this->inicio->get_cxc_top_deudores();
+            if (ob_get_length()) ob_clean();
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'relacion' => $relacion,
+                    'top_deudores' => $top_deudores
+                ]
+            ]);
+        } catch (\Exception $e) {
+            if (ob_get_length()) ob_clean();
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+        exit();
+    }
 }
 ?>

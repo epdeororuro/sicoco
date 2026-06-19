@@ -24,48 +24,46 @@
 		}
 
 		public function lst(){
-		    $sql = "SELECT * FROM CATEGORIA WHERE VIGENTE LIKE '{$this->vigente}' AND TIPO LIKE '{$this->tipo}' ORDER BY VIGENTE ";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;			
+		    $sql = "SELECT * FROM CATEGORIA WHERE VIGENTE LIKE ? AND TIPO LIKE ? ORDER BY VIGENTE ";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->vigente, $this->tipo]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function lst_componente(){
-		    $sql = "SELECT * FROM VISTA_DETALLE_ENSAMBLE WHERE IDCATEGORIA = '{$this->idcategoria}' AND TIPO NOT LIKE 'VACIO' ORDER BY COMPONENTE";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;			
+		    $sql = "SELECT * FROM VISTA_DETALLE_ENSAMBLE WHERE IDCATEGORIA = ? AND TIPO NOT LIKE 'VACIO' ORDER BY COMPONENTE";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idcategoria]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function add(){
-			//$sql = "INSERT INTO CATEGORIA (DESCRIPCION, TIPO) 
-		//	VALUES (UPPER('{$this->descripcion}'),UPPER('{$this->tipo}') )";
-			$sql = "CALL SP_INSERT_CATEGORIA('{$this->descripcion}', '{$this->tipo}')";
-			//CALL SP_INSERT_CATEGORIA('GESTION 2021, EQUIPO CORE I 6','ENSAMBLE')
-			$retorno= $this->con->consultaSimple($sql);
-           return $retorno;
-           // return $sql;
-
+			$sql = "CALL SP_INSERT_CATEGORIA(?, ?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			return $stmt->execute([$this->descripcion, $this->tipo]);
 		}
 
 		public function edit()
 		{
-			$sql="UPDATE CATEGORIA SET DESCRIPCION =UPPER('{$this->descripcion}')
-			      WHERE IDCATEGORIA='{$this->idcategoria}'";
-			$retorno= $this->con->consultaSimple($sql);
-			return $retorno;
+			$sql="UPDATE CATEGORIA SET DESCRIPCION = UPPER(?) WHERE IDCATEGORIA = ?";
+			$stmt = $this->con->conexion->prepare($sql);
+			return $stmt->execute([$this->descripcion, $this->idcategoria]);
 		}
 
 		public function del()
 		{
-			$sql="call SP_DEL_CATEGORIA('{$this->idcategoria}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$sql="CALL SP_DEL_CATEGORIA(?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idcategoria]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function retirar()
 		{
-			$sql="call SP_RETIRA_CATEGORIA('{$this->idcategoria}', '{$this->operacion}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$sql="CALL SP_RETIRA_CATEGORIA(?, ?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idcategoria, $this->operacion]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 		
 

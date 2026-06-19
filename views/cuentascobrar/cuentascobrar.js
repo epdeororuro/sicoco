@@ -172,8 +172,10 @@ function ListarDeudores() {
             {"data": null, "render": function(data) { return "<strong>Contrato: " + data.CONTRATO + "</strong><br><small class='text-muted'>Actividad: " + data.ACTIVIDAD + "</small>"; }},
             {"data": "MESES_MORA", "className": "text-center align-middle", "render": function(data) { return "<span class='badge badge-danger px-2 py-1' style='font-size: 14px;'>" + data + " Mes(es)</span>"; }},
             {"data": "DEUDA_TOTAL", "className": "text-center align-middle", "render": function(data) { return "<strong class='text-danger'>Bs. " + parseFloat(data).toFixed(2) + "</strong>"; }},
-            {"data": null, "className": "text-center align-middle", "render": function(data, type, row) {
-                return "<button class='CobrarDeuda btn btn-warning font-weight-bold shadow-sm' data-id='" + row.IDARRIENDO + "' data-cliente='" + row.CLIENTE + "' data-ci='" + row.CEDULA + "' data-contrato='" + row.CONTRATO + "'><i class='fas fa-hand-holding-usd'></i> Ver y Cobrar</button>";
+            {"data": null, "className": "text-center align-middle text-nowrap", "render": function(data, type, row) {
+                var btnCobrar = "<button class='CobrarDeuda btn btn-warning font-weight-bold shadow-sm' data-id='" + row.IDARRIENDO + "' data-cliente='" + row.CLIENTE + "' data-ci='" + row.CEDULA + "' data-contrato='" + row.CONTRATO + "'><i class='fas fa-hand-holding-usd'></i> Ver y Cobrar</button>";
+                var btnWa = "<button type='button' class='btn btn-success font-weight-bold shadow-sm ml-1' onclick='enviarRecordatorioDeudaCXC(\""+row.CLIENTE+"\", \""+row.CONTACTOS+"\", \""+row.CONTRATO+"\", \""+row.ACTIVIDAD+"\", "+row.DEUDA_TOTAL+", "+row.MESES_MORA+")' title='Enviar Recordatorio WhatsApp'><i class='fab fa-whatsapp'></i></button>";
+                return btnCobrar + btnWa;
             }}
         ]
     }); 
@@ -210,3 +212,25 @@ function CargarDetalleDeuda(idarriendo) {
         ]
     }); 
 }
+
+window.enviarRecordatorioDeudaCXC = function(cliente, contactos, contrato, actividad, totalDeuda, mesesMora) {
+    var celular = contactos ? contactos.trim() : '';
+    celular = celular.replace(/[^0-9]/g, '');
+    if (celular.length > 0 && !celular.startsWith('591')) {
+        celular = '591' + celular;
+    }
+    
+    if (celular === '' || celular === '591' || celular === '59100000000') {
+        Swal.fire('Atención', 'El cliente no tiene registrado un número de celular válido para notificar.', 'warning');
+        return;
+    }
+
+    var texto_wa = "⚠️ *EPDEOR - Alerta de Mora Contable*%0A%0A" +
+                   "Estimado(a) *" + cliente + "*, se registra en el sistema de la Empresa Pública Departamental de Oruro una deuda vencida (Cuentas por Cobrar) de gestiones anteriores correspondiente a su contrato *" + contrato + "* (" + (actividad ? actividad : 'Arrendamiento') + ").%0A%0A" +
+                   "• Meses en Mora: *" + mesesMora + " mes(es)*%0A" +
+                   "• Deuda Total Acumulada: *Bs. " + parseFloat(totalDeuda).toFixed(2) + "*%0A%0A" +
+                   "Le solicitamos pasar por oficinas de caja a la brevedad posible para regularizar su cuenta y evitar procesos administrativos. ¡Muchas gracias por su atención!";
+                   
+    var url_wa = "https://api.whatsapp.com/send?phone=" + celular + "&text=" + texto_wa;
+    window.open(url_wa, '_blank');
+};

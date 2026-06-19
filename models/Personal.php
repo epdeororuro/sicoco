@@ -30,39 +30,61 @@
 		}
 
 		public function lst(){
-			$sql = "SELECT * FROM PERSONAS WHERE TIPO_PERSONA LIKE '{$this->tipo_persona}' order by APELLIDOS ";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$sql = "SELECT * FROM PERSONAS WHERE TIPO_PERSONA LIKE ? order by APELLIDOS ";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->tipo_persona]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function add(){
-			$sql="CALL SP_INSERT_PERSONAS('{$this->nombres}', '{$this->apellidos}', '{$this->razon_social}', 
-			              '{$this->ci_nit}', '{$this->tipo_documento}', '{$this->direccion}','{$this->telefonos}' , 
-			              '{$this->correo}', '{$this->tipo_persona}')";
-			$datos=$this->con->consultaRetorno($sql);
-			return $datos;			
+			$sql="CALL SP_INSERT_PERSONAS(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([
+				$this->nombres,
+				$this->apellidos,
+				$this->razon_social,
+				$this->ci_nit,
+				$this->tipo_documento,
+				$this->direccion,
+				$this->telefonos,
+				$this->correo,
+				$this->tipo_persona
+			]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function del()
 		{
-			$sql="call SP_DEL_PERSONAS('{$this->idpersona}')";
-			$datos = $this->con->ConsultaRetorno($sql);
-			return $datos;
+			$sql="CALL SP_DEL_PERSONAS(?)";
+			$stmt = $this->con->conexion->prepare($sql);
+			$stmt->execute([$this->idpersona]);
+			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 		}
 
 		public function edit(){
-			$sql = "UPDATE personas SET NOMBRES  = UPPER('{$this->nombres}'), 
-			                         APELLIDOS   = UPPER('{$this->apellidos}'), 
-			                         RAZON_SOCIAL= UPPER('{$this->razon_social}'),
-			                         CI_NIT      = '{$this->ci_nit}', 
-			                         TIPO_DOCUMENTO=UPPER('{$this->tipo_documento}'),
-			                         DIRECCION   = UPPER('{$this->direccion}'),
-			                         TELEFONOS    = '{$this->telefonos}',
-			                         CORREO    = '{$this->correo}',
-			                         TIPO_PERSONA       = '{$this->tipo_persona}'			                         
-			        WHERE IDPERSONA = '{$this->idpersona}'";
-			$retorno= $this->con->consultaSimple($sql);
-			return $retorno;
+			$sql = "UPDATE personas SET NOMBRES  = UPPER(?), 
+			                         APELLIDOS   = UPPER(?), 
+			                         RAZON_SOCIAL= UPPER(?),
+			                         CI_NIT      = ?, 
+			                         TIPO_DOCUMENTO=UPPER(?),
+			                         DIRECCION   = UPPER(?),
+			                         TELEFONOS    = ?,
+			                         CORREO    = ?,
+			                         TIPO_PERSONA       = ?			                         
+			        WHERE IDPERSONA = ?";
+			$stmt = $this->con->conexion->prepare($sql);
+			return $stmt->execute([
+				$this->nombres,
+				$this->apellidos,
+				$this->razon_social,
+				$this->ci_nit,
+				$this->tipo_documento,
+				$this->direccion,
+				$this->telefonos,
+				$this->correo,
+				$this->tipo_persona,
+				$this->idpersona
+			]);
 		}
 		
 	}
