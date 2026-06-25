@@ -55,8 +55,15 @@ public function add()
 			{
 				$this->cliente->set("nombre", $_POST['txt_nombre']);
 				$this->cliente->set("cedula", $_POST['txt_cedula']);
-			$this->cliente->set("contactos", $_POST['txt_contactos']);
-			$this->cliente->set("direccion", $_POST['txt_direccion']);
+				$this->cliente->set("contactos", $_POST['txt_contactos']);
+				$this->cliente->set("direccion", $_POST['txt_direccion']);
+				
+				// Campos de referencia
+				$this->cliente->set("ref_nombre", isset($_POST['txt_ref_nombre']) ? $_POST['txt_ref_nombre'] : null);
+				$this->cliente->set("ref_parentesco", isset($_POST['txt_ref_parentesco']) ? $_POST['txt_ref_parentesco'] : null);
+				$this->cliente->set("ref_celular", isset($_POST['txt_ref_celular']) ? $_POST['txt_ref_celular'] : null);
+				$this->cliente->set("ref_direccion", isset($_POST['txt_ref_direccion']) ? $_POST['txt_ref_direccion'] : null);
+				$this->cliente->set("ref_coordenadas", isset($_POST['txt_ref_coordenadas']) ? $_POST['txt_ref_coordenadas'] : null);
 								
 				$datos=$this->cliente->add();	
 				$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;
@@ -89,8 +96,15 @@ public function edit()
 				$this->cliente->set("idcliente", $_POST['txt_idcliente']);
 				$this->cliente->set("nombre", $_POST['txt_nombre']);
 				$this->cliente->set("cedula", $_POST['txt_cedula']);
-			$this->cliente->set("contactos", $_POST['txt_contactos']);
-			$this->cliente->set("direccion", $_POST['txt_direccion']);
+				$this->cliente->set("contactos", $_POST['txt_contactos']);
+				$this->cliente->set("direccion", $_POST['txt_direccion']);
+				
+				// Campos de referencia
+				$this->cliente->set("ref_nombre", isset($_POST['txt_ref_nombre']) ? $_POST['txt_ref_nombre'] : null);
+				$this->cliente->set("ref_parentesco", isset($_POST['txt_ref_parentesco']) ? $_POST['txt_ref_parentesco'] : null);
+				$this->cliente->set("ref_celular", isset($_POST['txt_ref_celular']) ? $_POST['txt_ref_celular'] : null);
+				$this->cliente->set("ref_direccion", isset($_POST['txt_ref_direccion']) ? $_POST['txt_ref_direccion'] : null);
+				$this->cliente->set("ref_coordenadas", isset($_POST['txt_ref_coordenadas']) ? $_POST['txt_ref_coordenadas'] : null);
 				
 	        	$datos=$this->cliente->edit();	
 				$respuesta = (is_array($datos) && isset($datos[0]['OP'])) ? $datos[0]['OP'] : $datos;

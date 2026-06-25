@@ -10,6 +10,7 @@
 		private $contrato;
 		private $fecha_suscripcion;
 		private $fecha_inicio;
+		private $fecha_fin;
 		private $tiempo_contrato;
 		private $_contrato;
 		private $iddetalle;
@@ -43,7 +44,7 @@
 			// Se consulta directamente a las tablas para evitar el error de la vista v_contratos (columna NOMBRE)
 			// y se incluyen los contratos confirmados ('SI') además de los pendientes ('PR').
 			$sql = "SELECT a.IDARRIENDO, a.IDUSUARIO, a.IDCLIENTE, a.ACTIVIDAD, 
-			               a.RAZONSOCIAL, a.CONTRATO, a.FECHA_SUSCRIPCION, a.FECHA_INICIO, a.TIEMPOCONTRATO, 
+			               a.RAZONSOCIAL, a.CONTRATO, a.FECHA_SUSCRIPCION, a.FECHA_INICIO, a.FECHA_FIN, a.TIEMPOCONTRATO, 
 			               a.MONTO, a.OBSERVACIONES, a.VIGENTE, a.FECHA_REGISTRO,
 			               CONCAT(c.CEDULA, ' - ', c.NOMBRE_COMPLETO) AS REPRESENTANTE 
 			        FROM arriendos a 
@@ -91,7 +92,7 @@
 		}
 
 		public function obtener_contrato_completo(){
-			$sql = "SELECT a.IDARRIENDO, a.ACTIVIDAD, a.RAZONSOCIAL, a.CONTRATO, a.FECHA_SUSCRIPCION, a.FECHA_INICIO, a.TIEMPOCONTRATO, a.ARCHIVO_PDF,
+			$sql = "SELECT a.IDARRIENDO, a.ACTIVIDAD, a.RAZONSOCIAL, a.CONTRATO, a.FECHA_SUSCRIPCION, a.FECHA_INICIO, a.FECHA_FIN, a.TIEMPOCONTRATO, a.ARCHIVO_PDF,
 			               c.CEDULA, c.NOMBRES, c.PATERNO, c.MATERNO, c.CONTACTOS AS CELULAR, c.DIRECCION, c.LATITUD, c.LONGITUD,
 			               d.IDCATALOGO, cat.IDAREA, d.ALQUILER_NOMINAL AS ALQUILER
 			        FROM arriendos a 
@@ -105,7 +106,7 @@
 		}
 
 		public function add_unified(){
-			$sql = "CALL SP_NUEVO_ARRENDAMIENTO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			$sql = "CALL SP_NUEVO_ARRENDAMIENTO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			$stmt = $this->con->conexion->prepare($sql);
 			$stmt->execute([
 				$this->idusuario,
@@ -121,6 +122,7 @@
 				$this->contrato,
 				$this->fecha_suscripcion,
 				$this->fecha_inicio,
+				$this->fecha_fin,
 				$this->tiempo_contrato
 			]);
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -135,7 +137,7 @@
 		}
 
 		public function edit(){
-			$sql="CALL SP_MOD_ARRENDAMIENTO_UNIFICADO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			$sql="CALL SP_MOD_ARRENDAMIENTO_UNIFICADO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			$stmt = $this->con->conexion->prepare($sql);
 			$stmt->execute([
 				$this->idcontrato,
@@ -151,6 +153,7 @@
 				$this->contrato,
 				$this->fecha_suscripcion,
 				$this->fecha_inicio,
+				$this->fecha_fin,
 				$this->tiempo_contrato
 			]);
 			return $stmt->fetchAll(\PDO::FETCH_ASSOC);

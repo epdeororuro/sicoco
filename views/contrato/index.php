@@ -151,7 +151,7 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label>Cédula de Identidad</label>
+                                <label>Cédula de Identidad <span id="referencia_status_badge" class="ml-1"></span></label>
                                 <input type="text" class="form-control" name="txt_cedula" id="txt_cedula" placeholder="Nro de CI" required>
                                 <small class="text-muted" style="font-size: 0.75rem;">Si existe, se autocompletará.</small>
                             </div>
@@ -233,11 +233,30 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row align-items-center">
+                    
+                    <div class="row mt-2">
+                        <div class="col-md-6 d-flex align-items-center">
+                            <div class="custom-control custom-checkbox my-2">
+                                <input class="custom-control-input" type="checkbox" id="chk_temporal" name="chk_temporal">
+                                <label for="chk_temporal" class="custom-control-label font-weight-bold text-guindo" style="cursor: pointer;">¿Es un Contrato Temporal?</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="div_fecha_fin" style="display: none;">
+                            <div class="form-group mb-2">
+                                <label class="text-guindo font-weight-bold">Fecha de Fin <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="txt_fecha_fin" name="txt_fecha_fin">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center mt-3">
                         <div class="col-md-12">
                             <input type="hidden" id="txt_tiempo" name="txt_tiempo" value="1">
-                            <div class="alert alert-info mb-0 py-2">
+                            <div class="alert alert-info py-2 mb-2">
                                 <i class="fas fa-clock"></i> <span id="texto_duracion">Seleccione la Fecha de Inicio para calcular el tiempo del contrato.</span>
+                            </div>
+                            <div class="alert alert-success py-2 mb-0 font-weight-bold" id="alert_prorrateo_temporal" style="display: none;">
+                                <i class="fas fa-calculator"></i> <span id="texto_prorrateo"></span>
                             </div>
                         </div>
                     </div>

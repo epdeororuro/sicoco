@@ -139,7 +139,8 @@ public function add()
 				empty($_POST['txt_contrato']) ||
 				empty($_POST['txt_fecha_suscripcion']) ||
 		    	empty($_POST['txt_fecha_inicio'])||
-		    	empty($_POST['txt_tiempo']))
+		    	empty($_POST['txt_tiempo']) ||
+		    	(isset($_POST['chk_temporal']) && empty($_POST['txt_fecha_fin'])))
 			{
 				echo json_encode(['status' => 'error', 'message' => 'Debe Completar los Datos, Todos los Campos son Obligatorios']);				
 			}
@@ -171,6 +172,7 @@ public function add()
 				$this->contrato->set("contrato", $_POST['txt_contrato']);
 				$this->contrato->set("fecha_suscripcion", $_POST['txt_fecha_suscripcion']);
 				$this->contrato->set("fecha_inicio", $_POST['txt_fecha_inicio']);
+				$this->contrato->set("fecha_fin", (isset($_POST['chk_temporal']) && !empty($_POST['txt_fecha_fin'])) ? $_POST['txt_fecha_fin'] : null);
 				$this->contrato->set("tiempo_contrato", $_POST['txt_tiempo']);
 								
 				// Llamada al nuevo método unificado
@@ -225,7 +227,8 @@ public function edit()
 				empty($_POST['txt_contrato']) ||
 				empty($_POST['txt_fecha_suscripcion']) ||
 		    	empty($_POST['txt_fecha_inicio'])||
-		    	empty($_POST['txt_tiempo']))
+		    	empty($_POST['txt_tiempo']) ||
+		    	(isset($_POST['chk_temporal']) && empty($_POST['txt_fecha_fin'])))
 			{
 				echo json_encode(['status' => 'error', 'message' => 'Debe Completar los Datos, Todos los Campos son Obligatorios']);				
 			}
@@ -250,6 +253,7 @@ public function edit()
 				$this->contrato->set("contrato", $_POST['txt_contrato']);
 				$this->contrato->set("fecha_suscripcion", $_POST['txt_fecha_suscripcion']);
 				$this->contrato->set("fecha_inicio", $_POST['txt_fecha_inicio']);
+				$this->contrato->set("fecha_fin", (isset($_POST['chk_temporal']) && !empty($_POST['txt_fecha_fin'])) ? $_POST['txt_fecha_fin'] : null);
 				$this->contrato->set("tiempo_contrato", $_POST['txt_tiempo']);
 				
 	        	$datos=$this->contrato->edit();	

@@ -20,29 +20,42 @@
                             <input type="date" id="fecha_inicio_reporte" class="form-control form-control-sm mr-2 shadow-sm" value="<?php echo date('Y-m-01'); ?>" max="<?php echo date('Y-m-d'); ?>">
                             <label class="mr-2 font-weight-bold text-secondary">al:</label>
                             <input type="date" id="fecha_fin_reporte" class="form-control form-control-sm mr-2 shadow-sm" value="<?php echo date('Y-m-d'); ?>" max="<?php echo date('Y-m-d'); ?>">
-                            <button id="btn_generar_reporte" class="btn btn-guindo btn-sm font-weight-bold shadow-sm" title="Imprimir PDF">
-                                <i class="fas fa-print"></i> Generar Cierre
+                            <button id="btn_filtrar_reporte" class="btn btn-primary btn-sm font-weight-bold mr-2 shadow-sm" title="Filtrar Tabla">
+                                <i class="fas fa-search"></i> Filtrar
+                            </button>
+                            <button id="btn_generar_reporte" class="btn btn-success btn-sm font-weight-bold shadow-sm" title="Imprimir PDF">
+                                <i class="fas fa-file-pdf"></i> Generar Reporte PDF
                             </button>
                         </div>
                     </div>
                     
                     <div class="card-body">
-                        <table id="TablaLogsCierres" class="table table-bordered table-striped table-hover table-sm" style="width:100%">
+                        <table id="TablaReporteIngresos" class="table table-bordered table-striped table-hover table-sm" style="width:100%">
                             <thead class="bg-guindo">
                                 <tr>
-                                    <th>Fecha Inicio</th>
-                                    <th>Fecha Fin</th>
-                                    <th>Fecha/Hora de Generación</th>
-                                    <th>Usuario que Generó</th>
+                                    <th>Nº</th>
+                                    <th>Nro. Recibo</th>
+                                    <th>Fecha y Hora</th>
+                                    <th>Cliente</th>
+                                    <th>Contrato</th>
+                                    <th>Periodos Cobrados</th>
+                                    <th>Total (Bs.)</th>
+                                    <th>Cajero</th>
+                                    <th>Estado</th>
                                     <th>Acción</th>
                                 </tr>
                             </thead>
                             <tfoot class="bg-guindo">
                                 <tr>
-                                    <th>Fecha Inicio</th>
-                                    <th>Fecha Fin</th>
-                                    <th>Fecha/Hora de Generación</th>
-                                    <th>Usuario que Generó</th>
+                                    <th>Nº</th>
+                                    <th>Nro. Recibo</th>
+                                    <th>Fecha y Hora</th>
+                                    <th>Cliente</th>
+                                    <th>Contrato</th>
+                                    <th>Periodos Cobrados</th>
+                                    <th>Total (Bs.)</th>
+                                    <th>Cajero</th>
+                                    <th>Estado</th>
                                     <th>Acción</th>
                                 </tr>
                             </tfoot>

@@ -120,6 +120,44 @@
                         </div>
                     </div>
 
+                    <!-- Datos del Contacto de Referencia -->
+                    <h5 class="text-guindo border-bottom pb-2 mb-3 mt-4"><i class="fas fa-id-card"></i> Contacto de Referencia y Ubicación</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nombre del Referente</label>
+                                <input type="text" class="form-control text-uppercase" id="txt_ref_nombre" name="txt_ref_nombre" placeholder="Nombre completo del familiar/referente">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Parentesco / Relación</label>
+                                <input type="text" class="form-control text-uppercase" id="txt_ref_parentesco" name="txt_ref_parentesco" placeholder="Ej. Hermano, Tío, Primo">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Celular Referente</label>
+                                <input type="text" class="form-control" id="txt_ref_celular" name="txt_ref_celular" placeholder="Ej. 6040XXXX">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-7">
+                            <div class="form-group">
+                                <label>Dirección Referente</label>
+                                <input type="text" class="form-control text-uppercase" id="txt_ref_direccion" name="txt_ref_direccion" placeholder="Calle, Nro, Zona del referente">
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label>Coordenadas (Latitud, Longitud)</label>
+                                <input type="text" class="form-control" id="txt_ref_coordenadas" name="txt_ref_coordenadas" placeholder="Ej. -17.96213,-67.12351">
+                                <small class="form-text text-muted">Ej: -17.960241, -67.112105</small>
+                            </div>
+                        </div>
+                    </div>
+
                 </form>
               </div>
 
@@ -182,6 +220,13 @@
         document.getElementsByName("txt_cedula")[0].value = data.CEDULA;
         document.getElementsByName("txt_contactos")[0].value = data.CONTACTOS;
         document.getElementsByName("txt_direccion")[0].value = data.DIRECCION;
+        
+        // Cargar nuevos campos de referencia
+        document.getElementsByName("txt_ref_nombre")[0].value = data.REF_NOMBRE ? data.REF_NOMBRE : "";
+        document.getElementsByName("txt_ref_parentesco")[0].value = data.REF_PARENTESCO ? data.REF_PARENTESCO : "";
+        document.getElementsByName("txt_ref_celular")[0].value = data.REF_CELULAR ? data.REF_CELULAR : "";
+        document.getElementsByName("txt_ref_direccion")[0].value = data.REF_DIRECCION ? data.REF_DIRECCION : "";
+        document.getElementsByName("txt_ref_coordenadas")[0].value = data.REF_COORDENADAS ? data.REF_COORDENADAS : "";
       });
 
       // Eliminación del Registro
@@ -202,6 +247,35 @@
           if (result.isConfirmed) {
             EliminarCliente(data.IDCLIENTE);
           }
+        });
+      });
+
+      // Visualización de Referencia en Swal
+      $(document).on('click', '.VerReferencia', function(e) {
+        e.preventDefault();
+        var fila = $(this).closest("tr");
+        var data = $("#TablaCliente").DataTable().row(fila).data();
+        
+        var mapaLink = '';
+        if (data.REF_COORDENADAS) {
+            mapaLink = '<br><br><a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(data.REF_COORDENADAS) + '" target="_blank" class="btn btn-sm btn-success text-white"><i class="fas fa-map-marked-alt"></i> Ver en Google Maps</a>';
+        }
+
+        Swal.fire({
+            title: '<strong class="text-guindo"><i class="fas fa-id-card"></i> Contacto de Referencia</strong>',
+            icon: 'info',
+            html:
+                '<div class="text-left p-2 border rounded bg-light" style="font-size: 0.95rem; line-height: 1.6;">' +
+                '<strong>Nombre del Referente:</strong> ' + (data.REF_NOMBRE || 'N/A') + '<br>' +
+                '<strong>Relación / Parentesco:</strong> ' + (data.REF_PARENTESCO || 'N/A') + '<br>' +
+                '<strong>Celular / Contacto:</strong> ' + (data.REF_CELULAR || 'N/A') + '<br>' +
+                '<strong>Dirección de Domicilio:</strong> ' + (data.REF_DIRECCION || 'N/A') + '<br>' +
+                '<strong>Coordenadas GPS:</strong> ' + (data.REF_COORDENADAS || 'N/A') + 
+                mapaLink +
+                '</div>',
+            showCloseButton: true,
+            confirmButtonText: 'Cerrar',
+            confirmButtonColor: '#701a27'
         });
       });
    });

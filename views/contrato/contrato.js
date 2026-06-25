@@ -29,12 +29,20 @@ function LimpiarCamposContrato()
   document.getElementsByName("txt_fecha_inicio")[0].value = "";
   $("#txt_fecha_inicio").removeAttr("min");
   $("#btn_recomendacion_inicio").hide();
+  
+  // Limpiar campos temporales
+  $("#chk_temporal").prop("checked", false);
+  $("#div_fecha_fin").hide();
+  $("#txt_fecha_fin").val("").removeAttr("required");
+  $("#alert_prorrateo_temporal").hide();
+
   document.getElementsByName("txt_tiempo")[0].value = "1";
   $("#texto_duracion").text("Seleccione la Fecha de Inicio para calcular el tiempo del contrato.");
 
   // Limpiar inputs del cliente
   $("#txt_cedula, #txt_nombres, #txt_paterno, #txt_materno").val('');
-  $("#txt_celular, #txt_direccion").val(''); // #txt_latitud, #txt_longitud removidos temporalmente
+  $("#txt_celular, #txt_direccion").val(''); 
+  $("#referencia_status_badge").empty();
 } // fin LimpiarCamposContrato()
 
 
@@ -513,39 +521,141 @@ $(document).ready(function(){
       }
   });
 
-  // Auto-calcular meses y días hasta final de año al cambiar Fecha Inicio
+  // Auto-calcular duración al cambiar Fecha Inicio
   $("#txt_fecha_inicio").on('change', function(){
       var fecha = $(this).val();
       if(fecha){
-          var partes = fecha.split('-');
-          var anio = parseInt(partes[0]);
-          var mes = parseInt(partes[1]);
-          var dia = parseInt(partes[2]);
-          
-          var diasEnMes = new Date(anio, mes, 0).getDate();
-          var diasRestantes = diasEnMes - dia + 1;
-          var mesesRestantes = 12 - mes;
-          
-          if (diasRestantes === diasEnMes) {
-              mesesRestantes += 1;
-              diasRestantes = 0;
+          var isTemporal = $("#chk_temporal").is(":checked");
+          if (isTemporal) {
+              $("#txt_fecha_fin").attr('min', fecha);
+              if ($("#txt_fecha_fin").val() && $("#txt_fecha_fin").val() < fecha) {
+                  $("#txt_fecha_fin").val(fecha);
+              }
+              CalcularDetalleTemporal();
+          } else {
+              var partes = fecha.split('-');
+              var anio = parseInt(partes[0]);
+              var mes = parseInt(partes[1]);
+              var dia = parseInt(partes[2]);
+              
+              var diasEnMes = new Date(anio, mes, 0).getDate();
+              var diasRestantes = diasEnMes - dia + 1;
+              var mesesRestantes = 12 - mes;
+              
+              if (diasRestantes === diasEnMes) {
+                  mesesRestantes += 1;
+                  diasRestantes = 0;
+              }
+              
+              var textoMeses = mesesRestantes > 0 ? mesesRestantes + (mesesRestantes === 1 ? " mes" : " meses") : "";
+              var textoDias = diasRestantes > 0 ? diasRestantes + (diasRestantes === 1 ? " día" : " días") : "";
+              var union = (mesesRestantes > 0 && diasRestantes > 0) ? " y " : "";
+              
+              $("#texto_duracion").text("Se está estableciendo un contrato por " + textoMeses + union + textoDias + " hasta fin de año.");
+              $("#txt_tiempo").val(mesesRestantes + (diasRestantes > 0 ? 1 : 0));
           }
-          
-          var textoMeses = mesesRestantes > 0 ? mesesRestantes + (mesesRestantes === 1 ? " mes" : " meses") : "";
-          var textoDias = diasRestantes > 0 ? diasRestantes + (diasRestantes === 1 ? " día" : " días") : "";
-          var union = (mesesRestantes > 0 && diasRestantes > 0) ? " y " : "";
-          
-          $("#texto_duracion").text("Se está estableciendo un contrato por " + textoMeses + union + textoDias + " hasta fin de año.");
-          $("#txt_tiempo").val(mesesRestantes + (diasRestantes > 0 ? 1 : 0));
-      } else {
-          $("#txt_tiempo").val(1);
-          $("#texto_duracion").text("Seleccione la Fecha de Inicio para calcular el tiempo del contrato.");
       }
   });
+
+  // Manejo del checkbox de Contrato Temporal
+  $("#chk_temporal").on('change', function(){
+      var isChecked = $(this).is(":checked");
+      if(isChecked) {
+          $("#div_fecha_fin").show("slow");
+          $("#txt_fecha_fin").attr("required", true);
+          var fechaInicio = $("#txt_fecha_inicio").val();
+          if(fechaInicio) {
+              $("#txt_fecha_fin").attr('min', fechaInicio);
+          }
+          CalcularDetalleTemporal();
+      } else {
+          $("#div_fecha_fin").hide("slow");
+          $("#txt_fecha_fin").val("").removeAttr("required");
+          $("#alert_prorrateo_temporal").hide();
+          var fechaInicio = $("#txt_fecha_inicio").val();
+          if(fechaInicio) {
+              $("#txt_fecha_inicio").trigger('change');
+          } else {
+              $("#texto_duracion").text("Seleccione la Fecha de Inicio para calcular el tiempo del contrato.");
+              $("#txt_tiempo").val(1);
+          }
+      }
+  });
+
+  // Escuchar cambio en Fecha Fin
+  $("#txt_fecha_fin").on('change', function(){
+      CalcularDetalleTemporal();
+  });
+
+  // Escuchar cambio en SelItemCatalogo para recalcular prorrata en tiempo real si es temporal
+  $("#SelItemCatalogo").on('change', function(){
+      var isTemporal = $("#chk_temporal").is(":checked");
+      if(isTemporal) {
+          // Dejar que primero se actualice el input de precio base
+          setTimeout(function() {
+              CalcularDetalleTemporal();
+          }, 100);
+      }
+  });
+
+  function CalcularDetalleTemporal() {
+      var isTemporal = $("#chk_temporal").is(":checked");
+      var fechaInicio = $("#txt_fecha_inicio").val();
+      var fechaFin = $("#txt_fecha_fin").val();
+      var precioBase = parseFloat($("#txt_alquiler_ref").val()) || 0;
+
+      if (!isTemporal) {
+          $("#alert_prorrateo_temporal").hide();
+          return;
+      }
+
+      if (fechaInicio && fechaFin) {
+          var start = new Date(fechaInicio + "T00:00:00");
+          var end = new Date(fechaFin + "T00:00:00");
+
+          if (end < start) {
+              $("#texto_duracion").text("La fecha de fin no puede ser menor a la fecha de inicio.");
+              $("#alert_prorrateo_temporal").hide();
+              $("#txt_tiempo").val(0);
+              return;
+          }
+
+          // Calcular diferencia en días (inclusive)
+          var diffTime = Math.abs(end - start);
+          var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+          // Obtener días reales del mes de inicio
+          var partes = fechaInicio.split('-');
+          var anio = parseInt(partes[0]);
+          var mes = parseInt(partes[1]);
+          var diasEnMes = new Date(anio, mes, 0).getDate();
+
+          var prorrateado = 0;
+          if (diasEnMes > 0 && precioBase > 0) {
+              prorrateado = (precioBase / diasEnMes) * diffDays;
+              prorrateado = Math.round(prorrateado * 100) / 100;
+          }
+
+          $("#texto_duracion").text("Se está estableciendo un contrato temporal por " + diffDays + (diffDays === 1 ? " día." : " días."));
+          $("#texto_prorrateo").html("Alquiler Prorrateado Total: <span style='font-size: 1.1rem; text-decoration: underline;'>" + prorrateado.toFixed(2) + "</span> Bs. (Tarifa diaria: " + (precioBase / diasEnMes).toFixed(2) + " Bs. x " + diffDays + " días en " + mesesEsp(mes) + ")");
+          $("#alert_prorrateo_temporal").show();
+          $("#txt_tiempo").val(diffDays);
+      } else {
+          $("#texto_duracion").text("Complete las fechas de inicio y fin para calcular el tiempo del contrato temporal.");
+          $("#alert_prorrateo_temporal").hide();
+          $("#txt_tiempo").val(0);
+      }
+  }
+
+  function mesesEsp(mesIndex) {
+      var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      return meses[mesIndex - 1];
+  }
 
   // Autocompletar datos del cliente al ingresar la Cédula (CI)
   $("#txt_cedula").on('blur', function() {
     var ci = $(this).val().trim();
+    $("#referencia_status_badge").empty();
     
     if (ci.length > 0) {
         $(this).addClass('is-warning');
@@ -564,11 +674,13 @@ $(document).ready(function(){
                     $("#txt_materno").val(response.data.MATERNO);
                     $("#txt_celular").val(response.data.CONTACTOS);
                     $("#txt_direccion").val(response.data.DIRECCION);
-                    // $("#txt_latitud").val(response.data.LATITUD);
-                    // $("#txt_longitud").val(response.data.LONGITUD);
                     
-                    // Centrar el marcador en el mapa si este cliente ya tiene coordenadas guardadas
-                    // colocarMarcador(response.data.LATITUD, response.data.LONGITUD);
+                    // Mostrar badge del estado del contacto de referencia
+                    if (response.data.REF_NOMBRE && response.data.REF_NOMBRE !== '') {
+                        $("#referencia_status_badge").html("<span class='badge badge-success' style='font-size:0.75rem;' title='Referencia Registrada'><i class='fas fa-check-circle'></i> Referencia Ok</span>");
+                    } else {
+                        $("#referencia_status_badge").html("<span class='badge badge-warning text-dark' style='font-size:0.75rem;' title='Falta registrar referencia en Directorio de Clientes'><i class='fas fa-exclamation-triangle'></i> Sin Referencia</span>");
+                    }
                     
                     Swal.fire({
                         toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
@@ -576,7 +688,7 @@ $(document).ready(function(){
                     });
                 } else {
                     $("#txt_nombres, #txt_paterno, #txt_materno, #txt_celular, #txt_direccion").val('');
-                    // $("#txt_latitud, #txt_longitud").val('');
+                    $("#referencia_status_badge").html("<span class='badge badge-secondary' style='font-size:0.75rem;' title='Cliente nuevo por registrar'><i class='fas fa-plus-circle'></i> Nuevo Cliente</span>");
                 }
             },
             error: function() {
@@ -619,9 +731,21 @@ $(document).on('click', '.EditarContrato', function(e){
               $("#txt_fecha_suscripcion").val(d.FECHA_SUSCRIPCION);
               $("#txt_fecha_inicio").val(d.FECHA_INICIO);
               
-              // Disparar evento para auto-calcular la frase y luego asignar el tiempo exacto guardado
-              $("#txt_fecha_inicio").trigger('change');
-              $("#txt_tiempo").val(d.TIEMPOCONTRATO); 
+              if (d.FECHA_FIN) {
+                  $("#chk_temporal").prop("checked", true);
+                  $("#div_fecha_fin").show();
+                  $("#txt_fecha_fin").val(d.FECHA_FIN).attr("required", true);
+                  setTimeout(function() {
+                      CalcularDetalleTemporal();
+                      $("#txt_tiempo").val(d.TIEMPOCONTRATO);
+                  }, 400);
+              } else {
+                  $("#chk_temporal").prop("checked", false);
+                  $("#div_fecha_fin").hide();
+                  $("#txt_fecha_fin").val("").removeAttr("required");
+                  $("#txt_fecha_inicio").trigger('change');
+                  $("#txt_tiempo").val(d.TIEMPOCONTRATO);
+              }
 
               // 2. Llenar cliente
               $("#txt_cedula").val(d.CEDULA);
@@ -819,6 +943,9 @@ function ListarContrato(){
       {"data": "FECHA_INICIO"},
       {"data": "FECHA_SUSCRIPCION"},
       {"data": "FECHA_INICIO", "render": function(data, type, row) {
+          if (row.FECHA_FIN) {
+              return row.TIEMPOCONTRATO + (row.TIEMPOCONTRATO == 1 ? " día (Temporal)" : " días (Temporal)");
+          }
           if (!data) return row.TIEMPOCONTRATO + " meses";
           var partes = data.split('-');
           var anio = parseInt(partes[0]);
